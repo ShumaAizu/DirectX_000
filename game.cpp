@@ -50,6 +50,7 @@ void InitGame(void)
 	// “G‚ÌƒZƒbƒgˆ—
 	srand((unsigned)timeGetTime());
 
+	// •Ï”éŒ¾
 	float nCntX = 390.0f, nCntY = 100.0f;
 	int nCnt1, nCnt2;
 
