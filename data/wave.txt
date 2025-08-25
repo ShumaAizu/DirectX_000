@@ -1,0 +1,9 @@
+
+NUM_ENEMY = 10
+
+
+SET
+POS = 100.0 200.0 0.0
+ROT = 0.0 0.0 0.0
+TYPE = 0
+ENDSET

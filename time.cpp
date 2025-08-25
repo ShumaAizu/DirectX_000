@@ -1,0 +1,208 @@
+//=============================================================================
+//
+//	制限時間処理 [time.cpp]
+//	Author : SHUMA AIZU
+// 
+//=============================================================================
+
+#include "main.h"
+#include "time.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
+#define NUM_PLACE		(3)			// 制限時間の桁数
+#define TIME_POSX		(565)		// 制限時間の座標X
+#define TIME_POSY		(0)			// 制限時間の座標Y
+#define TIME_SIZEX		(50)		// 制限時間のサイズX
+#define TIME_SIZEY		(75)		// 制限時間のサイズY
+#define LIMIT_TIME		(30)		// 制限時間
+
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
+LPDIRECT3DTEXTURE9 g_pTextureTime = NULL;				// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTime = NULL;			// 頂点バッファへのポインタ
+D3DXVECTOR3 g_posTime;									// スコアの位置
+int g_nTime;											// スコアの値
+
+//=============================================================================
+//	制限時間の初期化処理
+//=============================================================================
+void InitTime(void)
+{
+	// デバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	int nCntTime = 0;
+
+	// 初期化
+	g_posTime = D3DXVECTOR3(TIME_POSX, TIME_POSY, 0.0f);
+	g_nTime = 0;
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(pDevice,"data\\TEXTURE\\number000.png", &g_pTextureTime);
+
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * NUM_PLACE,		// 桁の数だけ
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&g_pVtxBuffTime,
+		NULL);
+
+	// 初期化
+	g_nTime = LIMIT_TIME;
+
+	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffTime->Lock(0, 0, (void * *)&pVtx, 0);
+
+	for (nCntTime = 0; nCntTime < NUM_PLACE; nCntTime++)
+	{
+		// 頂点座標の設定
+		pVtx[0].pos = D3DXVECTOR3(TIME_POSX + (nCntTime * TIME_SIZEX), TIME_POSY, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(TIME_POSX + (nCntTime * TIME_SIZEX) + TIME_SIZEX, TIME_POSY, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(TIME_POSX + (nCntTime * TIME_SIZEX), TIME_POSY + TIME_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(TIME_POSX + (nCntTime * TIME_SIZEX) + TIME_SIZEX, TIME_POSY + TIME_SIZEY, 0.0f);
+
+		// rhwの設定
+		pVtx[0].rhw = 1.0f;
+		pVtx[1].rhw = 1.0f;
+		pVtx[2].rhw = 1.0f;
+		pVtx[3].rhw = 1.0f;
+
+		// 頂点カラーの設定
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+
+		// テクスチャ座標の設定
+		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(0.1f, 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(0.1f, 1.0f);
+
+		pVtx += 4;			// 頂点データのポインタを4つ分進める
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffTime->Unlock();
+}
+
+//====================================
+//	制限時間の終了処理
+//====================================
+void UninitTime(void)
+{
+	// テクスチャの破棄
+	if (g_pTextureTime != NULL)
+	{
+		g_pTextureTime->Release();
+		g_pTextureTime = NULL;
+	}
+
+	// 頂点バッファの破棄
+	if (g_pVtxBuffTime != NULL)
+	{
+		g_pVtxBuffTime->Release();
+		g_pVtxBuffTime = NULL;
+	}
+}
+
+//====================================
+//	制限時間の描画処理
+//====================================
+void DrawTime(void)
+{
+	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
+	int nCntNumber;
+
+	// デバイスの取得
+	pDevice = GetDevice();
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, g_pVtxBuffTime, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, g_pTextureTime);
+
+	for (nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
+	{
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntNumber * 4, 2);
+	}
+}
+
+//====================================
+//	制限時間の更新処理
+//====================================
+void UpdateTime(void)
+{
+	static int nTimeCounter = 0;
+	int aTexU[NUM_PLACE];		// 各桁の数字を格納
+	int nCntNumber = 0;
+
+	nTimeCounter++;
+	if (nTimeCounter % 60 == 0)
+	{
+		g_nTime--;
+		nTimeCounter = 0;
+	}
+
+	if (g_nTime <= 0)
+	{
+		g_nTime = 0;
+	}
+
+	aTexU[0] = g_nTime % 1000 / 100;
+	aTexU[1] = g_nTime % 100 / 10;
+	aTexU[2] = g_nTime % 10 / 1;
+
+	// テクスチャ座標の設定
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffTime->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
+	{
+		// テクスチャ座標の設定
+		pVtx[0].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 1.0f);
+
+		if (g_nTime <= 10)
+		{
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		pVtx += 4;
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffTime->Unlock();
+}
+
+//====================================
+//	制限時間の確認処理
+//====================================
+bool CheckTime(void)
+{
+	if (g_nTime <= 0)
+	{
+		return false;
+	}
+
+	return true;
+}
