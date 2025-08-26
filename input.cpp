@@ -188,20 +188,20 @@ bool GetKeyboardRelease(int nKey)
 bool GetKeyboardRepeat(int nKey)
 {
 	// フレームカウンターを宣言
-	int static nFrameCounter = 0;
+	int static nFrameCounter[NUM_KEY_MAX] = {};
 
 	if (g_aKeyStateTrigger[nKey] & 0x80)
 	{// 最初はトリガー
-		nFrameCounter = 0;		// フレームカウンターをリセット
-		return true;			// trueを返して終了
+		nFrameCounter[nKey] = 0;		// フレームカウンターをリセット
+		return true;					// trueを返して終了
 	}
 
 	if (g_aKeyStateRepeat[nKey] & 0x80)
 	{// リピートしてるなら入る
-   		nFrameCounter++;		// フレームカウンターを増やす
-		if (nFrameCounter >= 30)
+   		nFrameCounter[nKey]++;		// フレームカウンターを増やす
+		if (nFrameCounter[nKey] >= 30)
 		{// カウントが一定以上なら
-			if (nFrameCounter % 10 == 0)
+			if (nFrameCounter[nKey] % 10 == 0)
 			{// 一定間隔ごとにtrueを返す
 				return true;
 			}

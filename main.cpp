@@ -41,7 +41,6 @@ void DrawControl(void);
 //*****************************************************************************
 LPDIRECT3D9 g_pD3D = NULL;					// Direct3Dオブジェクトへのポインタ
 LPDIRECT3DDEVICE9 g_pD3DDevice = NULL;		// Direct3Dデバイスへのポインタ
-bool g_bPause = false;						// ポーズ状態のON/OFF
 MODE g_mode = MODE_TITLE;					// モード情報
 LPD3DXFONT g_pFont = NULL;					// フォントへのポインタ
 int g_nCountFPS = 0;						// FPSカウンタ
@@ -402,41 +401,31 @@ void Update(void)
 	// ジョイパッドの更新処理
 	UpdateJoypad();
 
-	if (g_bPause == false)
+	switch (g_mode)
 	{
-		switch (g_mode)
-		{
-			// タイトルモード
-		case MODE_TITLE:
-			UpdateTitle();
-			break;
+		// タイトルモード
+	case MODE_TITLE:
+		UpdateTitle();
+		break;
 
-			// ゲームモード
-		case MODE_GAME:
-			UpdateGame();
-			break;
+		// ゲームモード
+	case MODE_GAME:
+		UpdateGame();
+		break;
 
-			// リザルトモード
-		case MODE_RESULT:
-			UpdateResult();
-			break;
+		// リザルトモード
+	case MODE_RESULT:
+		UpdateResult();
+		break;
 
-			// ランキングモード
-		case MODE_RANKING:
-			UpdateRanking();
-			break;
-		}
-
-		// フェードの更新処理
-		UpdateFade();
+		// ランキングモード
+	case MODE_RANKING:
+		UpdateRanking();
+		break;
 	}
 
-	// ポーズ状態
-	if (GetKeyboardTrigger(DIK_P) == true || (GetJoypadTrigger(JOYKEY_START) == true && g_mode == MODE_GAME))
-	{// Pキーが押されたら
-		g_bPause = g_bPause ? false : true;		// ポーズ状態を切り替える
-	}
-
+	// フェードの更新処理
+	UpdateFade();
 }
 
 //===============================================================================
@@ -574,7 +563,6 @@ void DrawDebug(void)
 
 	char aStr[256] = {};		// 画面に表示する文字列
 	char aStr1[256] = {};		// 画面に表示する文字列
-
 
 	XINPUT_STATE* pjoystate = GetJoypadState();
 	Player* pPlayer = GetPlayer();

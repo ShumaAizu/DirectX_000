@@ -20,12 +20,14 @@
 #include "time.h"
 #include "life.h"
 #include "stock.h"
+#include "pause.h"
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 GAMEEND g_gameend = GAMEEND_MAX;			// 終了条件の情報
-bool g_bGameend = false;
+bool g_bGameend = false;					// 終了するかどうか
+bool g_bPause = false;						// ポーズ中かどうか
 
 //========================================
 //	ゲーム画面の初期化処理
@@ -80,8 +82,14 @@ void InitGame(void)
 	// 残機の初期化
 	InitStock();
 
+	// ポーズメニューの初期化
+	InitPause();
+
 	// 終了条件を初期化
 	g_bGameend = false;
+
+	// ポーズ状態の初期化
+	g_bPause = false;
 
 	// サウンドの再生
 	PlaySound(SOUND_LABEL_BGM001);
@@ -125,6 +133,9 @@ void UninitGame(void)
 	// 残機の終了処理
 	UninitStock();
 
+	// ポーズメニューの終了処理
+	UninitPause();
+
 	// サウンドを止める
 	StopSound();
 }
@@ -134,64 +145,77 @@ void UninitGame(void)
 //========================================
 void UpdateGame(void)
 {
-	// 背景の更新処理
-	UpdateBg();
-
-	// プレイヤーの更新処理
-	UpdatePlayer();
-
-	// 弾の更新処理
-	UpdateBullet();
-
-	// 爆発の更新処理
-	UpdateExplosion();
-
-	// 敵の更新処理
-	UpdateEnemy();
-
-	// スコアの更新処理
-	UpdateScore();
-
-	// エフェクトの更新処理
-	UpdateEffect();
-
-	// オプションの更新処理
-	UpdateOption();
-
-	// 制限時間の更新処理
-	UpdateTime();
-
-	// ライフの更新処理
-	UpdateLife();
-
-	// 残機の更新処理
-	UpdateStock();
-
-	// プレイヤーの情報を取得
-	Player* pPlayer = GetPlayer();
-
-	static int nGameEndCounter = 0;
-
-	if (CheckEnemy() == false)
-	{
-		g_bGameend = true;
-		g_gameend = GAMEEND_CLEAR;
-	}
-	else if (pPlayer->state == PLAYERSTATE_DEATH || CheckTime() == false)
-	{
-		g_bGameend = true;
-		g_gameend = GAMEEND_GAMEOVER;
+	if (GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true)
+	{// ポーズキーが押された
+		g_bPause = g_bPause ? false : true;		// ポーズ状態を切り替える
 	}
 
-	// ゲーム終了条件
-	if (g_bGameend == true)
+	if (g_bPause == true)
+	{// ポーズ中なら
+		// ポーズの更新処理
+		UpdatePause();
+	}
+	else
 	{
-		nGameEndCounter++;
-		if (nGameEndCounter % 60 == 0)
+		// 背景の更新処理
+		UpdateBg();
+
+		// プレイヤーの更新処理
+		UpdatePlayer();
+
+		// 弾の更新処理
+		UpdateBullet();
+
+		// 爆発の更新処理
+		UpdateExplosion();
+
+		// 敵の更新処理
+		UpdateEnemy();
+
+		// スコアの更新処理
+		UpdateScore();
+
+		// エフェクトの更新処理
+		UpdateEffect();
+
+		// オプションの更新処理
+		UpdateOption();
+
+		// 制限時間の更新処理
+		UpdateTime();
+
+		// ライフの更新処理
+		UpdateLife();
+
+		// 残機の更新処理
+		UpdateStock();
+
+		// プレイヤーの情報を取得
+		Player* pPlayer = GetPlayer();
+
+		static int nGameEndCounter = 0;
+
+		if (CheckEnemy() == false)
 		{
-			nGameEndCounter = 0;
-			// モード設定(リザルト画面に移行)
-			SetFade(MODE_RESULT);
+			g_bGameend = true;
+			g_gameend = GAMEEND_CLEAR;
+		}
+		else if (pPlayer->state == PLAYERSTATE_DEATH || CheckTime() == false)
+		{
+			g_bGameend = true;
+			g_gameend = GAMEEND_GAMEOVER;
+		}
+
+		// ゲーム終了条件
+		if (g_bGameend == true)
+		{
+			nGameEndCounter++;
+			if (nGameEndCounter % 60 == 0)
+			{
+				nGameEndCounter = 0;
+				// モード設定(リザルト画面に移行)
+				SetFade(MODE_RESULT);
+			}
 		}
 	}
 }
@@ -233,6 +257,12 @@ void DrawGame(void)
 
 	// 残機の描画処理
 	DrawStock();
+
+	if (g_bPause == true)
+	{// ポーズ中なら
+		// ポーズメニューの描画処理
+		DrawPause();
+	}
 }
 
 //========================================
@@ -241,4 +271,12 @@ void DrawGame(void)
 GAMEEND GetGameEnd(void)
 {
 	return g_gameend;
+}
+
+//========================================
+//	ポーズの有効無効設定
+//========================================
+void SetEnablePause(bool bPause)
+{
+	g_bPause = bPause;
 }

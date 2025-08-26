@@ -1,0 +1,173 @@
+//=============================================================================
+//
+//	ポーズ処理 [pause.cpp]
+//	Author : SHUMA AIZU
+// 
+//=============================================================================
+
+#include "main.h"
+#include "pause.h"
+#include "input.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
+#define PAUSE_MENU_POSX		(905.0f)
+#define PAUSE_MENU_POSY		(420.0f)
+#define PAUSE_MENU_SIZEX	(250.0f)
+#define PAUSE_MENU_SIZEY	(100.0f)
+
+//*****************************************************************************
+// グローバル変数
+//*****************************************************************************
+LPDIRECT3DTEXTURE9 g_apTexturePause[PAUSE_MENU_MAX] = {};		// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPause = NULL;					// 頂点バッファへのポインタ
+PAUSE_MENU g_pauseMenu;
+
+//=============================================================================
+//	ポーズメニューの初期化処理
+//=============================================================================
+void InitPause(void)
+{
+	// デバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\Pause_Menu_CONTINUE.png",
+		&g_apTexturePause[0]);
+
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\Pause_Menu_RETRY.png",
+		&g_apTexturePause[1]);
+
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\Pause_Menu_QUIT.png",
+		&g_apTexturePause[2]);
+
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * PAUSE_MENU_MAX,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&g_pVtxBuffPause,
+		NULL);
+
+	// 初期化
+
+	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffPause->Lock(0, 0, (void * *)&pVtx, 0);
+
+	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	{
+		// 頂点座標の設定
+		pVtx[0].pos = D3DXVECTOR3(PAUSE_MENU_POSX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY), 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(PAUSE_MENU_POSX + PAUSE_MENU_SIZEX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY), 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(PAUSE_MENU_POSX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY) + PAUSE_MENU_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(PAUSE_MENU_POSX + PAUSE_MENU_SIZEX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY) + PAUSE_MENU_SIZEY, 0.0f);
+
+		// rhwの設定
+		pVtx[0].rhw = 1.0f;
+		pVtx[1].rhw = 1.0f;
+		pVtx[2].rhw = 1.0f;
+		pVtx[3].rhw = 1.0f;
+
+		// 頂点カラーの設定
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// テクスチャ座標の設定
+		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+		pVtx += 4;
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffPause->Unlock();
+}
+
+//=============================================================================
+//	ポーズメニューの終了処理
+//=============================================================================
+void UninitPause(void)
+{
+	// テクスチャの破棄
+	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	{
+		if (g_apTexturePause[nCntPause] != NULL)
+		{
+			g_apTexturePause[nCntPause]->Release();
+			g_apTexturePause[nCntPause] = NULL;
+		}
+	}
+
+	// 頂点バッファの破棄
+	if (g_pVtxBuffPause != NULL)
+	{
+		g_pVtxBuffPause->Release();
+		g_pVtxBuffPause = NULL;
+	}
+}
+
+//=============================================================================
+//	ポーズメニューの描画処理
+//=============================================================================
+void DrawPause(void)
+{
+	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
+
+	// デバイスの取得
+	pDevice = GetDevice();
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, g_pVtxBuffPause, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	{
+		// テクスチャの設定
+		pDevice->SetTexture(0, g_apTexturePause[nCntPause]);
+
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntPause * 4, 2);
+	}
+}
+
+//=============================================================================
+//	ポーズメニューの更新処理
+//=============================================================================
+void UpdatePause(void)
+{
+	int nCntPause;
+
+	// 頂点座標の更新
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffPause->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	{
+		// 頂点カラーの設定
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		pVtx += 4;
+	}
+
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffPause->Unlock();
+}

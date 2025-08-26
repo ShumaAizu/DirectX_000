@@ -1,34 +1,36 @@
 //=============================================================================
 //
-//	ゲーム画面処理 [game.h]
+//	ポーズ処理 [pause.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _GAME_H_
-#define _GAME_H_
+#ifndef _PAUSE_H_
+#define _PAUSE_H_
 
 #include "main.h"
 
 //*****************************************************************************
-// ゲーム終了条件
+// マクロ定義
+//*****************************************************************************
+
+//*****************************************************************************
+// ポーズメニュー
 //*****************************************************************************
 typedef enum
 {
-	GAMEEND_CLEAR = 0,		// 勝利
-	GAMEEND_GAMEOVER,		// 敗北
-	GAMEEND_MAX
-}GAMEEND;
-
+	PAUSE_MENU_CONTINUE = 0,		// ゲームに戻る
+	PAUSE_MENU_RETRY,				// ゲームをやり直す
+	PAUSE_MENU_QUIT,				// タイトル画面に戻る
+	PAUSE_MENU_MAX					// 
+}PAUSE_MENU;
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitGame(void);
-void UninitGame(void);
-void UpdateGame(void);
-void DrawGame(void);
-GAMEEND GetGameEnd(void);
-void SetEnablePause(bool bPause);
+void InitPause(void);
+void UninitPause(void);
+void UpdatePause(void);
+void DrawPause(void);
 
 #endif

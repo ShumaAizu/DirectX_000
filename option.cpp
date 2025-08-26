@@ -141,7 +141,7 @@ void DrawOption(void)
 		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 		{
 			if (g_aOption[nCntOption].bUse == true)
-			{// 敵が使用されている
+			{// オプションが使用されている
 				// ポリゴンの描画
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntOption * 4, 2);
 			}
@@ -170,15 +170,6 @@ void UpdateOption(void)
 			switch (pOption->state)
 			{
 			case OPTIONSTATE_NORMAL:
-
-				//if (GetKeyboardRepeat(DIK_SPACE) == true || GetJoypadRepeat(JOYKEY_A))
-				//{//SPACEキーが押された
-
-				//	PlaySound(SOUND_LABEL_SE_SHOT);
-
-				//	//弾の設定
-				//	SetEnemyBullet(pOption->pos,15.0f, 50, BULLETTYPE_PLAYER, (pOption->rot.z + D3DX_PI));
-				//}
 
 				break;
 
