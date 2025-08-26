@@ -26,6 +26,7 @@
 LPDIRECT3DTEXTURE9 g_pTextureOption = NULL;						// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffOption = NULL;				// 頂点バッファへのポインタ
 Option g_aOption[MAX_OPTION];									// オプションの情報
+float g_Angle;
 
 //====================================
 //	オプションの初期化処理
@@ -46,7 +47,8 @@ void InitOption(void)
 	{
 		g_aOption[nCntOption].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aOption[nCntOption].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_aOption[nCntOption].distance = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_aOption[nCntOption].fDistance = 0.0f;
+		g_aOption[nCntOption].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aOption[nCntOption].state = OPTIONSTATE_NORMAL;
 		g_aOption[nCntOption].bUse = false;			// 使用していない状態にする
 	}
@@ -206,10 +208,10 @@ void UpdateOption(void)
 
 		pOption->move.z += (0.0f - pOption->move.z) * 0.1f;
 
-		pOption->fAngle = atan2f(pOption->distance.x, pOption->distance.y);
+		pOption->fAngle = atan2f(pOption->fDistance, pOption->fDistance);
 
-		pOption->pos.x = pPlayer->pos.x + sinf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->distance.x;
-		pOption->pos.y = pPlayer->pos.y + cosf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->distance.y;
+		pOption->pos.x = pPlayer->pos.x + sinf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->fDistance;
+		pOption->pos.y = pPlayer->pos.y + cosf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->fDistance;
 
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS, pOption->pos.y - OPTION_RADIUS, 0.0f);
@@ -235,7 +237,7 @@ Option *GetOption(void)
 //=============================================================================
 //	オプションの設定
 //=============================================================================
-void SetOption(D3DXVECTOR3 pos, D3DXVECTOR3 distance)
+void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle)
 {
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -248,19 +250,18 @@ void SetOption(D3DXVECTOR3 pos, D3DXVECTOR3 distance)
 		{
 			g_aOption[nCntOption].pos = pos;
 			g_aOption[nCntOption].bUse = true;
-			g_aOption[nCntOption].distance = distance;
+			g_aOption[nCntOption].fDistance = fDistance;
 
-			g_aOption[nCntOption].pos += g_aOption[nCntOption].distance;
+			g_aOption[nCntOption].pos.x = sinf((fAngle) * g_aOption[nCntOption].fDistance);
+			g_aOption[nCntOption].pos.y = cosf((fAngle) * g_aOption[nCntOption].fDistance);
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f)
-									  + g_aOption[nCntOption].distance;
-			pVtx[1].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f)
-									  + g_aOption[nCntOption].distance;
-			pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f)
-									  + g_aOption[nCntOption].distance;
-			pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f)
-									  + g_aOption[nCntOption].distance;
+			pVtx[0].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
+
+
 
 			break;
 		}

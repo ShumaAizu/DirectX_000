@@ -18,6 +18,7 @@
 // マクロ定義
 //*****************************************************************************
 #define NUM_ENEMY		(5)			// 敵の種類
+#define MAX_WARD		(256)
 
 //*****************************************************************************
 // グローバル変数
@@ -115,6 +116,8 @@ void InitEnemy(void)
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffEnemy->Unlock();
+
+	LoadEnemy();
 }
 
 //=============================================================================
@@ -484,4 +487,75 @@ bool CheckEnemy(void)
 	}
 
 	return false;
+}
+
+void LoadEnemy(void)
+{
+	// デバイスポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	FILE* pFile;
+
+	pFile = fopen("data\\wave.txt", "r");
+
+	if (pFile != NULL)
+	{// 開けたら
+		//ローカル変数宣言
+		char aString[MAX_WARD];
+		char aStrRelease[3];
+		D3DXVECTOR3 pos = {};
+		int type = 0;
+		int life = 0;
+		int nData;
+
+		while (true)
+		{
+			nData = fscanf(pFile, "%s", &aString[0]);
+
+			if (strcmp(&aString[0], "SETENEMY") == 0)
+			{// SETENEMYを読み取った
+				while (true)
+				{
+					nData = fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "POS") == 0)
+					{// POSを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
+					
+						fscanf(pFile, "%f", &pos.x);
+						fscanf(pFile, "%f", &pos.y);
+						fscanf(pFile, "%f", &pos.z);
+					}
+
+					if (strcmp(&aString[0], "TYPE") == 0)
+					{
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &type);
+
+					}
+
+					if (strcmp(&aString[0], "LIFE") == 0)
+					{
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &life);
+					}
+
+					if (strcmp(&aString[0], "ENDSET") == 0)
+					{
+						SetEnemy(pos, type, life);
+						break;
+					}
+				}
+			}
+
+			
+
+			if (strcmp(&aString[0], "END_SCRIPT") == 0)
+			{
+				break;
+			}
+		}
+	}
 }

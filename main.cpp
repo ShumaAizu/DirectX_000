@@ -15,7 +15,6 @@
 #include "ranking.h"
 #include "fade.h"
 #include "option.h"
-#include <cstdio>
 #include <crtdbg.h>
 
 

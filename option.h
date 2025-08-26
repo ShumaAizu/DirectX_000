@@ -34,7 +34,7 @@ typedef struct
 	D3DXVECTOR3 pos;		// 位置
 	D3DXVECTOR3 move;		// 移動量
 	D3DXVECTOR3 rot;		// 向き
-	D3DXVECTOR3 distance;	// プレイヤーとの距離
+	float fDistance;		// プレイヤーとの距離
 	float fAngle;			// プレイヤーとの角度
 	OPTIONSTATE state;		// 状態
 	int nCounterState;		// 状態カウンター
@@ -49,7 +49,7 @@ void InitOption(void);
 void UninitOption(void);
 void UpdateOption(void);
 void DrawOption(void);
-void SetOption(D3DXVECTOR3 pos, D3DXVECTOR3 Distance);
+void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle);
 Option *GetOption(void);
 void HitOption(int nCntOption);
 

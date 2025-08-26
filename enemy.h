@@ -59,5 +59,6 @@ void HitEnemy(int nCntEnemy, int nDamage);
 void ResetEnemy(void);
 void DeleteEnemy(void);
 bool CheckEnemy(void);
+void LoadEnemy(void);
 
 #endif

@@ -381,15 +381,38 @@ void UpdatePlayer(void)
 	// オプション生成
 	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_F1) == true)
 	{
-		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f), D3DXVECTOR3(64.0f, 64.0f, 0.0f));
+		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f),64.0f, 0.75f * D3DX_PI);
 	}
 
 	// ジョイパッドの状態を取得
 	XINPUT_STATE* pJoyState = GetJoypadState();
 
 	// スティック操作
-	g_player.move.x += pJoyState->Gamepad.sThumbLX * 0.00005f;
-	g_player.move.y -= pJoyState->Gamepad.sThumbLY * 0.00005f;
+	float fThumbLX = pJoyState->Gamepad.sThumbLX;	// LスティックのXの値
+	float fThumbLY = pJoyState->Gamepad.sThumbLY;	// LスティックのYの値
+
+	float fJoypadMove;		// ベクトル
+
+	// ベクトルの長さを算出
+	fJoypadMove = sqrtf(fThumbLX * fThumbLX + fThumbLY * fThumbLY);
+
+	if (fJoypadMove > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+	{// もしデッドゾーン以内なら
+		// 正規化
+		fThumbLX = (fThumbLX) / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		fThumbLY = (fThumbLY) / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+	}
+	else
+	{// デッドゾーン外なら
+		// 初期化
+		fJoypadMove = 0.0f;
+		fThumbLX = 0.0f;
+		fThumbLY = 0.0f;
+	}
+
+	// 移動量の更新
+	g_player.move.x += fThumbLX;
+	g_player.move.y -= fThumbLY;
 
 	if (GetJoypadPress(JOYKEY_LEFT) == true)
 	{//Aキーが押された
