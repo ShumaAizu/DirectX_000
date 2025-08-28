@@ -23,27 +23,52 @@
 typedef enum
 {
 	ENEMYSTATE_NORMAL = 0,		// 通常状態
+	ENEMYSTATE__WAIT,			// 出現待ち
 	ENEMYSTATE_DAMAGE,			// ダメージ状態
 	ENEMYSTATE_WARNING,			// 危険状態
 	ENEMYSTATE_MAX
 }ENEMYSTATE;
 
 //*****************************************************************************
+// 敵の種類
+//*****************************************************************************
+typedef enum
+{
+	ENEMYTYPE_NORMAL = 0,		// 通常
+	ENEMYTYPE_MIDDLEBOSS,		// 中ボス
+	ENEMYTYPE_BOSS,				// ボス
+	ENEMYTYPE_MAX
+}ENEMYTYPE;
+
+//*****************************************************************************
+// 敵の攻撃の種類
+//*****************************************************************************
+typedef enum
+{
+	ENEMY_ATTACKTYPE_AIM = 0,
+	ENEMY_ATTACKTYPE_HOMING,
+	ENEMY_ATTACKTYPE_SCATTE,
+	ENEMY_ATTACKTYPE_MAX
+}ENEMYATTACKTYPE;
+
+//*****************************************************************************
 // 敵構造体の定義
 //*****************************************************************************
 typedef struct
 {
-	D3DXVECTOR3 pos;		// 位置
-	D3DXVECTOR3 move;		// 移動量
-	int nType;				// 種類
-	int nLife;				// 体力
-	ENEMYSTATE state;		// 状態
-	int nCounterAnim;		// アニメーションカウンター
-	int nPatternAnim;		// アニメーションNO.
-	int nCounterState;		// 状態カウンター
-	int nCounterAttack;		// 攻撃カウンター
-	bool bBlinking;			// 点滅状態
-	bool bUse;				// 使用しているかどうか
+	D3DXVECTOR3 pos;				// 位置
+	D3DXVECTOR3 move;				// 移動量
+	ENEMYSTATE state;				// 状態
+	ENEMYTYPE type;					// 種類
+	ENEMYATTACKTYPE attacktype;		// 攻撃種類
+	int nTimeline;					// タイムライン
+	int nLife;						// 体力
+	int nCounterAnim;				// アニメーションカウンター
+	int nPatternAnim;				// アニメーションNO.
+	int nCounterState;				// 状態カウンター
+	int nCounterAttack;				// 攻撃カウンター
+	bool bBlinking;					// 点滅状態
+	bool bUse;						// 使用しているかどうか
 }Enemy;
 
 //*****************************************************************************

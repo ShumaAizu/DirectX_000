@@ -16,6 +16,7 @@
 #include "sound.h"
 #include "fade.h"
 #include "effect.h"
+#include "particle.h"
 #include "option.h"
 #include "time.h"
 #include "life.h"
@@ -52,23 +53,14 @@ void InitGame(void)
 	// 敵のセット処理
 	srand((unsigned)timeGetTime());
 
-	// 変数宣言
-	float nCntX = 390.0f, nCntY = 100.0f;
-	int nCnt1, nCnt2;
-
-	for (nCnt1 = 0; nCnt1 < 6; nCnt1++, nCntX += 100.0f)
-	{
-		for (nCnt2 = 0, nCntY = 100.0f; nCnt2 < 5; nCnt2++, nCntY += 50.0f)
-		{
-			SetEnemy(D3DXVECTOR3(nCntX, nCntY, 0.0f), rand() % 5, rand() % 5 + 2);
-		}
-	}
-
 	// スコアの初期化処理
 	InitScore();
 
 	// エフェクトの初期化処理
 	InitEffect();
+
+	// パーティクルの初期化処理
+	InitParticle();
 
 	// オプションの初期化処理
 	InitOption();
@@ -120,6 +112,9 @@ void UninitGame(void)
 
 	// エフェクトの終了処理
 	UninitEffect();
+
+	// パーティクルの終了処理
+	UninitParticle();
 
 	// オプションの終了処理
 	UninitOption();
@@ -177,6 +172,9 @@ void UpdateGame(void)
 
 		// エフェクトの更新処理
 		UpdateEffect();
+
+		// パーティクルの更新処理
+		UpdateParticle();
 
 		// オプションの更新処理
 		UpdateOption();

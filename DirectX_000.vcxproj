@@ -156,6 +156,7 @@
     <ClCompile Include="life.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="option.cpp" />
+    <ClCompile Include="particle.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="ranking.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="stock.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
+    <ClCompile Include="wave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bg.h" />
@@ -178,6 +180,7 @@
     <ClInclude Include="life.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="option.h" />
+    <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="ranking.h" />
@@ -187,6 +190,7 @@
     <ClInclude Include="stock.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
+    <ClInclude Include="wave.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,6 +18,7 @@
 #include "life.h"
 #include "stock.h"
 #include <stdlib.h>
+#include "particle.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -200,7 +201,7 @@ void UpdatePlayer(void)
 
 	case PLAYERSTATE_NORMAL:
 		// パーティクル設定
-		SetParticle(g_player.pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 45.0f, 50);
+		SetParticle(g_player.pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
 		CollisionPlayertoEnemy();
 		break;
 

@@ -164,7 +164,7 @@ void DrawEnemy(void)
 		if (g_aEnemy[nCntEnemy].bUse == true)
 		{// 敵が使用されている
 			// テクスチャの設定
-			pDevice->SetTexture(0, g_apTextureEnemy[g_aEnemy[nCntEnemy].nType]);
+			pDevice->SetTexture(0, g_apTextureEnemy[g_aEnemy[nCntEnemy].type]);
 
 			// ポリゴンの描画
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntEnemy * 4, 2);
@@ -345,7 +345,7 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife)
 		if (g_aEnemy[nCntEnemy].bUse == false)
 		{// 敵を使用していない
 			g_aEnemy[nCntEnemy].pos = pos;
-			g_aEnemy[nCntEnemy].nType = nType;
+			g_aEnemy[nCntEnemy].type = (ENEMYTYPE)nType;
 			g_aEnemy[nCntEnemy].nLife = nLife;
 
 			// 頂点座標の設定
@@ -489,6 +489,9 @@ bool CheckEnemy(void)
 	return false;
 }
 
+//=============================================================================
+//	敵のロード処理
+//=============================================================================
 void LoadEnemy(void)
 {
 	// デバイスポインタを宣言
@@ -501,8 +504,10 @@ void LoadEnemy(void)
 	if (pFile != NULL)
 	{// 開けたら
 		//ローカル変数宣言
-		char aString[MAX_WARD];
-		char aStrRelease[3];
+		char aString[MAX_WARD];		// 文字列を読み込む
+		char aStrRelease[3];		// 不要な = を読み込む
+
+		// それぞれの値を読み込む
 		D3DXVECTOR3 pos = {};
 		int type = 0;
 		int life = 0;
@@ -528,7 +533,7 @@ void LoadEnemy(void)
 					}
 
 					if (strcmp(&aString[0], "TYPE") == 0)
-					{
+					{// TYPEを読み取った
 						fscanf(pFile, "%s", &aStrRelease[0]);
 
 						fscanf(pFile, "%d", &type);
@@ -536,14 +541,14 @@ void LoadEnemy(void)
 					}
 
 					if (strcmp(&aString[0], "LIFE") == 0)
-					{
+					{// LIFEを読み取った
 						fscanf(pFile, "%s", &aStrRelease[0]);
 
 						fscanf(pFile, "%d", &life);
 					}
 
 					if (strcmp(&aString[0], "ENDSET") == 0)
-					{
+					{// ENDSETを読み取った
 						SetEnemy(pos, type, life);
 						break;
 					}

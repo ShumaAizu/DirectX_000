@@ -12,6 +12,7 @@
 #include "enemy.h"
 #include "effect.h"
 #include "option.h"
+#include "particle.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -180,8 +181,8 @@ void UpdateBullet(void)
 			if (g_aBullet[nCntBullet].type == BULLETTYPE_PLAYER)
 			{// プレイヤーの弾
 				// エフェクトの設定
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 15.0f, 50);
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
+				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 15.0f, 50);
+				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
 				SetParticle(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
 				// 敵との当たり判定
 				CollisionEnemy(&g_aBullet[nCntBullet]);
@@ -189,8 +190,8 @@ void UpdateBullet(void)
 			else if (g_aBullet[nCntBullet].type == BULLETTYPE_ENEMY)
 			{// 敵の弾
 				// エフェクトの設定
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.1f, 0.1f, 1.0f, 1.0f), 15.0f, 50);
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 30.0f, 50);
+				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 0.1f, 1.0f, 1.0f), 15.0f, 50);
+				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 30.0f, 50);
 				// プレイヤーとの当たり判定
 				CollisionPlayer(&g_aBullet[nCntBullet]);
 			}

@@ -23,8 +23,8 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureTime = NULL;				// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTime = NULL;			// 頂点バッファへのポインタ
-D3DXVECTOR3 g_posTime;									// スコアの位置
-int g_nTime;											// スコアの値
+D3DXVECTOR3 g_posTime;									// 制限時間の位置
+int g_nTime;											// 制限時間の値
 
 //=============================================================================
 //	制限時間の初期化処理

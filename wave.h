@@ -1,32 +1,26 @@
 //=============================================================================
 //
-//	エフェクト処理 [effect.h]
+//	ウェーブ処理 [wave.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _EFFECT_H_
-#define _EFFECT_H_
+#ifndef _WAVE_H_
+#define _WAVE_H_
 
 #include "main.h"
 
 //*****************************************************************************
-// エフェクトの状態
+// マクロ定義
 //*****************************************************************************
-typedef enum
-{
-	EFFECTSTATE_NORMAL = 0,		// 通常
-	EFFECTSTATE_COLLECT,		// 集約
-	EFFECTSTATE_MAX
-}EFFECTSTATE;
+
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitEffect(void);
-void UninitEffect(void);
-void UpdateEffect(void);
-void DrawEffect(void);
-void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife);
-void SetCollectParticle(D3DXVECTOR3 pos, D3DXCOLOR col);
+void InitWave(void);
+void UninitWave(void);
+void UpdateWave(void);
+void DrawWave(void);
+void LoadWave(void);
 
 #endif

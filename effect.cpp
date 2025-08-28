@@ -258,7 +258,7 @@ void UpdateEffect(void)
 //====================================
 //	エフェクトの設定
 //====================================
-void SetEffect(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
+void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife)
 {
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -270,6 +270,7 @@ void SetEffect(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 		if (g_aEffect[nCntEffect].bUse == false)
 		{// エフェクトを使用していない
 			g_aEffect[nCntEffect].pos = pos;			// 受け取った位置を代入
+			g_aEffect[nCntEffect].move = move;			// 受け取った移動量を代入
 			g_aEffect[nCntEffect].col = col;			// 受け取った色を代入
 			g_aEffect[nCntEffect].nLife = nLife;		// 受け取った寿命を代入
 			g_aEffect[nCntEffect].fRadius = fRadius;	// 受け取った半径を代入
@@ -298,65 +299,6 @@ void SetEffect(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 }
 
 //====================================
-//	パーティクルの設定
-//====================================
-void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
-{
-	int nCount = 0;
-
-	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
-
-	for (int nCntParticle = 0; nCntParticle < MAX_EFFECT; nCntParticle++, pVtx += 4)
-	{
-		if (g_aEffect[nCntParticle].bUse == true)
-		{
-			continue;
-		}
-
-		// ランダムな角度を算出
-		float fAngle = (float)((rand() % 200 + 1 - 100) * 0.01f);
-
-		g_aEffect[nCntParticle].pos = pos;
-		g_aEffect[nCntParticle].col = col;
-		g_aEffect[nCntParticle].fRadius = fRadius;
-		g_aEffect[nCntParticle].nLife = nLife;
-		g_aEffect[nCntParticle].state = EFFECTSTATE_NORMAL;
-
-		g_aEffect[nCntParticle].move.x = sinf(fAngle) * 5.0f;
-		g_aEffect[nCntParticle].move.y = cosf(fAngle) * 5.0f;
-
-		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntParticle].pos.x - g_aEffect[nCntParticle].fRadius,
-			g_aEffect[nCntParticle].pos.y - g_aEffect[nCntParticle].fRadius, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntParticle].pos.x + g_aEffect[nCntParticle].fRadius,
-			g_aEffect[nCntParticle].pos.y - g_aEffect[nCntParticle].fRadius, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntParticle].pos.x - g_aEffect[nCntParticle].fRadius,
-			g_aEffect[nCntParticle].pos.y + g_aEffect[nCntParticle].fRadius, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntParticle].pos.x + g_aEffect[nCntParticle].fRadius,
-			g_aEffect[nCntParticle].pos.y + g_aEffect[nCntParticle].fRadius, 0.0f);
-
-		// 頂点カラーの設定
-		pVtx[0].col = g_aEffect[nCntParticle].col;
-		pVtx[1].col = g_aEffect[nCntParticle].col;
-		pVtx[2].col = g_aEffect[nCntParticle].col;
-		pVtx[3].col = g_aEffect[nCntParticle].col;
-
-		g_aEffect[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
-
-		nCount++;
-		if (nCount > 5)
-		{
-			break;
-		}
-	}
-	// 頂点バッファをアンロックする
-	g_pVtxBuffEffect->Unlock();
-}
-
-//====================================
 //	集まるパーティクルの設定
 //====================================
 void SetCollectParticle(D3DXVECTOR3 pos, D3DXCOLOR col)
@@ -364,7 +306,7 @@ void SetCollectParticle(D3DXVECTOR3 pos, D3DXCOLOR col)
 	int nCount = 0;
 	float fMove;
 
-	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+	VERTEX_2D* pVtx = NULL;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
