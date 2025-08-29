@@ -13,6 +13,7 @@
 #include "score.h"
 #include "sound.h"
 #include "life.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -184,6 +185,8 @@ void UpdateEnemy(void)
 
 	Player* pPlayer = GetPlayer();		// プレイヤーの情報取得
 
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -207,10 +210,10 @@ void UpdateEnemy(void)
 			}
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 
 			switch (g_aEnemy[nCntEnemy].state)
 			{// 状態チェック
@@ -279,10 +282,10 @@ void UpdateEnemy(void)
 						}
 
 						// 頂点座標の設定
-						pVtx[0].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY, 0.0f);
-						pVtx[1].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY, 0.0f);
-						pVtx[2].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY, 0.0f);
-						pVtx[3].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY, 0.0f);
+						pVtx[0].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[1].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[2].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[3].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 					}
 				}
 				break;
@@ -370,7 +373,7 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife)
 //=============================================================================
 Enemy *GetEnemy(void)
 {
-	return &g_aEnemy[0];		// 敵の情報の戦闘アドレスを返す
+	return &g_aEnemy[0];		// 敵の情報の先頭アドレスを返す
 }
 
 //=============================================================================

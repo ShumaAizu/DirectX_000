@@ -48,32 +48,32 @@ void UninitParticle(void)
 
 void UpdateParticle(void)
 {
-	D3DXVECTOR3 pos;		// 位置
-	D3DXVECTOR3 move;		// パーティクルの移動量
-	D3DXCOLOR col;			// 色
-	float fMove;			// 移動量
-	float fRadius;			// 半径
-	int nLife;				// 寿命
+	D3DXVECTOR3 pos = {};		// 位置
+	D3DXVECTOR3 move = {};		// パーティクルの移動量
+	D3DXCOLOR col = {};			// 色
+	float fMove = {};			// 移動量
+	float fRadius = {};			// 半径
+	int nLife = {};				// 寿命
 
-	float fAngle;
+	float fAngle = {};
 
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
 	{
 		if (g_aParticle[nCntParticle].bUse == true)
 		{
-			for (int nCntAppear = 0; nCntAppear < 5; nCntAppear++)
+			for (int nCntAppear = 0; nCntAppear < 1; nCntAppear++)
 			{
 				pos = g_aParticle[nCntParticle].pos;
 
 				fAngle = (float)(rand() % 629 - 314) / 100.0f;
-				fMove = (float)(rand() % 500) / 100.0f + 0.1;
+				fMove = (float)(rand() % 500) / 100.0f + 1.0f;
 
 				move.x = sinf(fAngle) * fMove;
 				move.y = cosf(fAngle) * fMove;
 
 				col = g_aParticle[nCntParticle].col;
 				fRadius = g_aParticle[nCntParticle].fRadius;
-				nLife = g_aParticle[nCntParticle].nLife;
+				nLife = 50;
 
 				SetEffect(pos, move, col, fRadius, nLife);
 			}
@@ -86,7 +86,6 @@ void UpdateParticle(void)
 			}
 		}
 	}
-
 }
 
 void DrawParticle(void)

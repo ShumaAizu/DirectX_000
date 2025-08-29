@@ -22,6 +22,7 @@
 #include "life.h"
 #include "stock.h"
 #include "pause.h"
+#include "camera.h"
 
 //*****************************************************************************
 // グローバル変数
@@ -35,6 +36,9 @@ bool g_bPause = false;						// ポーズ中かどうか
 //========================================
 void InitGame(void)
 {
+	// カメラの初期化処理
+	InitCamera();
+
 	// 背景の初期化処理
 	InitBg();
 
@@ -92,6 +96,9 @@ void InitGame(void)
 //========================================
 void UninitGame(void)
 {
+	// カメラの終了処理
+	UninitCamera();
+
 	// 背景の終了処理
 	UninitBg();
 
@@ -152,11 +159,15 @@ void UpdateGame(void)
 	}
 	else
 	{
+		// カメラの更新処理
+		UpdateCamera();
+
 		// 背景の更新処理
 		UpdateBg();
 
 		// プレイヤーの更新処理
 		UpdatePlayer();
+
 
 		// 弾の更新処理
 		UpdateBullet();
@@ -223,6 +234,9 @@ void UpdateGame(void)
 //========================================
 void DrawGame(void)
 {
+	// カメラの描画処理
+	DrawCamera();
+
 	// 背景の描画処理
 	DrawBg();
 
@@ -231,6 +245,9 @@ void DrawGame(void)
 
 	// エフェクトの描画処理
 	DrawEffect();
+
+	// パーティクルの描画処理
+	DrawParticle();
 
 	// プレイヤーの描画処理
 	DrawPlayer();

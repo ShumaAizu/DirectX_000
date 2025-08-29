@@ -8,6 +8,8 @@
 #include "main.h"
 #include "pause.h"
 #include "input.h"
+#include "fade.h"
+#include "game.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -22,7 +24,7 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_apTexturePause[PAUSE_MENU_MAX] = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPause = NULL;					// 頂点バッファへのポインタ
-PAUSE_MENU g_pauseMenu;
+PAUSE_MENU g_pauseMenu = PAUSE_MENU_CONTINUE;
 
 //=============================================================================
 //	ポーズメニューの初期化処理
@@ -55,6 +57,8 @@ void InitPause(void)
 		NULL);
 
 	// 初期化
+
+	g_pauseMenu = PAUSE_MENU_CONTINUE;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -158,13 +162,84 @@ void UpdatePause(void)
 
 	for (nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
 	{
-		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		if (nCntPause == g_pauseMenu)
+		{ // 選択されていれば不透明度を戻す
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		else
+		{ // 選択されていなければ不透明度を下げる
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+		}
 
 		pVtx += 4;
+	}
+
+	if (GetKeyboardRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_UP) == true)
+	{ // 上方向キーが押されたら
+		// 現在のモードに合わせて変更
+		switch (g_pauseMenu)
+		{
+		case PAUSE_MENU_CONTINUE:
+			g_pauseMenu = PAUSE_MENU_QUIT;
+			break;
+
+		case PAUSE_MENU_RETRY:
+			g_pauseMenu = PAUSE_MENU_CONTINUE;
+			break;
+
+		case PAUSE_MENU_QUIT:
+			g_pauseMenu = PAUSE_MENU_RETRY;
+			break;
+		}
+	}
+
+	if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_DOWN) == true)
+	{ // 下方向キーが押されたら
+		// 現在のモードに合わせて変更
+		switch (g_pauseMenu)
+		{
+		case PAUSE_MENU_CONTINUE:
+			g_pauseMenu = PAUSE_MENU_RETRY;
+			break;
+
+		case PAUSE_MENU_RETRY:
+			g_pauseMenu = PAUSE_MENU_QUIT;
+			break;
+
+		case PAUSE_MENU_QUIT:
+			g_pauseMenu = PAUSE_MENU_CONTINUE;
+			break;
+		}
+	}
+
+	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true)
+	{ // 決定キーが押されたら
+		// ポーズを解除
+		SetEnablePause(false);
+
+		// 現在のモードに合わせて変更
+		switch (g_pauseMenu)
+		{
+		case PAUSE_MENU_CONTINUE:
+			
+			break;
+
+		case PAUSE_MENU_RETRY:
+			SetFade(MODE_GAME);
+			break;
+
+		case PAUSE_MENU_QUIT:
+			SetFade(MODE_TITLE);
+			break;
+		}
 	}
 
 

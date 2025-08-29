@@ -15,6 +15,7 @@
 #include "ranking.h"
 #include "fade.h"
 #include "option.h"
+#include "camera.h"
 #include <crtdbg.h>
 
 
@@ -566,10 +567,11 @@ void DrawDebug(void)
 	XINPUT_STATE* pjoystate = GetJoypadState();
 	Player* pPlayer = GetPlayer();
 	Option* pOption = GetOption();
+	D3DXVECTOR3 *pCamera = GetCamera();
 
 	// 文字列を代入
 	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY);		// FPS表示
-	sprintf(&aStr1[0], "OpitonPos = { %.2f,%.2f,%.2f }", pOption->pos.x, pOption->pos.y, pOption->rot.z);
+	sprintf(&aStr1[0], "OpitonPos = { %.2f,%.2f,%.2f }\nCameraPos = { %.2f, %.2f }", pOption->pos.x, pOption->pos.y, pOption->rot.z, pCamera->x, pCamera->y);
 
 	// テキストを描画
 	g_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));

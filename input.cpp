@@ -22,6 +22,7 @@ XINPUT_STATE g_joykeyStateTrigger;				// ジョイパッドのトリガー情報
 XINPUT_STATE g_joykeyStateRelease;				// ジョイパッドのリリース情報
 XINPUT_STATE g_joykeyStateRepeat;				// ジョイパッドのリピート情報
 XINPUT_VIBRATION g_joypadVibration;				// ジョイパッドの振動情報
+int g_nVibCounter = 0;
 
 //=============================================================================
 //	キーボード初期化処理

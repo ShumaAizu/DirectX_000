@@ -19,6 +19,7 @@
 #include "stock.h"
 #include <stdlib.h>
 #include "particle.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -201,7 +202,7 @@ void UpdatePlayer(void)
 
 	case PLAYERSTATE_NORMAL:
 		// パーティクル設定
-		SetParticle(g_player.pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
+		SetParticle(g_player.pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 40.0f, 3);
 		CollisionPlayertoEnemy();
 		break;
 
@@ -543,24 +544,24 @@ void UpdatePlayer(void)
 		g_fLengthPlayer = PLAYER_MIN_SIZE;
 	}
 
-	// 端に行ったら反対に移動する
-	if (g_player.pos.x + PLAYER_SIZEX < 0)
-	{
-		g_player.pos.x = SCREEN_WIDTH;
-	}
-	if (g_player.pos.x - PLAYER_SIZEX > SCREEN_WIDTH)
-	{
-		g_player.pos.x = 0;
-	}
+	//// 端に行ったら反対に移動する
+	//if (g_player.pos.x + PLAYER_SIZEX < 0)
+	//{
+	//	g_player.pos.x = SCREEN_WIDTH;
+	//}
+	//if (g_player.pos.x - PLAYER_SIZEX > SCREEN_WIDTH)
+	//{
+	//	g_player.pos.x = 0;
+	//}
 
-	if (g_player.pos.y + PLAYER_SIZEY < 0)
-	{
-		g_player.pos.y = SCREEN_HEIGHT;
-	}
-	if (g_player.pos.y - PLAYER_SIZEY > SCREEN_HEIGHT)
-	{
-		g_player.pos.y = 0;
-	}
+	//if (g_player.pos.y + PLAYER_SIZEY < 0)
+	//{
+	//	g_player.pos.y = SCREEN_HEIGHT;
+	//}
+	//if (g_player.pos.y - PLAYER_SIZEY > SCREEN_HEIGHT)
+	//{
+	//	g_player.pos.y = 0;
+	//}
 
 	// テクスチャを更新
 	g_nCounterAnimPlayer++;
@@ -569,6 +570,8 @@ void UpdatePlayer(void)
 		g_nPatternAnimPlayer = (g_nPatternAnimPlayer + 1) % 10;
 	}
 
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			//頂点情報へのポインタ
 
@@ -576,20 +579,20 @@ void UpdatePlayer(void)
 	g_pVtxBuffPlayer->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos.x = g_player.pos.x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[0].pos.y = g_player.pos.y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_player.pos.x + sinf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[1].pos.y = g_player.pos.y + cosf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_player.pos.x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[2].pos.y = g_player.pos.y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_player.pos.x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[3].pos.y = g_player.pos.y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[3].pos.z = 0.0f;
 
 	// 頂点バッファをアンロックする

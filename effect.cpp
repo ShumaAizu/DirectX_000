@@ -8,6 +8,7 @@
 #include "main.h"
 #include "effect.h"
 #include "player.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -179,6 +180,8 @@ void UpdateEffect(void)
 {
 	int nCntEffect = 0;
 
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -222,14 +225,14 @@ void UpdateEffect(void)
 			g_aEffect[nCntEffect].pos += g_aEffect[nCntEffect].move;
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y + g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y + g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
 
 			// 頂点カラーの設定
 			pVtx[0].col = g_aEffect[nCntEffect].col;
