@@ -209,7 +209,7 @@ void UpdateEffect(void)
 
 				if (g_aEffect[nCntEffect].pos == pPlayer->pos)
 				{
-					g_aEffect[nCntEffect].bUse == false;
+					g_aEffect[nCntEffect].bUse = false;
 				}
 
 				break;
@@ -265,6 +265,8 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, 
 {
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -280,14 +282,14 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, 
 			g_aEffect[nCntEffect].state = EFFECTSTATE_NORMAL;
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y + g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y + g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
 
 			g_aEffect[nCntEffect].bUse = true;			// エフェクトが使用されている状態にする
 			break;		// ここでfor文を抜ける

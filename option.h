@@ -13,7 +13,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAX_OPTION			(1)
+#define MAX_OPTION			(4)
 
 //*****************************************************************************
 // オプションの状態
@@ -52,5 +52,6 @@ void DrawOption(void);
 void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle);
 Option *GetOption(void);
 void HitOption(int nCntOption);
+D3DXVECTOR3* GetStandardRot(void);
 
 #endif

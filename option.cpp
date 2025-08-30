@@ -13,6 +13,7 @@
 #include "score.h"
 #include "sound.h"
 #include "input.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -25,8 +26,9 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureOption = NULL;						// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffOption = NULL;				// 頂点バッファへのポインタ
-Option g_aOption[MAX_OPTION];									// オプションの情報
-float g_Angle;
+Option g_aOption[MAX_OPTION] = {};									// オプションの情報
+D3DXVECTOR3 g_standard_rot = {};
+float g_Angle = NULL;
 
 //====================================
 //	オプションの初期化処理
@@ -43,15 +45,22 @@ void InitOption(void)
 		&g_pTextureOption);
 
 	// 初期化
+
+	g_standard_rot = { 0.0f, 0.0f, 0.0f };
+
 	for (nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 	{
 		g_aOption[nCntOption].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aOption[nCntOption].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aOption[nCntOption].fDistance = 0.0f;
-		g_aOption[nCntOption].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aOption[nCntOption].state = OPTIONSTATE_NORMAL;
 		g_aOption[nCntOption].bUse = false;			// 使用していない状態にする
 	}
+
+	g_aOption[0].rot = D3DXVECTOR3(0.0f, 0.0f, -0.75f);
+	g_aOption[1].rot = D3DXVECTOR3(0.0f, 0.0f, 0.75f);
+	g_aOption[2].rot = D3DXVECTOR3(0.0f, 0.0f, -0.25f);
+	g_aOption[3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.25f);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_OPTION,		// オプションの数だけ
@@ -156,11 +165,13 @@ void DrawOption(void)
 //=============================================================================
 void UpdateOption(void)
 {
-	Player* pPlayer = GetPlayer();		// プレイヤーの情報を取得
+	Player* pPlayer = GetPlayer();				// プレイヤーの情報を取得
 
-	Option* pOption = &g_aOption[0];	// オプションのポインタ
+	Option* pOption = &g_aOption[0];			// オプションのポインタ
 
-	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
+	D3DXVECTOR3* pCameraPos = GetCamera();		// カメラの情報を取得
+
+	VERTEX_2D* pVtx;							// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffOption->Lock(0, 0, (void**)&pVtx, 0);
@@ -195,29 +206,29 @@ void UpdateOption(void)
 		if (GetKeyboardPress(DIK_LSHIFT) == true || GetJoypadPress(JOYKEY_LEFT_SHOULDER))
 		{// 左キーが押された
 			// 左に回転
-			pOption->move.z += 0.015f;
+			pOption->move.z += 0.000515f;
 		}
 
 		if (GetKeyboardPress(DIK_LCONTROL) == true || GetJoypadPress(JOYKEY_RIGHT_SHOULDER))
 		{// 右キーが押された
 			// 右に回転
-			pOption->move.z += -0.015f;
+			pOption->move.z += -0.000515f;
 		}
 
-		pOption->rot.z += pOption->move.z;
+		g_standard_rot.z += pOption->move.z;
 
 		pOption->move.z += (0.0f - pOption->move.z) * 0.1f;
 
 		pOption->fAngle = atan2f(pOption->fDistance, pOption->fDistance);
 
-		pOption->pos.x = pPlayer->pos.x + sinf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->fDistance;
-		pOption->pos.y = pPlayer->pos.y + cosf(pOption->rot.z + D3DX_PI + pOption->fAngle) * pOption->fDistance;
+		pOption->pos.x = pPlayer->pos.x + sinf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
+		pOption->pos.y = pPlayer->pos.y + cosf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
 
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS, pOption->pos.y - OPTION_RADIUS, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS, pOption->pos.y - OPTION_RADIUS, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS, pOption->pos.y + OPTION_RADIUS, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS, pOption->pos.y + OPTION_RADIUS, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS - pCameraPos->x, pOption->pos.y - OPTION_RADIUS - pCameraPos->y, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS - pCameraPos->x, pOption->pos.y - OPTION_RADIUS - pCameraPos->y, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS - pCameraPos->x, pOption->pos.y + OPTION_RADIUS - pCameraPos->y, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS - pCameraPos->x, pOption->pos.y + OPTION_RADIUS - pCameraPos->y, 0.0f);
 
 		pVtx += 4;			// 頂点データのポインタを4つ分進める
 	}
@@ -261,8 +272,6 @@ void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle)
 			pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
 
-
-
 			break;
 		}
 
@@ -297,4 +306,9 @@ void HitOption(int nCntOption)
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffOption->Unlock();
+}
+
+D3DXVECTOR3* GetStandardRot(void)
+{
+	return &g_standard_rot;
 }

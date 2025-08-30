@@ -168,7 +168,6 @@ void UpdateGame(void)
 		// プレイヤーの更新処理
 		UpdatePlayer();
 
-
 		// 弾の更新処理
 		UpdateBullet();
 

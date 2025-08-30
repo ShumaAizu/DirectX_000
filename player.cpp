@@ -272,6 +272,8 @@ void UpdatePlayer(void)
 		return;
 	}
 
+	D3DXVECTOR3* pOptionStandardRot = GetStandardRot();
+
 	if (GetKeyboardRepeat(DIK_SPACE) == true)
 	{//SPACEキーが押された
 
@@ -284,16 +286,13 @@ void UpdatePlayer(void)
 
 
 		//弾の設定
-		if (pOption->bUse == true)
+		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 		{
-			SetEnemyBullet(pOption->pos, 15.0f, 50, BULLETTYPE_PLAYER, (pOption->rot.z + D3DX_PI));
+			if ((pOption + nCntOption)->bUse == true)
+			{
+				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+			}
 		}
-
-		//斜め
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(-D3DX_PI * 0.75f) * BULLET_MOVE, cosf(-D3DX_PI * 0.75f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(D3DX_PI * 0.75f) * BULLET_MOVE, cosf(-D3DX_PI * 0.75f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(-D3DX_PI * 0.25f) * BULLET_MOVE, cosf(-D3DX_PI * 0.25f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(D3DX_PI * 0.25f) * BULLET_MOVE, cosf(D3DX_PI * 0.25f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
 	}
 
 	if (GetKeyboardPress(DIK_A) == true)
@@ -351,9 +350,10 @@ void UpdatePlayer(void)
 
 
 		//弾の設定
-		if (pOption->bUse == true)
+		for(int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
+		if ((pOption + nCntOption)->bUse == true)
 		{
-			SetEnemyBullet(pOption->pos, 15.0f, 50, BULLETTYPE_PLAYER, (pOption->rot.z + D3DX_PI));
+			SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
 		}
 
 		//斜め
@@ -383,7 +383,7 @@ void UpdatePlayer(void)
 	// オプション生成
 	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_F1) == true)
 	{
-		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f),64.0f, 0.75f * D3DX_PI);
+		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f),64.0f, (pOptionStandardRot->z + 0.75f) * D3DX_PI);
 	}
 
 	// ジョイパッドの状態を取得

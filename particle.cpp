@@ -29,6 +29,9 @@ typedef struct
 //*****************************************************************************
 Particle g_aParticle[MAX_PARTICLE];			// パーティクルの情報
 
+//====================================
+//	パーティクルの初期化処理
+//====================================
 void InitParticle(void)
 {
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
@@ -41,11 +44,17 @@ void InitParticle(void)
 	}
 }
 
+//====================================
+//	パーティクルの終了処理
+//====================================
 void UninitParticle(void)
 {
 
 }
 
+//====================================
+//	パーティクルの更新処理
+//====================================
 void UpdateParticle(void)
 {
 	D3DXVECTOR3 pos = {};		// 位置
@@ -66,14 +75,14 @@ void UpdateParticle(void)
 				pos = g_aParticle[nCntParticle].pos;
 
 				fAngle = (float)(rand() % 629 - 314) / 100.0f;
-				fMove = (float)(rand() % 500) / 100.0f + 1.0f;
+				fMove = (float)(rand() % 750) / 100.0f + 5.0f;
 
 				move.x = sinf(fAngle) * fMove;
 				move.y = cosf(fAngle) * fMove;
 
 				col = g_aParticle[nCntParticle].col;
 				fRadius = g_aParticle[nCntParticle].fRadius;
-				nLife = 50;
+				nLife = 25;
 
 				SetEffect(pos, move, col, fRadius, nLife);
 			}
@@ -88,11 +97,17 @@ void UpdateParticle(void)
 	}
 }
 
+//====================================
+//	パーティクルの描画処理
+//====================================
 void DrawParticle(void)
 {
 
 }
 
+//====================================
+//	パーティクルの設定処理
+//====================================
 void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 {
 

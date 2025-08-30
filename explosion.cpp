@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "Explosion.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -159,6 +160,8 @@ void DrawExplosion(void)
 //=============================================================================
 void UpdateExplosion(void)
 {
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -170,10 +173,10 @@ void UpdateExplosion(void)
 		if (g_aExplosion[nCntExplosion].bUse == true)
 		{// 爆発が使用されている
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x - EXPLOSION_SIZEX, g_aExplosion[nCntExplosion].pos.y - EXPLOSION_SIZEY, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x + EXPLOSION_SIZEX, g_aExplosion[nCntExplosion].pos.y - EXPLOSION_SIZEY, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x - EXPLOSION_SIZEX, g_aExplosion[nCntExplosion].pos.y + EXPLOSION_SIZEY, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x + EXPLOSION_SIZEX, g_aExplosion[nCntExplosion].pos.y + EXPLOSION_SIZEY, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x - EXPLOSION_SIZEX - pCameraPos->x, g_aExplosion[nCntExplosion].pos.y - EXPLOSION_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x - EXPLOSION_SIZEX - pCameraPos->x, g_aExplosion[nCntExplosion].pos.y + EXPLOSION_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x + EXPLOSION_SIZEX - pCameraPos->x, g_aExplosion[nCntExplosion].pos.y + EXPLOSION_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(g_aExplosion[nCntExplosion].pos.x + EXPLOSION_SIZEX - pCameraPos->x, g_aExplosion[nCntExplosion].pos.y - EXPLOSION_SIZEY - pCameraPos->y, 0.0f);
 
 			// テクスチャを更新
 			g_aExplosion[nCntExplosion].nCounterAnim++;

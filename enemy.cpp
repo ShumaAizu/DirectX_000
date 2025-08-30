@@ -14,6 +14,7 @@
 #include "sound.h"
 #include "life.h"
 #include "camera.h"
+#include "particle.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -392,6 +393,7 @@ void HitEnemy(int nCntEnemy, int nDamage)
 	if (g_aEnemy[nCntEnemy].nLife <= 0)
 	{// ìGÇÃëÃóÕÇ™Ç»Ç≠Ç»Ç¡ÇΩÇÁ
 		SetExplosion(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+		SetParticle(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 50.0f, 10);
 		AddScore(100);
 
 		pVtx += (nCntEnemy * 4);
