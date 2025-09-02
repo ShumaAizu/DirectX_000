@@ -33,9 +33,6 @@
 LPDIRECT3DTEXTURE9 g_pTexturePlayer = NULL;				// プレイヤーのテクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPlayer = NULL;		// プレイヤーの頂点バッファへのポインタ
 Player g_player;										// プレイヤーの情報
-float g_fLengthPlayer;									// 対角線の長さ
-float g_fAnglePlayer;									// 対角線の角度
-float g_fMovePlayerSize;								// 大きさの変動量
 int g_nCounterAnimPlayer;								// アニメーションカウンター
 int g_nPatternAnimPlayer;								// アニメーションパターンNo.
 
@@ -65,36 +62,30 @@ void InitPlayer(void)
 	g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置
 	g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量
 	g_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 向きを初期化する
-	g_fMovePlayerSize = 0.0f;								// 大きさの変動量を初期化
+	g_player.fRadius = PLAYER_SIZE;							// プレイヤーの大きさの初期化
 	g_player.nLife = MAX_LIFE;								// ライフの初期化
 	g_player.nStock = MAX_STOCK;							// 残機の初期化
 	g_player.state = PLAYERSTATE_NORMAL;					// 状態の初期化
 	g_player.bDisp = true;									// 表示状態の初期化
 
-	// 対角線の長さを算出する
-	g_fLengthPlayer = sqrtf(PLAYER_SIZEX * PLAYER_SIZEX + PLAYER_SIZEY * PLAYER_SIZEY) * 0.5f;
-
-	// 対角線の角度を算出する
-	g_fAnglePlayer = atan2f(PLAYER_SIZEX, PLAYER_SIZEY);
-
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffPlayer->Lock(0, 0, (void * *)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos.x = g_player.pos.x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[0].pos.y = g_player.pos.y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.x = g_player.pos.x - g_player.fRadius;
+	pVtx[0].pos.y = g_player.pos.y - g_player.fRadius;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_player.pos.x + sinf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[1].pos.y = g_player.pos.y + cosf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.x = g_player.pos.x + g_player.fRadius;
+	pVtx[1].pos.y = g_player.pos.y - g_player.fRadius;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_player.pos.x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[2].pos.y = g_player.pos.y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.x = g_player.pos.x - g_player.fRadius;
+	pVtx[2].pos.y = g_player.pos.y + g_player.fRadius;
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_player.pos.x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[3].pos.y = g_player.pos.y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.x = g_player.pos.x + g_player.fRadius;
+	pVtx[3].pos.y = g_player.pos.y + g_player.fRadius;
 	pVtx[3].pos.z = 0.0f;
 
 	// rhwの設定
@@ -202,7 +193,7 @@ void UpdatePlayer(void)
 
 	case PLAYERSTATE_NORMAL:
 		// パーティクル設定
-		SetParticle(g_player.pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 40.0f, 3);
+		SetRainbowParticle(g_player.pos, 3000.0f, 15);
 		CollisionPlayertoEnemy();
 		break;
 
@@ -272,6 +263,7 @@ void UpdatePlayer(void)
 		return;
 	}
 
+	// オプションの標準向き取得
 	D3DXVECTOR3* pOptionStandardRot = GetStandardRot();
 
 	if (GetKeyboardRepeat(DIK_SPACE) == true)
@@ -282,7 +274,7 @@ void UpdatePlayer(void)
 		PlaySound(SOUND_LABEL_SE_SHOT);
 
 		//弾の設定
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
+		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL);
 
 
 		//弾の設定
@@ -290,7 +282,7 @@ void UpdatePlayer(void)
 		{
 			if ((pOption + nCntOption)->bUse == true)
 			{
-				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_HOMING, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
 			}
 		}
 	}
@@ -346,21 +338,17 @@ void UpdatePlayer(void)
 		PlaySound(SOUND_LABEL_SE_SHOT);
 
 		//弾の設定
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
+		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL);
 
 
 		//弾の設定
-		for(int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
-		if ((pOption + nCntOption)->bUse == true)
+		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 		{
-			SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+			if ((pOption + nCntOption)->bUse == true)
+			{
+				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_HOMING, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+			}
 		}
-
-		//斜め
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(-D3DX_PI * 0.75f) * BULLET_MOVE, cosf(-D3DX_PI * 0.75f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(D3DX_PI * 0.75f) * BULLET_MOVE, cosf(-D3DX_PI * 0.75f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		//SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(-D3DX_PI * 0.25f) * BULLET_MOVE, cosf(-D3DX_PI * 0.25f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
-		//SetPlayerBullet(g_player.pos, D3DXVECTOR3(sinf(D3DX_PI * 0.25f) * BULLET_MOVE, cosf(D3DX_PI * 0.25f) * BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER);
 	}
 
 	// チャージショット
@@ -383,7 +371,7 @@ void UpdatePlayer(void)
 	// オプション生成
 	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_F1) == true)
 	{
-		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f),64.0f, (pOptionStandardRot->z + 0.75f) * D3DX_PI);
+		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f), 64.0f, (pOptionStandardRot->z) * D3DX_PI);
 	}
 
 	// ジョイパッドの状態を取得
@@ -413,8 +401,8 @@ void UpdatePlayer(void)
 	}
 
 	// 移動量の更新
-	g_player.move.x += fThumbLX;
-	g_player.move.y -= fThumbLY;
+	g_player.move.x += fThumbLX * 0.5f;
+	g_player.move.y -= fThumbLY * 0.5f;
 
 	if (GetJoypadPress(JOYKEY_LEFT) == true)
 	{//Aキーが押された
@@ -459,90 +447,19 @@ void UpdatePlayer(void)
 		g_player.move.y += PLAYER_MOVEY;
 	}
 
-	//if (GetKeyboardPress(DIK_LEFT) == true)
-	//{//左キーが押された
-	//	//左に回転
-	//	g_player.move.z += 0.015f;
-	//}
-
-	//if (GetKeyboardPress(DIK_RIGHT) == true)
-	//{//右キーが押された
-	//	//右に回転
-	//	g_player.move.z += -0.015f;
-	//}
-
-	if (GetKeyboardPress(DIK_UP) == true)
-	{//上キーが押された
-		//拡大
-		g_fMovePlayerSize += 1.5f;
-	}
-
-	if (GetKeyboardPress(DIK_DOWN) == true)
-	{//下キーが押された
-		//縮小
-		g_fMovePlayerSize += -1.5f;
-	}
-
 	// テスト用敵消去
 	if (GetKeyboardRepeat(DIK_DELETE) == true)
 	{
 		DeleteEnemy();
 	}
 
-	// テスト用スコア加算
-	if (GetKeyboardPress(DIK_0) == true)
-	{
-		SetScore(0);
-	}
-	if (GetKeyboardPress(DIK_8) == true)
-	{
-		AddScore(1);
-	}
-	if (GetKeyboardPress(DIK_7) == true)
-	{
-		AddScore(10);
-	}
-	if (GetKeyboardPress(DIK_6) == true)
-	{
-		AddScore(100);
-	}
-	if (GetKeyboardPress(DIK_5) == true)
-	{
-		AddScore(1000);
-	}
-	if (GetKeyboardPress(DIK_4) == true)
-	{
-		AddScore(10000);
-	}
-	if (GetKeyboardPress(DIK_3) == true)
-	{
-		AddScore(100000);
-	}
-	if (GetKeyboardPress(DIK_2) == true)
-	{
-		AddScore(1000000);
-	}
-	if (GetKeyboardPress(DIK_1) == true)
-	{
-		AddScore(10000000);
-	}
-
 	// 位置を更新
 	g_player.pos.x += g_player.move.x;
 	g_player.pos.y += g_player.move.y;
-	g_player.rot.z += g_player.move.z;
-	g_fLengthPlayer += g_fMovePlayerSize;
 
 	// 慣性を更新
 	g_player.move.x += (0.0f - g_player.move.x) * 0.1f;
 	g_player.move.y += (0.0f - g_player.move.y) * 0.1f;
-	g_player.move.z += (0.0f - g_player.move.z) * 0.1f;
-	g_fMovePlayerSize += (0.0f - g_fMovePlayerSize) * 0.1f;
-
-	if (g_fLengthPlayer < PLAYER_MIN_SIZE)
-	{// もしサイズが一定以下だったら
-		g_fLengthPlayer = PLAYER_MIN_SIZE;
-	}
 
 	//// 端に行ったら反対に移動する
 	//if (g_player.pos.x + PLAYER_SIZEX < 0)
@@ -579,20 +496,20 @@ void UpdatePlayer(void)
 	g_pVtxBuffPlayer->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[0].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.x = g_player.pos.x - g_player.fRadius - pCameraPos->x;
+	pVtx[0].pos.y = g_player.pos.y - g_player.fRadius - pCameraPos->y;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[1].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.x = g_player.pos.x + g_player.fRadius - pCameraPos->x;
+	pVtx[1].pos.y = g_player.pos.y - g_player.fRadius - pCameraPos->y;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[2].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.x = g_player.pos.x - g_player.fRadius - pCameraPos->x;
+	pVtx[2].pos.y = g_player.pos.y + g_player.fRadius - pCameraPos->y;
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[3].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.x = g_player.pos.x + g_player.fRadius - pCameraPos->x;
+	pVtx[3].pos.y = g_player.pos.y + g_player.fRadius - pCameraPos->y;
 	pVtx[3].pos.z = 0.0f;
 
 	// 頂点バッファをアンロックする
@@ -635,21 +552,21 @@ void HitPlayer(int nDamage)
 				g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置の初期化
 				g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量の初期化
 
-					// 頂点座標の設定
-				pVtx[0].pos.x = g_player.pos.x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-				pVtx[0].pos.y = g_player.pos.y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+				// 頂点座標の設定
+				pVtx[0].pos.x = g_player.pos.x - g_player.fRadius;
+				pVtx[0].pos.y = g_player.pos.y - g_player.fRadius;
 				pVtx[0].pos.z = 0.0f;
 
-				pVtx[1].pos.x = g_player.pos.x + sinf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-				pVtx[1].pos.y = g_player.pos.y + cosf(g_player.rot.z - D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+				pVtx[1].pos.x = g_player.pos.x + g_player.fRadius;
+				pVtx[1].pos.y = g_player.pos.y - g_player.fRadius;
 				pVtx[1].pos.z = 0.0f;
 
-				pVtx[2].pos.x = g_player.pos.x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-				pVtx[2].pos.y = g_player.pos.y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+				pVtx[2].pos.x = g_player.pos.x - g_player.fRadius;
+				pVtx[2].pos.y = g_player.pos.y + g_player.fRadius;
 				pVtx[2].pos.z = 0.0f;
 
-				pVtx[3].pos.x = g_player.pos.x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-				pVtx[3].pos.y = g_player.pos.y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+				pVtx[3].pos.x = g_player.pos.x + g_player.fRadius;
+				pVtx[3].pos.y = g_player.pos.y + g_player.fRadius;
 				pVtx[3].pos.z = 0.0f;
 			}
 			else
@@ -693,10 +610,10 @@ void CollisionPlayertoEnemy(void)
 	{
 		if (pEnemy->bUse == true)
 		{
-			if (pEnemy->pos.x >= g_player.pos.x - ENEMY_SIZEX - (BULLET_SIZEX / 2) &&
-				pEnemy->pos.y >= g_player.pos.y - ENEMY_SIZEY - (BULLET_SIZEY / 2) &&
-				pEnemy->pos.x <= g_player.pos.x + ENEMY_SIZEX + (BULLET_SIZEX / 2) &&
-				pEnemy->pos.y <= g_player.pos.y + ENEMY_SIZEY + (BULLET_SIZEY / 2) &&
+			if (pEnemy->pos.x >= g_player.pos.x - ENEMY_SIZEX - (PLAYER_SIZE / 2) &&
+				pEnemy->pos.y >= g_player.pos.y - ENEMY_SIZEY - (PLAYER_SIZE / 2) &&
+				pEnemy->pos.x <= g_player.pos.x + ENEMY_SIZEX + (PLAYER_SIZE / 2) &&
+				pEnemy->pos.y <= g_player.pos.y + ENEMY_SIZEY + (PLAYER_SIZE / 2) &&
 				g_player.state == PLAYERSTATE_NORMAL)
 			{// もし敵とプレイヤーがあたっていたら
 				// ヒット処理

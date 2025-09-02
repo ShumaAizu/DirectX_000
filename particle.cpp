@@ -37,7 +37,7 @@ void InitParticle(void)
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
 	{
 		g_aParticle[nCntParticle].pos = {};
-		g_aParticle[nCntParticle].col = {};
+		g_aParticle[nCntParticle].col = {0.0f, 0.0f, 0.0f, 1.0f};
 		g_aParticle[nCntParticle].fRadius = {};
 		g_aParticle[nCntParticle].nLife = {};
 		g_aParticle[nCntParticle].bUse = false;
@@ -74,15 +74,21 @@ void UpdateParticle(void)
 			{
 				pos = g_aParticle[nCntParticle].pos;
 
+				pos.x += (float)(rand() % 300) / 100.0f + 1.0f;
+				pos.y += (float)(rand() % 300) / 100.0f + 1.0f;
+
 				fAngle = (float)(rand() % 629 - 314) / 100.0f;
-				fMove = (float)(rand() % 750) / 100.0f + 5.0f;
+				fMove = (float)(rand() % 500) / 100.0f + 0.5f;
 
 				move.x = sinf(fAngle) * fMove;
 				move.y = cosf(fAngle) * fMove;
 
-				col = g_aParticle[nCntParticle].col;
-				fRadius = g_aParticle[nCntParticle].fRadius;
-				nLife = 25;
+				col.r = (float)(rand() % 101) / 100.0f;
+				col.g = (float)(rand() % 101) / 100.0f;
+				col.b = (float)(rand() % 101) / 100.0f;
+				col.a = 1.0f;
+				fRadius = (float)(rand() % (int)g_aParticle[nCntParticle].fRadius) / 100.0f + 5.0f;
+				nLife = 200;
 
 				SetEffect(pos, move, col, fRadius, nLife);
 			}
@@ -114,11 +120,35 @@ void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
 	{
 		if (g_aParticle[nCntParticle].bUse == false)
-		{// エフェクトを使用していない
+		{// パーティクルを使用していない
 			g_aParticle[nCntParticle].pos = pos;			// 受け取った位置を代入
 			g_aParticle[nCntParticle].col = col;			// 受け取った色を代入
 			g_aParticle[nCntParticle].nLife = nLife;		// 受け取った寿命を代入
 			g_aParticle[nCntParticle].fRadius = fRadius;	// 受け取った半径を代入
+
+			g_aParticle[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
+			break;		// ここでfor文を抜ける
+		}
+	}
+}
+
+//====================================
+//	パーティクルの設定処理
+//====================================
+void SetRainbowParticle(D3DXVECTOR3 pos, float fRadius, int nLife)
+{
+
+	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
+	{
+		if (g_aParticle[nCntParticle].bUse == false)
+		{// パーティクルを使用していない
+			g_aParticle[nCntParticle].pos = pos;			// 受け取った位置を代入
+			g_aParticle[nCntParticle].nLife = nLife;		// 受け取った寿命を代入
+			g_aParticle[nCntParticle].fRadius = fRadius;	// 受け取った半径を代入
+
+			g_aParticle[nCntParticle].col.r = (float)(rand() % 101) / 100.0f;
+			g_aParticle[nCntParticle].col.g = (float)(rand() % 101) / 100.0f;
+			g_aParticle[nCntParticle].col.b = (float)(rand() % 101) / 100.0f;
 
 			g_aParticle[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
 			break;		// ここでfor文を抜ける

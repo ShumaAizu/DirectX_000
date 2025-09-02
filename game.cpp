@@ -23,11 +23,14 @@
 #include "stock.h"
 #include "pause.h"
 #include "camera.h"
+#include "frame.h"
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
+GAMESTATE g_gameState = GAMESTATE_NONE;		// ゲームの状態
 GAMEEND g_gameend = GAMEEND_MAX;			// 終了条件の情報
+int g_nCounterGameState = 0;					// 状態管理カウンター
 bool g_bGameend = false;					// 終了するかどうか
 bool g_bPause = false;						// ポーズ中かどうか
 
@@ -54,9 +57,6 @@ void InitGame(void)
 	// 敵の初期化処理
 	InitEnemy();
 
-	// 敵のセット処理
-	srand((unsigned)timeGetTime());
-
 	// スコアの初期化処理
 	InitScore();
 
@@ -77,6 +77,9 @@ void InitGame(void)
 
 	// 残機の初期化
 	InitStock();
+
+	// フレームの初期化
+	InitFrame();
 
 	// ポーズメニューの初期化
 	InitPause();
@@ -134,6 +137,9 @@ void UninitGame(void)
 
 	// 残機の終了処理
 	UninitStock();
+
+	// フレームの終了処理
+	UninitFrame();
 
 	// ポーズメニューの終了処理
 	UninitPause();
@@ -197,6 +203,9 @@ void UpdateGame(void)
 
 		// 残機の更新処理
 		UpdateStock();
+
+		// フレームの更新処理
+		UpdateFrame();
 
 		// プレイヤーの情報を取得
 		Player* pPlayer = GetPlayer();
@@ -263,6 +272,9 @@ void DrawGame(void)
 	// オプションの描画処理
 	DrawOption();
 
+	// フレームの描画処理
+	DrawFrame();
+
 	// 制限時間の描画処理
 	DrawTime();
 
@@ -277,6 +289,24 @@ void DrawGame(void)
 		// ポーズメニューの描画処理
 		DrawPause();
 	}
+}
+
+//========================================
+//	ゲームの状態設定
+//========================================
+void SetGameState(GAMESTATE state, int nCounter)
+{
+	g_gameState = state;
+
+	g_nCounterGameState = nCounter;
+}
+
+//========================================
+//	ゲームの状態の取得
+//========================================
+GAMESTATE GetGameState(void)
+{
+	return g_gameState;
 }
 
 //========================================

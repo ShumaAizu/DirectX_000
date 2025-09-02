@@ -32,7 +32,7 @@
 #define SCREEN_WIDTH		(1280)												// ウインドウの幅
 #define SCREEN_HEIGHT		(720)												// ウインドウの高さ
 #define FVF_VERTEX_2D		(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット(2D)
-#define SQRTF(X, Y)			((X * X + Y * Y) * 0.5f)							// 対角線の長さ算出
+#define SQRTF(X, Y)			(sqrtf(X * X + Y * Y) * 0.5f)						// 対角線の長さ算出
 
 //*****************************************************************************
 // モードの種類

@@ -14,8 +14,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define PAUSE_MENU_POSX		(905.0f)
-#define PAUSE_MENU_POSY		(420.0f)
+#define PAUSE_MENU_POSX		(515.0f)
+#define PAUSE_MENU_POSY		(290.0f)
 #define PAUSE_MENU_SIZEX	(250.0f)
 #define PAUSE_MENU_SIZEY	(100.0f)
 
@@ -24,7 +24,8 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_apTexturePause[PAUSE_MENU_MAX] = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPause = NULL;					// 頂点バッファへのポインタ
-PAUSE_MENU g_pauseMenu = PAUSE_MENU_CONTINUE;
+PAUSE_MENU g_pauseMenu = PAUSE_MENU_CONTINUE;					// ポーズメニューの状態
+bool g_bPauseDisp = true;
 
 //=============================================================================
 //	ポーズメニューの初期化処理
@@ -59,6 +60,7 @@ void InitPause(void)
 	// 初期化
 
 	g_pauseMenu = PAUSE_MENU_CONTINUE;
+	g_bPauseDisp = true;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -137,13 +139,16 @@ void DrawPause(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	if (g_bPauseDisp == true)
 	{
-		// テクスチャの設定
-		pDevice->SetTexture(0, g_apTexturePause[nCntPause]);
+		for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+		{
+			// テクスチャの設定
+			pDevice->SetTexture(0, g_apTexturePause[nCntPause]);
 
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntPause * 4, 2);
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntPause * 4, 2);
+		}
 	}
 }
 
@@ -152,15 +157,13 @@ void DrawPause(void)
 //=============================================================================
 void UpdatePause(void)
 {
-	int nCntPause;
-
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffPause->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
 	{
 		if (nCntPause == g_pauseMenu)
 		{ // 選択されていれば不透明度を戻す
@@ -182,7 +185,7 @@ void UpdatePause(void)
 		pVtx += 4;
 	}
 
-	if (GetKeyboardRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_UP) == true)
+	if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_UP) == true)
 	{ // 上方向キーが押されたら
 		// 現在のモードに合わせて変更
 		switch (g_pauseMenu)
@@ -242,6 +245,10 @@ void UpdatePause(void)
 		}
 	}
 
+	if (GetKeyboardTrigger(DIK_F5) == true)
+	{
+		g_bPauseDisp = g_bPauseDisp ? false : true;
+	}
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffPause->Unlock();

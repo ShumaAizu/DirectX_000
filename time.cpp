@@ -12,10 +12,10 @@
 // マクロ定義
 //*****************************************************************************
 #define NUM_PLACE		(3)			// 制限時間の桁数
-#define TIME_POSX		(565)		// 制限時間の座標X
-#define TIME_POSY		(0)			// 制限時間の座標Y
-#define TIME_SIZEX		(50)		// 制限時間のサイズX
-#define TIME_SIZEY		(75)		// 制限時間のサイズY
+#define TIME_POSX		(565.0f)	// 制限時間の座標X
+#define TIME_POSY		(0.0f)		// 制限時間の座標Y
+#define TIME_SIZEX		(50.0f)		// 制限時間のサイズX
+#define TIME_SIZEY		(75.0f)		// 制限時間のサイズY
 #define LIMIT_TIME		(30)		// 制限時間
 
 //*****************************************************************************

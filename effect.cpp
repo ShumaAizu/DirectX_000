@@ -13,7 +13,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAX_EFFECT		(12288)			// エフェクトの最大数
+#define MAX_EFFECT		(35500)			// エフェクトの最大数
 
 // エフェクト構造体
 typedef struct
@@ -196,7 +196,9 @@ void UpdateEffect(void)
 			switch (g_aEffect[nCntEffect].state)
 			{
 			case EFFECTSTATE_NORMAL:
-				g_aEffect[nCntEffect].fRadius -= 5.25f;	// 大きさを小さくする
+				g_aEffect[nCntEffect].fRadius -= 1.25f;	// 大きさを小さくする
+
+
 				break;
 
 			case EFFECTSTATE_COLLECT:
@@ -204,8 +206,8 @@ void UpdateEffect(void)
 				Player* pPlayer = GetPlayer();
 				float fAngle = atan2f(pPlayer->pos.x - g_aEffect[nCntEffect].pos.x, pPlayer->pos.y - g_aEffect[nCntEffect].pos.y);
 
-				g_aEffect[nCntEffect].move.x = sinf(fAngle) * 10.0f;
-				g_aEffect[nCntEffect].move.y = cosf(fAngle) * 10.0f;
+				g_aEffect[nCntEffect].move.x = sinf(fAngle) * 20.0f;
+				g_aEffect[nCntEffect].move.y = cosf(fAngle) * 20.0f;
 
 				if (g_aEffect[nCntEffect].pos == pPlayer->pos)
 				{

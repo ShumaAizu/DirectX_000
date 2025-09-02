@@ -23,23 +23,35 @@ typedef enum
 	OPTIONSTATE_NORMAL = 0,				// 通常
 	OPTIONSTATE_WAIT,					// 出現待ち
 	OPTIONSTATE_COOLTIME,				// 機能不能
-	OPTIONSTATE_STAY,					// 待機
 	OPTIONSTATE_MAX
 }OPTIONSTATE;
+
+//*****************************************************************************
+// オプションの状態
+//*****************************************************************************
+typedef enum
+{
+	SUBOPTIONSTATE_NORMAL = 0,				// 通常
+	SUBOPTIONSTATE_BARRIER,					// 防御
+	SUBOPTIONSTATE_SEPARATION,				// 分離
+	SUBOPTIONSTATE_MAX
+}SUBOPTIONSTATE;
+
 //*****************************************************************************
 // オプション構造体の定義
 //*****************************************************************************
 typedef struct
 {
-	D3DXVECTOR3 pos;		// 位置
-	D3DXVECTOR3 move;		// 移動量
-	D3DXVECTOR3 rot;		// 向き
-	float fDistance;		// プレイヤーとの距離
-	float fAngle;			// プレイヤーとの角度
-	OPTIONSTATE state;		// 状態
-	int nCounterState;		// 状態カウンター
-	bool bUse;				// 使用しているかどうか
-	bool bDisp;				// 表示状態
+	D3DXVECTOR3 pos;			// 位置
+	D3DXVECTOR3 move;			// 移動量
+	D3DXVECTOR3 rot;			// 向き
+	OPTIONSTATE state;			// 状態
+	SUBOPTIONSTATE substate;	// 状態(二種類目)
+	float fDistance;			// プレイヤーとの距離
+	float fAngle;				// プレイヤーとの角度
+	int nCounterState;			// 状態カウンター
+	bool bUse;					// 使用しているかどうか
+	bool bDisp;					// 表示状態
 }Option;
 
 //*****************************************************************************

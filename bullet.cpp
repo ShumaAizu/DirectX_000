@@ -21,6 +21,16 @@
 #define MAX_BULLET		(2048)			// 弾の最大数
 
 //*****************************************************************************
+// ホーミングターゲットの構造体定義
+//*****************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;
+	float fVector;
+	float fAngle;
+}Target;
+
+//*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureBullet = NULL;				// テクスチャへのポインタ
@@ -50,6 +60,8 @@ void InitBullet(void)
 		g_aBullet[nCntBullet].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aBullet[nCntBullet].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aBullet[nCntBullet].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_aBullet[nCntBullet].target = NULL;
+		g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
 		g_aBullet[nCntBullet].nLife = 30;
 		g_aBullet[nCntBullet].bUse = false;			// 使用していない状態にする
 
@@ -164,6 +176,8 @@ void UpdateBullet(void)
 {
 	int nCntBullet = 0;
 
+	Bullet* pBullet = &g_aBullet[0];
+
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
 	// 頂点座標の更新
@@ -173,47 +187,71 @@ void UpdateBullet(void)
 	g_pVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 使用判定
-	for (nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
+	for (nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++, pBullet++)
 	{
-		if (g_aBullet[nCntBullet].bUse == true)
+		if (pBullet->bUse == true)
 		{// 弾が使用されている
-			g_aBullet[nCntBullet].pos += g_aBullet[nCntBullet].move;
 
-			CollisionOption(&g_aBullet[nCntBullet]);
-
-			if (g_aBullet[nCntBullet].type == BULLETTYPE_PLAYER)
+			if (pBullet->type == BULLETTYPE_PLAYER)
 			{// プレイヤーの弾
 				// エフェクトの設定
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 25.0f, 50);
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 45.0f, 50);
-				SetParticle(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.1f, 1.0f, 1.0f, 1.0f), 30.0f, 5);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 25.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1, 0.75f, 1.0f), 45.0f, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 30.0f, 3);
 				// 敵との当たり判定
-				CollisionEnemy(&g_aBullet[nCntBullet]);
+				CollisionEnemy(pBullet);
 			}
-			else if (g_aBullet[nCntBullet].type == BULLETTYPE_ENEMY)
+			else if (pBullet->type == BULLETTYPE_ENEMY)
 			{// 敵の弾
 				// エフェクトの設定
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 0.1f, 1.0f, 1.0f), 15.0f, 50);
-				SetEffect(g_aBullet[nCntBullet].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 30.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 0.1f, 1.0f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 30.0f, 50);
 				// プレイヤーとの当たり判定
-				CollisionPlayer(&g_aBullet[nCntBullet]);
+				CollisionPlayer(pBullet);
+				CollisionOption(pBullet);
 			}
 
+			switch (pBullet->shottype)
+			{
+			case SHOTTYPE_HOMING:
+				Enemy* pEnemy = GetEnemy();
+
+				if ((pEnemy + pBullet->target)->bUse == false)
+				{
+					pBullet->shottype = SHOTTYPE_NORMAL;
+				}
+				else
+				{
+					float fAngle = atan2f((pEnemy + pBullet->target)->pos.x - pBullet->pos.x, (pEnemy + pBullet->target)->pos.y - pBullet->pos.y);
+
+					pBullet->move.x = sinf(fAngle) * 15.0f;
+					pBullet->move.y = cosf(fAngle) * 15.0f;
+
+					pBullet->move.x += (0.0f - pBullet->move.x) * 0.3f;
+					pBullet->move.y += (0.0f - pBullet->move.y) * 0.3f;
+				}
+
+				break;
+			}
+
+			// 位置の更新
+			pBullet->pos += pBullet->move;
+
 			// 頂点座標の設定
-			pVtx[0].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
-			pVtx[0].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[0].pos.x = pBullet->pos.x - pCameraPos->x + sinf(pBullet->rot.z + D3DX_PI + pBullet->fAngle) * pBullet->fLength;
+			pVtx[0].pos.y = pBullet->pos.y - pCameraPos->y + cosf(pBullet->rot.z + D3DX_PI + pBullet->fAngle) * pBullet->fLength;
 			pVtx[0].pos.z = 0.0f;
 
-			pVtx[1].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z - D3DX_PI - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
-			pVtx[1].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z - D3DX_PI - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[1].pos.x = pBullet->pos.x - pCameraPos->x + sinf(pBullet->rot.z - D3DX_PI - pBullet->fAngle) * pBullet->fLength;
+			pVtx[1].pos.y = pBullet->pos.y - pCameraPos->y + cosf(pBullet->rot.z - D3DX_PI - pBullet->fAngle) * pBullet->fLength;
 			pVtx[1].pos.z = 0.0f;
 
-			pVtx[2].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
-			pVtx[2].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[2].pos.x = pBullet->pos.x - pCameraPos->x + sinf(pBullet->rot.z - pBullet->fAngle) * pBullet->fLength;
+			pVtx[2].pos.y = pBullet->pos.y - pCameraPos->y + cosf(pBullet->rot.z - pBullet->fAngle) * pBullet->fLength;
 			pVtx[2].pos.z = 0.0f;
 
-			pVtx[3].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
-			pVtx[3].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[3].pos.x = pBullet->pos.x - pCameraPos->x + sinf(pBullet->rot.z + pBullet->fAngle) * pBullet->fLength;
+			pVtx[3].pos.y = pBullet->pos.y - pCameraPos->y + cosf(pBullet->rot.z + pBullet->fAngle) * pBullet->fLength;
 			pVtx[3].pos.z = 0.0f;
 
 			//// 使用判定
@@ -223,21 +261,22 @@ void UpdateBullet(void)
 			//	g_aBullet[nCntBullet].bUse = false;		// 弾を使用していない状態にする
 			//}
 
-			g_aBullet[nCntBullet].nLife--;				// 寿命を削る
+			pBullet->nLife--;				// 寿命を削る
 
-			if (g_aBullet[nCntBullet].nLife < 0)
+			if (pBullet->nLife < 0)
 			{//もし寿命が尽きたら
-				SetExplosion(g_aBullet[nCntBullet].pos, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f));
-				g_aBullet[nCntBullet].bUse = false;		// 弾を使用していない状態にする
+				SetExplosion(pBullet->pos, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f));
+				pBullet->bUse = false;		// 弾を使用していない状態にする
 			}
 
-			if (g_aBullet[nCntBullet].bUse == false)
+			if (pBullet->bUse == false)
 			{// 弾が使用していない状態になったら
 				// 初期化
-				g_aBullet[nCntBullet].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-				g_aBullet[nCntBullet].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-				g_aBullet[nCntBullet].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-				g_aBullet[nCntBullet].nLife = 30;
+				pBullet->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				pBullet->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				pBullet->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				pBullet->target = NULL;
+				pBullet->nLife = 30;
 			}
 		}
 
@@ -251,7 +290,7 @@ void UpdateBullet(void)
 //=============================================================================
 //	敵の弾の設定
 //=============================================================================
-void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type, float fAngleE_P)
+void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type,SHOTTYPE shottype, float fAngleE_P)
 {
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
@@ -266,6 +305,36 @@ void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type, fl
 		if (g_aBullet[nCntBullet].bUse == false)
 		{// 弾を使用していない
 			g_aBullet[nCntBullet].pos = pos;
+
+			g_aBullet[nCntBullet].shottype = shottype;
+
+			switch (g_aBullet[nCntBullet].shottype)
+			{
+			case SHOTTYPE_HOMING:				// ホーミング弾
+				float fLength = NULL;			// 対角線の長さ
+				float fLengthLast = 250.0f;		// 一番短い対角線の長さ
+				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
+				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+				{
+					if (pEnemy->bUse == false)
+					{
+						continue;
+					}
+
+					// 対角線の長さ算出
+					fLength = SQRTF((pEnemy->pos.x - g_aBullet[nCntBullet].pos.x), (pEnemy->pos.y - g_aBullet[nCntBullet].pos.y));
+					if (fLength < fLengthLast)
+					{// もし一番短い対角線の長さが更新されたら
+						fLengthLast = fLength;
+						g_aBullet[nCntBullet].target = nCntEnemy;
+					}
+				}
+
+				if (fLengthLast >= 250.0f)
+				{
+					g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
+				}
+			}
 
 			pVtx[0].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
 			pVtx[0].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
@@ -302,7 +371,7 @@ void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type, fl
 //=============================================================================
 //	プレイヤーの弾の設定
 //=============================================================================
-void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE type)
+void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE type, SHOTTYPE shottype)
 {
 	// プレイヤー情報の取得
 	Player* pPlayer = GetPlayer();
@@ -320,6 +389,36 @@ void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE ty
 		if (g_aBullet[nCntBullet].bUse == false)
 		{// 弾を使用していない
 			g_aBullet[nCntBullet].pos = pos;
+
+			g_aBullet[nCntBullet].shottype = shottype;
+
+			switch (g_aBullet[nCntBullet].shottype)
+			{
+			case SHOTTYPE_HOMING:				// ホーミング弾
+				float fLength = NULL;			// 対角線の長さ
+				float fLengthLast = 250.0f;		// 一番短い対角線の長さ
+				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
+				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+				{
+					if (pEnemy->bUse == false)
+					{
+						continue;
+					}
+
+					// 対角線の長さ算出
+					fLength = SQRTF((pEnemy->pos.x - g_aBullet[nCntBullet].pos.x), (pEnemy->pos.y - g_aBullet[nCntBullet].pos.y));
+					if (fLength < fLengthLast)
+					{// もし一番短い対角線の長さが更新されたら
+						fLengthLast = fLength;
+						g_aBullet[nCntBullet].target = nCntEnemy;
+					}
+				}
+
+				if (fLengthLast >= 250.0f)
+				{
+					g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
+				}
+			}
 
 			//頂点座標の設定
 			pVtx[0].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
@@ -416,7 +515,7 @@ void CollisionOption(Bullet* pBullet)
 				pBullet->pos.y >= pOption->pos.y - ENEMY_SIZEY - (BULLET_SIZEY / 2) &&
 				pBullet->pos.x <= pOption->pos.x + ENEMY_SIZEX + (BULLET_SIZEX / 2) &&
 				pBullet->pos.y <= pOption->pos.y + ENEMY_SIZEY + (BULLET_SIZEY / 2) &&
-				pOption->state == OPTIONSTATE_NORMAL)
+				pOption->state == SUBOPTIONSTATE_BARRIER)
 			{// もし弾がオプションにあたっていたら
 				// オプションのヒット処理
 				HitOption(nCntEnemy);

@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="ヘッダー ファイル">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
@@ -13,79 +9,92 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{198c6715-1ec9-4545-90ee-9edcac48f06f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="test\ソース ファイル\game">
+      <UniqueIdentifier>{ad20373f-e061-4a85-a4e4-74242f01a3de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="player.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="bg.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="input.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="bullet.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="explosion.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="enemy.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="score.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="sound.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="title.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="result.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="fade.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="effect.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ranking.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="option.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="time.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="life.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="stock.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="pause.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="wave.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="particle.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="marker.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>test\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="frame.cpp">
+      <Filter>test\ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +168,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="marker.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="frame.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

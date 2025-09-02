@@ -12,10 +12,10 @@
 // マクロ定義
 //*****************************************************************************
 #define NUM_PLACE		(8)			// スコアの桁数
-#define SCORE_POSX		(1020)		// スコアの座標X
-#define SCORE_POSY		(0)			// スコアの座標Y
-#define SCORE_SIZEX		(30)		// スコアのサイズX
-#define SCORE_SIZEY		(45)		// スコアのサイズY
+#define SCORE_POSX		(1020.0f)	// スコアの座標X
+#define SCORE_POSY		(0.0f)		// スコアの座標Y
+#define SCORE_SIZEX		(30.0f)		// スコアのサイズX
+#define SCORE_SIZEY		(45.0f)		// スコアのサイズY
 
 //*****************************************************************************
 // グローバル変数
@@ -114,7 +114,6 @@ void UninitScore(void)
 void DrawScore(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
-	int nCntNumber;
 
 	// デバイスの取得
 	pDevice = GetDevice();
@@ -128,7 +127,7 @@ void DrawScore(void)
 	// テクスチャの設定
 	pDevice->SetTexture(0, g_pTextureScore);
 
-	for (nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
+	for (int nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
 	{
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntNumber * 4, 2);
@@ -183,12 +182,11 @@ void SetScore(int nScore)
 }
 
 //====================================
-//	スコアの設定処理
+//	スコアの加算処理
 //====================================
 void AddScore(int nValue)
 {
 	int aTexU[NUM_PLACE];		// 各桁の数字を格納
-	int nCntNumber = 0;
 	g_nScore += nValue;
 
 	aTexU[0] = g_nScore % 100000000 / 10000000;
@@ -206,7 +204,7 @@ void AddScore(int nValue)
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
+	for (int nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
 	{
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 0.0f);

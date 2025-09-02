@@ -18,7 +18,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define OPTION_RADIUS	(16)		// オプションの半径
+#define OPTION_RADIUS	(32.0f)		// オプションの半径
 #define OPTION_COOLTIME	(60)		// オプションのクールタイム(ms)
 
 //*****************************************************************************
@@ -26,9 +26,10 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureOption = NULL;						// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffOption = NULL;				// 頂点バッファへのポインタ
-Option g_aOption[MAX_OPTION] = {};									// オプションの情報
-D3DXVECTOR3 g_standard_rot = {};
-float g_Angle = NULL;
+Option g_aOption[MAX_OPTION] = {};								// オプションの情報
+D3DXVECTOR3 g_standard_rot = {};								// 標準向き
+float g_fLengthOption = {};
+float g_fAngleOption = {};
 
 //====================================
 //	オプションの初期化処理
@@ -45,8 +46,10 @@ void InitOption(void)
 		&g_pTextureOption);
 
 	// 初期化
-
 	g_standard_rot = { 0.0f, 0.0f, 0.0f };
+
+	g_fLengthOption = SQRTF(OPTION_RADIUS, OPTION_RADIUS);
+	g_fAngleOption = atan2f(OPTION_RADIUS, OPTION_RADIUS);
 
 	for (nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 	{
@@ -77,11 +80,27 @@ void InitOption(void)
 
 	for (nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 	{
-		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
+		//// 頂点座標の設定
+		//pVtx[0].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
+		//pVtx[1].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y - OPTION_RADIUS, 0.0f);
+		//pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
+		//pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
+
+		pVtx[0].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.z = 0.0f;
+
+		pVtx[1].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.z = 0.0f;
+
+		pVtx[2].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.z = 0.0f;
+
+		pVtx[3].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.z = 0.0f;
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -201,18 +220,24 @@ void UpdateOption(void)
 
 				break;
 			}
+
+			switch (g_aOption[nCntOption].substate)
+			{
+			case SUBOPTIONSTATE_BARRIER:
+				break;
+			}
 		}
 
-		if (GetKeyboardPress(DIK_LSHIFT) == true || GetJoypadPress(JOYKEY_LEFT_SHOULDER))
+		if (GetKeyboardPress(DIK_Q) == true || GetJoypadPress(JOYKEY_LEFT_SHOULDER))
 		{// 左キーが押された
 			// 左に回転
-			pOption->move.z += 0.000515f;
+			pOption->move.z += 0.000715f;
 		}
 
-		if (GetKeyboardPress(DIK_LCONTROL) == true || GetJoypadPress(JOYKEY_RIGHT_SHOULDER))
+		if (GetKeyboardPress(DIK_E) == true || GetJoypadPress(JOYKEY_RIGHT_SHOULDER))
 		{// 右キーが押された
 			// 右に回転
-			pOption->move.z += -0.000515f;
+			pOption->move.z += -0.000715f;
 		}
 
 		g_standard_rot.z += pOption->move.z;
@@ -225,10 +250,21 @@ void UpdateOption(void)
 		pOption->pos.y = pPlayer->pos.y + cosf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
 
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS - pCameraPos->x, pOption->pos.y - OPTION_RADIUS - pCameraPos->y, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS - pCameraPos->x, pOption->pos.y - OPTION_RADIUS - pCameraPos->y, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(pOption->pos.x - OPTION_RADIUS - pCameraPos->x, pOption->pos.y + OPTION_RADIUS - pCameraPos->y, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(pOption->pos.x + OPTION_RADIUS - pCameraPos->x, pOption->pos.y + OPTION_RADIUS - pCameraPos->y, 0.0f);
+		pVtx[0].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.z = 0.0f;
+
+		pVtx[1].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.z = 0.0f;
+
+		pVtx[2].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.z = 0.0f;
+
+		pVtx[3].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.z = 0.0f;
 
 		pVtx += 4;			// 頂点データのポインタを4つ分進める
 	}
@@ -308,6 +344,9 @@ void HitOption(int nCntOption)
 	g_pVtxBuffOption->Unlock();
 }
 
+//=============================================================================
+//	標準向き取得処理
+//=============================================================================
 D3DXVECTOR3* GetStandardRot(void)
 {
 	return &g_standard_rot;
