@@ -229,16 +229,16 @@ void UpdatePlayer(void)
 			// 敵のリセット
 			ResetEnemy();
 
-			float nCntX = 390.0f, nCntY = 100.0f;
-			int nCnt1, nCnt2;
+			//float nCntX = 390.0f, nCntY = 100.0f;
+			//int nCnt1, nCnt2;
 
-			for (nCnt1 = 0; nCnt1 < 6; nCnt1++, nCntX += 100.0f)
-			{
-				for (nCnt2 = 0, nCntY = 50.0f; nCnt2 < 5; nCnt2++, nCntY += 50.0f)
-				{
-					SetEnemy(D3DXVECTOR3(nCntX, nCntY, 0.0f), rand() % 4, rand() % 5 + 1);
-				}
-			}
+			//for (nCnt1 = 0; nCnt1 < 6; nCnt1++, nCntX += 100.0f)
+			//{
+			//	for (nCnt2 = 0, nCntY = 50.0f; nCnt2 < 5; nCnt2++, nCntY += 50.0f)
+			//	{
+			//		SetEnemy(D3DXVECTOR3(nCntX, nCntY, 0.0f), rand() % 4, rand() % 5 + 1);
+			//	}
+			//}
 
 			g_player.state = PLAYERSTATE_NORMAL;		// 状態の初期化
 			g_player.nLife = 5;							// ライフの初期化

@@ -67,6 +67,7 @@ void InitEnemy(void)
 		g_aEnemy[nCntEnemy].move = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
 		g_aEnemy[nCntEnemy].bUse = false;			// 使用していない状態にする
 		g_aEnemy[nCntEnemy].bBlinking = false;
+		g_aEnemy[nCntEnemy].nTimeLine = -1;
 		g_aEnemy[nCntEnemy].nLife = 3;
 		g_aEnemy[nCntEnemy].nCounterAnim = 0;
 		g_aEnemy[nCntEnemy].nPatternAnim = 0;
@@ -293,6 +294,9 @@ void UpdateEnemy(void)
 					}
 				}
 				break;
+
+			case ENEMYSTATE_WAIT:
+				g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;
 			}
 
 			// テクスチャを更新
@@ -337,7 +341,7 @@ void UpdateEnemy(void)
 //=============================================================================
 //	敵の設定
 //=============================================================================
-void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife)
+void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine)
 {
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
@@ -349,11 +353,13 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife)
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
-		if (g_aEnemy[nCntEnemy].bUse == false)
+		if (g_aEnemy[nCntEnemy].bUse == false && g_aEnemy[nCntEnemy].state != ENEMYSTATE_WAIT)
 		{// 敵を使用していない
 			g_aEnemy[nCntEnemy].pos = pos;
 			g_aEnemy[nCntEnemy].type = (ENEMYTYPE)nType;
 			g_aEnemy[nCntEnemy].nLife = nLife;
+			g_aEnemy[nCntEnemy].nTimeLine = nTimeLine;
+			g_aEnemy[nCntEnemy].state = ENEMYSTATE_WAIT;
 
 			// 頂点座標の設定
 			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
@@ -362,7 +368,7 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife)
 			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
 
 			g_nCounterEnemy++;
-			g_aEnemy[nCntEnemy].bUse = true;		// 敵が使用されている状態にする
+			//g_aEnemy[nCntEnemy].bUse = true;		// 敵が使用されている状態にする
 			break;		// ここでfor文を抜ける
 		}
 
@@ -522,6 +528,7 @@ void LoadEnemy(void)
 		D3DXVECTOR3 pos = {};
 		int type = 0;
 		int life = 0;
+		int timeline = 0;
 		int nData;
 
 		while (true)
@@ -558,9 +565,16 @@ void LoadEnemy(void)
 						fscanf(pFile, "%d", &life);
 					}
 
+					if (strcmp(&aString[0], "TIMELINE") == 0)
+					{// LIFEを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &timeline);
+					}
+
 					if (strcmp(&aString[0], "ENDSET") == 0)
 					{// ENDSETを読み取った
-						SetEnemy(pos, type, life);
+						SetEnemy(pos, type, life, timeline);
 						break;
 					}
 				}

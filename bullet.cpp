@@ -227,8 +227,8 @@ void UpdateBullet(void)
 					pBullet->move.x = sinf(fAngle) * 15.0f;
 					pBullet->move.y = cosf(fAngle) * 15.0f;
 
-					pBullet->move.x += (0.0f - pBullet->move.x) * 0.3f;
-					pBullet->move.y += (0.0f - pBullet->move.y) * 0.3f;
+					pBullet->move.x += (0.0f - pBullet->move.x) * 0.1f;
+					pBullet->move.y += (0.0f - pBullet->move.y) * 0.1f;
 				}
 
 				break;

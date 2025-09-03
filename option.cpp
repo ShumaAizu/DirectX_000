@@ -60,10 +60,10 @@ void InitOption(void)
 		g_aOption[nCntOption].bUse = false;			// 使用していない状態にする
 	}
 
-	g_aOption[0].rot = D3DXVECTOR3(0.0f, 0.0f, -0.75f);
-	g_aOption[1].rot = D3DXVECTOR3(0.0f, 0.0f, 0.75f);
-	g_aOption[2].rot = D3DXVECTOR3(0.0f, 0.0f, -0.25f);
-	g_aOption[3].rot = D3DXVECTOR3(0.0f, 0.0f, 0.25f);
+	g_aOption[0].rot = D3DXVECTOR3(0.0f, 0.0f, 0.75f);
+	g_aOption[1].rot = D3DXVECTOR3(0.0f, 0.0f, -0.75f);
+	g_aOption[2].rot = D3DXVECTOR3(0.0f, 0.0f, 0.25f);
+	g_aOption[3].rot = D3DXVECTOR3(0.0f, 0.0f, -0.25f);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_OPTION,		// オプションの数だけ
@@ -90,8 +90,8 @@ void InitOption(void)
 		pVtx[0].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
 		pVtx[0].pos.z = 0.0f;
 
-		pVtx[1].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
-		pVtx[1].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
 		pVtx[1].pos.z = 0.0f;
 
 		pVtx[2].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
@@ -250,20 +250,20 @@ void UpdateOption(void)
 		pOption->pos.y = pPlayer->pos.y + cosf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
 
 		// 頂点座標の設定
-		pVtx[0].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
-		pVtx[0].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.x = g_aOption[nCntOption].pos.x - pCameraPos->x + sinf(g_aOption[nCntOption].rot.z + g_standard_rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.y = g_aOption[nCntOption].pos.y - pCameraPos->y + cosf(g_aOption[nCntOption].rot.z + g_standard_rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
 		pVtx[0].pos.z = 0.0f;
 
-		pVtx[1].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
-		pVtx[1].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.x = g_aOption[nCntOption].pos.x - pCameraPos->x + sinf(g_aOption[nCntOption].rot.z + g_standard_rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.y = g_aOption[nCntOption].pos.y - pCameraPos->y + cosf(g_aOption[nCntOption].rot.z + g_standard_rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
 		pVtx[1].pos.z = 0.0f;
 
-		pVtx[2].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
-		pVtx[2].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.x = g_aOption[nCntOption].pos.x - pCameraPos->x + sinf(g_aOption[nCntOption].rot.z + g_standard_rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.y = g_aOption[nCntOption].pos.y - pCameraPos->y + cosf(g_aOption[nCntOption].rot.z + g_standard_rot.z - g_fAngleOption) * g_fLengthOption;
 		pVtx[2].pos.z = 0.0f;
 
-		pVtx[3].pos.x = g_aOption[nCntOption].pos.x + sinf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
-		pVtx[3].pos.y = g_aOption[nCntOption].pos.y + cosf(g_aOption[nCntOption].rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.x = g_aOption[nCntOption].pos.x - pCameraPos->x + sinf(g_aOption[nCntOption].rot.z + g_standard_rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.y = g_aOption[nCntOption].pos.y - pCameraPos->y + cosf(g_aOption[nCntOption].rot.z + g_standard_rot.z + g_fAngleOption) * g_fLengthOption;
 		pVtx[3].pos.z = 0.0f;
 
 		pVtx += 4;			// 頂点データのポインタを4つ分進める

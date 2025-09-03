@@ -24,6 +24,7 @@
 #include "pause.h"
 #include "camera.h"
 #include "frame.h"
+#include "wave.h"
 
 //*****************************************************************************
 // グローバル変数
@@ -39,6 +40,9 @@ bool g_bPause = false;						// ポーズ中かどうか
 //========================================
 void InitGame(void)
 {
+	// ウェーブの初期化処理
+	InitWave();
+
 	// カメラの初期化処理
 	InitCamera();
 
@@ -99,6 +103,9 @@ void InitGame(void)
 //========================================
 void UninitGame(void)
 {
+	// ウェーブの終了処理
+	UninitWave();
+
 	// カメラの終了処理
 	UninitCamera();
 
@@ -156,6 +163,7 @@ void UpdateGame(void)
 	if (GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true)
 	{// ポーズキーが押された
 		g_bPause = g_bPause ? false : true;		// ポーズ状態を切り替える
+		SetPauseMenu(PAUSE_MENU_CONTINUE);
 	}
 
 	if (g_bPause == true)
@@ -163,8 +171,11 @@ void UpdateGame(void)
 		// ポーズの更新処理
 		UpdatePause();
 	}
-	else
+	else if(GetFade() != FADE_OUT)
 	{
+		// ウェーブの更新処理
+		UpdateWave();
+
 		// カメラの更新処理
 		UpdateCamera();
 
@@ -226,7 +237,7 @@ void UpdateGame(void)
 		// ゲーム終了条件
 		if (g_bGameend == true)
 		{
-			nGameEndCounter++;
+			//nGameEndCounter++;
 			if (nGameEndCounter % 60 == 0)
 			{
 				nGameEndCounter = 0;
@@ -242,6 +253,9 @@ void UpdateGame(void)
 //========================================
 void DrawGame(void)
 {
+	// ウェーブの描画処理
+	DrawWave();
+
 	// カメラの描画処理
 	DrawCamera();
 

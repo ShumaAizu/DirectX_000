@@ -25,6 +25,7 @@
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffWave = NULL;					// 頂点バッファへのポインタ
+int g_nTimeLine = 0;
 
 //====================================
 //	敵の初期化処理
@@ -34,13 +35,7 @@ void InitWave(void)
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,		// 敵の数だけ
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&g_pVtxBuffWave,
-		NULL);
+	g_nTimeLine = 0;
 }
 
 //=============================================================================
@@ -69,7 +64,16 @@ void DrawWave(void)
 //=============================================================================
 void UpdateWave(void)
 {
+	Enemy* pEnemy = GetEnemy();
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+	{
+		if (pEnemy->nTimeLine == g_nTimeLine)
+		{
+			pEnemy->bUse = true;
+		}
+	}
 
+	g_nTimeLine++;
 }
 
 void LoadWave(void)
@@ -129,7 +133,7 @@ void LoadWave(void)
 
 				if (strcmp(&aString[0], "ENDSET") == 0)
 				{
-					SetEnemy(pos, type, life);
+					//SetEnemy(pos, type, life);
 					break;
 				}
 			}

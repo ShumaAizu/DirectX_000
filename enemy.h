@@ -23,7 +23,7 @@
 typedef enum
 {
 	ENEMYSTATE_NORMAL = 0,		// 通常状態
-	ENEMYSTATE__WAIT,			// 出現待ち
+	ENEMYSTATE_WAIT,			// 出現待ち
 	ENEMYSTATE_DAMAGE,			// ダメージ状態
 	ENEMYSTATE_WARNING,			// 危険状態
 	ENEMYSTATE_MAX
@@ -61,7 +61,7 @@ typedef struct
 	ENEMYSTATE state;				// 状態
 	ENEMYTYPE type;					// 種類
 	ENEMYATTACKTYPE attacktype;		// 攻撃種類
-	int nTimeline;					// タイムライン
+	int nTimeLine;					// タイムライン
 	int nLife;						// 体力
 	int nCounterAnim;				// アニメーションカウンター
 	int nPatternAnim;				// アニメーションNO.
@@ -78,7 +78,7 @@ void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife);
+void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine);
 Enemy *GetEnemy(void);
 void HitEnemy(int nCntEnemy, int nDamage);
 void ResetEnemy(void);

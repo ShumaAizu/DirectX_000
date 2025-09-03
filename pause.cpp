@@ -81,11 +81,22 @@ void InitPause(void)
 		pVtx[2].rhw = 1.0f;
 		pVtx[3].rhw = 1.0f;
 
-		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		if (nCntPause == g_pauseMenu)
+		{ // 選択されていれば不透明度を戻す
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		else
+		{ // 選択されていなければ不透明度を下げる
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+		}
 
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -252,4 +263,12 @@ void UpdatePause(void)
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffPause->Unlock();
+}
+
+//=============================================================================
+//	ポーズメニューの設定処理
+//=============================================================================
+void SetPauseMenu(PAUSE_MENU pause_menu)
+{
+	g_pauseMenu = pause_menu;
 }
