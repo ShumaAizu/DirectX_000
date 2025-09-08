@@ -12,10 +12,16 @@
 #include "fade.h"
 
 //*****************************************************************************
+// マクロ定義
+//*****************************************************************************
+#define RANKINGFADE_TIMER		(300)		// タイマーの秒数
+
+//*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureRanking = NULL;				// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffRanking = NULL;			// 頂点バッファへのポインタ
+int g_nRankingFadeCounter = 0;
 
 //====================================
 //	ランキングの初期化処理
@@ -72,6 +78,8 @@ void InitRanking(void)
 	// 頂点バッファをアンロックする
 	g_pVtxBuffRanking->Unlock();
 
+	g_nRankingFadeCounter = 0;
+
 	PlaySound(SOUND_LABEL_BGM000);
 }
 
@@ -126,7 +134,9 @@ void DrawRanking(void)
 //====================================
 void UpdateRanking(void)
 {
-	if (GetJoypadTrigger(JOYKEY_A) == true)
+	g_nRankingFadeCounter++;
+
+	if (GetJoypadTrigger(JOYKEY_A) == true || g_nRankingFadeCounter >= RANKINGFADE_TIMER)
 	{// 決定キーが押された
 		// モード設定
 		SetFade(MODE_TITLE);

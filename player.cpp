@@ -24,8 +24,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define INIT_POSX		(640.0f)			// 初期位置X
-#define INIT_POSY		(500.0f)			// 初期位置Y
+#define INIT_POSX		(WARLD_WIDTH / 2)			// 初期位置X
+#define INIT_POSY		(WARLD_HEIGHT / 2)			// 初期位置Y
 
 //*****************************************************************************
 // グローバル変数
@@ -62,6 +62,7 @@ void InitPlayer(void)
 	g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置
 	g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量
 	g_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 向きを初期化する
+	g_player.fSpeed = PLAYER_SPEED;							// 速度を初期化
 	g_player.fRadius = PLAYER_SIZE;							// プレイヤーの大きさの初期化
 	g_player.nLife = MAX_LIFE;								// ライフの初期化
 	g_player.nStock = MAX_STOCK;							// 残機の初期化
@@ -229,17 +230,6 @@ void UpdatePlayer(void)
 			// 敵のリセット
 			ResetEnemy();
 
-			//float nCntX = 390.0f, nCntY = 100.0f;
-			//int nCnt1, nCnt2;
-
-			//for (nCnt1 = 0; nCnt1 < 6; nCnt1++, nCntX += 100.0f)
-			//{
-			//	for (nCnt2 = 0, nCntY = 50.0f; nCnt2 < 5; nCnt2++, nCntY += 50.0f)
-			//	{
-			//		SetEnemy(D3DXVECTOR3(nCntX, nCntY, 0.0f), rand() % 4, rand() % 5 + 1);
-			//	}
-			//}
-
 			g_player.state = PLAYERSTATE_NORMAL;		// 状態の初期化
 			g_player.nLife = 5;							// ライフの初期化
 			g_player.bDisp = true;						// 表示状態の初期化
@@ -266,7 +256,7 @@ void UpdatePlayer(void)
 	// オプションの標準向き取得
 	D3DXVECTOR3* pOptionStandardRot = GetStandardRot();
 
-	if (GetKeyboardRepeat(DIK_SPACE) == true)
+	if (GetKeyboardRepeat(DIK_SPACE) == true || GetJoypadRepeat(JOYKEY_A) == true)
 	{//SPACEキーが押された
 
 		Option* pOption = GetOption();
@@ -274,7 +264,7 @@ void UpdatePlayer(void)
 		PlaySound(SOUND_LABEL_SE_SHOT);
 
 		//弾の設定
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL);
+		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 150, BULLETTYPE_PLAYER, SHOTTYPE_HOMING);
 
 
 		//弾の設定
@@ -282,7 +272,7 @@ void UpdatePlayer(void)
 		{
 			if ((pOption + nCntOption)->bUse == true)
 			{
-				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_HOMING, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
 			}
 		}
 	}
@@ -291,87 +281,43 @@ void UpdatePlayer(void)
 	{//Aキーが押された
 		if (GetKeyboardPress(DIK_W) == true)
 		{//かつWキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
 		}
 		else if (GetKeyboardPress(DIK_S) == true)
 		{//かつSキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
 		}
 		else
 		{
-			g_player.move.x -= PLAYER_MOVEX;
+			g_player.move.x -= PLAYER_SPEED;
 		}
 	}
 	else if (GetKeyboardPress(DIK_D) == true)
 	{//Dキーが押された
 		if (GetKeyboardPress(DIK_W) == true)
 		{//かつWキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
 		}
 		else if (GetKeyboardPress(DIK_S) == true)
 		{//かつSキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_SPEED;
+			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_SPEED;
 		}
 		else
 		{
-			g_player.move.x += PLAYER_MOVEX;
+			g_player.move.x += PLAYER_SPEED;
 		}
 	}
 	else if (GetKeyboardPress(DIK_W) == true)
 	{//Wキーが押された
-		g_player.move.y -= PLAYER_MOVEY;
+		g_player.move.y -= PLAYER_SPEED;
 	}
 	else if (GetKeyboardPress(DIK_S) == true)
 	{//Sキーが押された
-		g_player.move.y += PLAYER_MOVEY;
-	}
-
-	if (GetJoypadRepeat(JOYKEY_A) == true)
-	{//SPACEキーが押された
-
-		Option* pOption = GetOption();
-
-		PlaySound(SOUND_LABEL_SE_SHOT);
-
-		//弾の設定
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL);
-
-
-		//弾の設定
-		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
-		{
-			if ((pOption + nCntOption)->bUse == true)
-			{
-				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_HOMING, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
-			}
-		}
-	}
-
-	// チャージショット
-	if (GetJoypadRepeat(JOYKEY_B) == true)
-	{
-		static int ChargeCounter = 0;
-
-		ChargeCounter++;
-
-		if (ChargeCounter > 180)
-		{
-			SetParticle(g_player.pos, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f), 75.0f, 50);
-		}
-		else
-		{
-			SetCollectParticle(g_player.pos, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
-		}
-	}
-
-	// オプション生成
-	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_F1) == true)
-	{
-		SetOption(D3DXVECTOR3(g_player.pos.x, g_player.pos.y, 0.0f), 64.0f, (pOptionStandardRot->z) * D3DX_PI);
+		g_player.move.y += PLAYER_SPEED;
 	}
 
 	// ジョイパッドの状態を取得
@@ -401,50 +347,50 @@ void UpdatePlayer(void)
 	}
 
 	// 移動量の更新
-	g_player.move.x += fThumbLX * 0.5f;
-	g_player.move.y -= fThumbLY * 0.5f;
+	g_player.move.x += fThumbLX * g_player.fSpeed;
+	g_player.move.y -= fThumbLY * g_player.fSpeed;
 
 	if (GetJoypadPress(JOYKEY_LEFT) == true)
 	{//Aキーが押された
 		if (GetJoypadPress(JOYKEY_UP) == true)
 		{//かつWキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
 		}
 		else if (GetJoypadPress(JOYKEY_DOWN) == true)
 		{//かつSキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
 		}
 		else
 		{
-			g_player.move.x -= PLAYER_MOVEX;
+			g_player.move.x -= PLAYER_SPEED;
 		}
 	}
 	else if (GetJoypadPress(JOYKEY_RIGHT) == true)
 	{//Dキーが押された
 		if (GetJoypadPress(JOYKEY_UP) == true)
 		{//かつWキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_SPEED;
+			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
 		}
 		else if (GetJoypadPress(JOYKEY_DOWN) == true)
 		{//かつSキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_MOVEX;
-			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_MOVEY;
+			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_SPEED;
+			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_SPEED;
 		}
 		else
 		{
-			g_player.move.x += PLAYER_MOVEX;
+			g_player.move.x += PLAYER_SPEED;
 		}
 	}
 	else if (GetJoypadPress(JOYKEY_UP) == true)
 	{//Wキーが押された
-		g_player.move.y -= PLAYER_MOVEY;
+		g_player.move.y -= PLAYER_SPEED;
 	}
 	else if (GetJoypadPress(JOYKEY_DOWN) == true)
 	{//Sキーが押された
-		g_player.move.y += PLAYER_MOVEY;
+		g_player.move.y += PLAYER_SPEED;
 	}
 
 	// テスト用敵消去
@@ -461,24 +407,24 @@ void UpdatePlayer(void)
 	g_player.move.x += (0.0f - g_player.move.x) * 0.1f;
 	g_player.move.y += (0.0f - g_player.move.y) * 0.1f;
 
-	//// 端に行ったら反対に移動する
-	//if (g_player.pos.x + PLAYER_SIZEX < 0)
-	//{
-	//	g_player.pos.x = SCREEN_WIDTH;
-	//}
-	//if (g_player.pos.x - PLAYER_SIZEX > SCREEN_WIDTH)
-	//{
-	//	g_player.pos.x = 0;
-	//}
+	// 端に行ったら反対に移動する
+	if (g_player.pos.x < 0)
+	{
+		g_player.pos.x = 0;
+	}
+	if (g_player.pos.x > WARLD_WIDTH)
+	{
+		g_player.pos.x = WARLD_WIDTH;
+	}
 
-	//if (g_player.pos.y + PLAYER_SIZEY < 0)
-	//{
-	//	g_player.pos.y = SCREEN_HEIGHT;
-	//}
-	//if (g_player.pos.y - PLAYER_SIZEY > SCREEN_HEIGHT)
-	//{
-	//	g_player.pos.y = 0;
-	//}
+	if (g_player.pos.y < 0)
+	{
+		g_player.pos.y = 0;
+	}
+	if (g_player.pos.y > WARLD_HEIGHT)
+	{
+		g_player.pos.y = WARLD_HEIGHT;
+	}
 
 	// テクスチャを更新
 	g_nCounterAnimPlayer++;
@@ -539,18 +485,19 @@ void HitPlayer(int nDamage)
 	if (g_player.state != PLAYERSTATE_DEATH)
 	{
 		g_player.nLife -= nDamage;
+		SubScore(1000);
 		if (g_player.nLife <= 0)
 		{// プレイヤーのライフがなくなった
 			SetExplosion(g_player.pos, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
-			SetJoypadVibration(9000, 12000);
+			SetJoypadVibration(9000, 12000, 45);
 			if (g_player.nStock > 0)
 			{// プレイヤーのストックが残っていたら
 				g_player.state = PLAYERSTATE_WAIT;
 				g_player.nStock--;
 				g_player.nCounterState = 60;
 
-				g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置の初期化
-				g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量の初期化
+				g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);		// 位置の初期化
+				g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);				// 移動量の初期化
 
 				// 頂点座標の設定
 				pVtx[0].pos.x = g_player.pos.x - g_player.fRadius;
@@ -582,7 +529,7 @@ void HitPlayer(int nDamage)
 		{// プレイヤーの体力が残っていたら
 			g_player.state = PLAYERSTATE_DAMAGE;
 			g_player.nCounterState = 5;
-			SetJoypadVibration(6000, 9000);
+			SetJoypadVibration(6000, 9000, 30);
 
 			PlaySound(SOUND_LABEL_SE_HIT);
 
@@ -614,7 +561,7 @@ void CollisionPlayertoEnemy(void)
 				pEnemy->pos.y >= g_player.pos.y - ENEMY_SIZEY - (PLAYER_SIZE / 2) &&
 				pEnemy->pos.x <= g_player.pos.x + ENEMY_SIZEX + (PLAYER_SIZE / 2) &&
 				pEnemy->pos.y <= g_player.pos.y + ENEMY_SIZEY + (PLAYER_SIZE / 2) &&
-				g_player.state == PLAYERSTATE_NORMAL)
+				g_player.state == PLAYERSTATE_NORMAL && pEnemy->state != ENEMYSTATE_APPEAR)
 			{// もし敵とプレイヤーがあたっていたら
 				// ヒット処理
 				HitPlayer(MAX_LIFE);

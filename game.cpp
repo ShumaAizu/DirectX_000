@@ -24,6 +24,7 @@
 #include "pause.h"
 #include "camera.h"
 #include "frame.h"
+#include "powerup.h"
 #include "wave.h"
 
 //*****************************************************************************
@@ -31,7 +32,7 @@
 //*****************************************************************************
 GAMESTATE g_gameState = GAMESTATE_NONE;		// ゲームの状態
 GAMEEND g_gameend = GAMEEND_MAX;			// 終了条件の情報
-int g_nCounterGameState = 0;					// 状態管理カウンター
+int g_nCounterGameState = 0;				// 状態管理カウンター
 bool g_bGameend = false;					// 終了するかどうか
 bool g_bPause = false;						// ポーズ中かどうか
 
@@ -40,9 +41,6 @@ bool g_bPause = false;						// ポーズ中かどうか
 //========================================
 void InitGame(void)
 {
-	// ウェーブの初期化処理
-	InitWave();
-
 	// カメラの初期化処理
 	InitCamera();
 
@@ -60,6 +58,9 @@ void InitGame(void)
 
 	// 敵の初期化処理
 	InitEnemy();
+
+	// ウェーブの初期化処理
+	InitWave();
 
 	// スコアの初期化処理
 	InitScore();
@@ -87,6 +88,8 @@ void InitGame(void)
 
 	// ポーズメニューの初期化
 	InitPause();
+
+	g_gameState = GAMESTATE_NORMAL;
 
 	// 終了条件を初期化
 	g_bGameend = false;
@@ -160,7 +163,8 @@ void UninitGame(void)
 //========================================
 void UpdateGame(void)
 {
-	if (GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true)
+
+	if ((GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true) && GetFade() != FADE_OUT)
 	{// ポーズキーが押された
 		g_bPause = g_bPause ? false : true;		// ポーズ状態を切り替える
 		SetPauseMenu(PAUSE_MENU_CONTINUE);
@@ -215,36 +219,25 @@ void UpdateGame(void)
 		// 残機の更新処理
 		UpdateStock();
 
+		// パワーアップの更新処理
+		UpdatePowerup();
+
 		// フレームの更新処理
 		UpdateFrame();
 
-		// プレイヤーの情報を取得
-		Player* pPlayer = GetPlayer();
-
-		static int nGameEndCounter = 0;
-
-		if (CheckEnemy() == false)
+		switch (g_gameState)
 		{
-			g_bGameend = true;
-			g_gameend = GAMEEND_CLEAR;
-		}
-		else if (pPlayer->state == PLAYERSTATE_DEATH || CheckTime() == false)
-		{
-			g_bGameend = true;
-			g_gameend = GAMEEND_GAMEOVER;
-		}
-
-		// ゲーム終了条件
-		if (g_bGameend == true)
-		{
-			//nGameEndCounter++;
-			if (nGameEndCounter % 60 == 0)
+		case GAMESTATE_END:
+			g_nCounterGameState--;
+			if (g_nCounterGameState <= 0)
 			{
-				nGameEndCounter = 0;
 				// モード設定(リザルト画面に移行)
+				g_gameend = GAMEEND_CLEAR;
 				SetFade(MODE_RESULT);
 			}
+			break;
 		}
+
 	}
 }
 
@@ -280,14 +273,14 @@ void DrawGame(void)
 	// 敵の描画処理
 	DrawEnemy();
 
-	// スコアの描画処理
-	DrawScore();
-
 	// オプションの描画処理
 	DrawOption();
 
 	// フレームの描画処理
 	DrawFrame();
+
+	// スコアの描画処理
+	DrawScore();
 
 	// 制限時間の描画処理
 	DrawTime();

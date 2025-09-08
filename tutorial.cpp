@@ -1,26 +1,33 @@
 //=============================================================================
 //
-//	ランキング画面処理 [frame.cpp]
+//	チュートリアル画面処理 [result.cpp]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
 #include "main.h"
-#include "frame.h"
+#include "tutorial.h"
 #include "input.h"
 #include "sound.h"
 #include "fade.h"
+#include "game.h"
+
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
+#define MAX_TUTORIAL			(2)			// リザルトテクスチャの枚数
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_pTextureFrame = NULL;				// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffFrame = NULL;			// 頂点バッファへのポインタ
+LPDIRECT3DTEXTURE9 g_pTextureTutorial[MAX_TUTORIAL] = {};	// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTutorial = NULL;		// 頂点バッファへのポインタ
+TUTORIAL g_tutorial[MAX_TUTORIAL] = {};
 
 //====================================
-//	ランキングの初期化処理
+//	リザルトの初期化処理
 //====================================
-void InitFrame(void)
+void InitTutorial(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
@@ -29,21 +36,25 @@ void InitFrame(void)
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\UI_BG000.png",
-		&g_pTextureFrame);
+		"data\\TEXTURE\\Tutorial000.png",
+		&g_pTextureTutorial[0]);
+
+	D3DXCreateTextureFromFile(pDevice,
+		"data\\TEXTURE\\bg002.jpg",
+		&g_pTextureTutorial[1]);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
-		&g_pVtxBuffFrame,
+		&g_pVtxBuffTutorial,
 		NULL);
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffFrame->Lock(0, 0, (void * *)&pVtx, 0);
+	g_pVtxBuffTutorial->Lock(0, 0, (void * *)&pVtx, 0);
 
 	// 頂点座標の設定
 	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -70,34 +81,41 @@ void InitFrame(void)
 	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 	// 頂点バッファをアンロックする
-	g_pVtxBuffFrame->Unlock();
+	g_pVtxBuffTutorial->Unlock();
+
+	PlaySound(SOUND_LABEL_BGM002);
 }
 
 //====================================
-//	ランキングの終了処理
+//	リザルトの終了処理
 //====================================
-void UninitFrame(void)
+void UninitTutorial(void)
 {
+	// サウンドを止める
+	StopSound();
 
-	// テクスチャの破棄
-	if (g_pTextureFrame != NULL)
+	for (int nCntTutorial = 0; nCntTutorial < MAX_TUTORIAL; nCntTutorial++)
 	{
-		g_pTextureFrame->Release();
-		g_pTextureFrame = NULL;
+		// テクスチャの破棄
+		if (g_pTextureTutorial[nCntTutorial] != NULL)
+		{
+			g_pTextureTutorial[nCntTutorial]->Release();
+			g_pTextureTutorial[nCntTutorial] = NULL;
+		}
 	}
 
 	// 頂点バッファの破棄
-	if (g_pVtxBuffFrame != NULL)
+	if (g_pVtxBuffTutorial != NULL)
 	{
-		g_pVtxBuffFrame->Release();
-		g_pVtxBuffFrame = NULL;
+		g_pVtxBuffTutorial->Release();
+		g_pVtxBuffTutorial = NULL;
 	}
 }
 
 //====================================
-//	ランキングの描画処理
+//	リザルトの描画処理
 //====================================
-void DrawFrame(void)
+void DrawTutorial(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
@@ -105,22 +123,26 @@ void DrawFrame(void)
 	pDevice = GetDevice();
 
 	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, g_pVtxBuffFrame, 0, sizeof(VERTEX_2D));
+	pDevice->SetStreamSource(0, g_pVtxBuffTutorial, 0, sizeof(VERTEX_2D));
 
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, g_pTextureFrame);
+	pDevice->SetTexture(0, g_pTextureTutorial[0]);
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 }
 
 //====================================
-//	ランキングの更新処理
+//	リザルトの更新処理
 //====================================
-void UpdateFrame(void)
+void UpdateTutorial(void)
 {
-
+	if (GetJoypadTrigger(JOYKEY_A) == true || GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
+	{// 決定キーが押された
+		// モード設定
+		SetFade(MODE_GAME);
+	}
 }

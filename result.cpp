@@ -16,12 +16,14 @@
 // マクロ定義
 //*****************************************************************************
 #define MAX_RESULT			(2)			// リザルトテクスチャの枚数
+#define RESULTFADE_TIMER	(300)		// タイマーの秒数
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureResult[MAX_RESULT] = {};	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffResult = NULL;		// 頂点バッファへのポインタ
+int g_nResultFadeCounter = NULL;
 
 //====================================
 //	リザルトの初期化処理
@@ -82,6 +84,8 @@ void InitResult(void)
 	// 頂点バッファをアンロックする
 	g_pVtxBuffResult->Unlock();
 
+	g_nResultFadeCounter = 0;
+
 	PlaySound(SOUND_LABEL_BGM002);
 }
 
@@ -141,7 +145,9 @@ void DrawResult(void)
 //====================================
 void UpdateResult(void)
 {
-	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true)
+	g_nResultFadeCounter++;
+
+	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true || g_nResultFadeCounter >= RESULTFADE_TIMER)
 	{// 決定キーが押された
 		// モード設定
 		SetFade(MODE_TITLE);

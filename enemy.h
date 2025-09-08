@@ -23,11 +23,22 @@
 typedef enum
 {
 	ENEMYSTATE_NORMAL = 0,		// 通常状態
+	ENEMYSTATE_APPEAR,			// 出現
 	ENEMYSTATE_WAIT,			// 出現待ち
 	ENEMYSTATE_DAMAGE,			// ダメージ状態
 	ENEMYSTATE_WARNING,			// 危険状態
 	ENEMYSTATE_MAX
 }ENEMYSTATE;
+
+//*****************************************************************************
+// 敵の移動の状態
+//*****************************************************************************
+typedef enum
+{
+	ENEMY_MOVESTATE_WAIT = 0,			// 待機
+	ENEMY_MOVESTATE_MOVE,				// 移動
+	ENEMY_MOVESTATE_MAX
+}ENEMYMOVESTATE;
 
 //*****************************************************************************
 // 敵の種類
@@ -58,6 +69,7 @@ typedef struct
 {
 	D3DXVECTOR3 pos;				// 位置
 	D3DXVECTOR3 move;				// 移動量
+	D3DXVECTOR3 rot;				// 向き
 	ENEMYSTATE state;				// 状態
 	ENEMYTYPE type;					// 種類
 	ENEMYATTACKTYPE attacktype;		// 攻撃種類
@@ -67,6 +79,8 @@ typedef struct
 	int nPatternAnim;				// アニメーションNO.
 	int nCounterState;				// 状態カウンター
 	int nCounterAttack;				// 攻撃カウンター
+	int nCounterMove;				// 移動状態カウンター
+	bool bDisp;						// 表示状態
 	bool bBlinking;					// 点滅状態
 	bool bUse;						// 使用しているかどうか
 }Enemy;
@@ -78,12 +92,12 @@ void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine);
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nType, int nLife, int nTimeLine);
 Enemy *GetEnemy(void);
 void HitEnemy(int nCntEnemy, int nDamage);
 void ResetEnemy(void);
 void DeleteEnemy(void);
 bool CheckEnemy(void);
-void LoadEnemy(void);
+int* GetNumEnemy(void);
 
 #endif

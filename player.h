@@ -13,10 +13,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define PLAYER_SIZE			(45.0f)		// プレイヤーのサイズ
-#define PLAYER_MOVEX		(1.5f)		// プレイヤーの移動量X
-#define PLAYER_MOVEY		(1.5f)		// プレイヤーの移動量Y
-
+#define PLAYER_SIZE			(30.0f)		// プレイヤーのサイズ
+#define PLAYER_SPEED		(0.5f)		// プレイヤーの移動量
 
 //*****************************************************************************
 // プレイヤーの状態
@@ -41,6 +39,7 @@ typedef struct
 	D3DXVECTOR3 move;					// 移動量
 	PLAYERSTATE state;					// 状態
 	float fRadius;						// 半径
+	float fSpeed;						// 速さ
 	int nLife;							// 体力
 	int nStock;							// 残機
 	int nCounterState;					// 状態カウンター

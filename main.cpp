@@ -7,9 +7,11 @@
 
 #include "main.h"
 #include "player.h"
+#include "enemy.h"
 #include "input.h"
 #include "sound.h"
 #include "title.h"
+#include "tutorial.h"
 #include "game.h"
 #include "result.h"
 #include "ranking.h"
@@ -408,6 +410,11 @@ void Update(void)
 		UpdateTitle();
 		break;
 
+		// チュートリアルモード
+	case MODE_TUTORIAL:
+		UpdateTutorial();
+		break;
+
 		// ゲームモード
 	case MODE_GAME:
 		UpdateGame();
@@ -448,6 +455,11 @@ void Draw(void)
 			// タイトルモード
 		case MODE_TITLE:
 			DrawTitle();
+			break;
+
+			// チュートリアルモード
+		case MODE_TUTORIAL:
+			DrawTutorial();
 			break;
 
 			// ゲームモード
@@ -506,6 +518,11 @@ void SetMode(MODE mode)
 		UninitTitle();
 		break;
 
+		// チュートリアルモード
+	case MODE_TUTORIAL:
+		UninitTutorial();
+		break;
+
 		// ゲームモード
 	case MODE_GAME:
 		UninitGame();
@@ -523,6 +540,11 @@ void SetMode(MODE mode)
 		// タイトルモード
 	case MODE_TITLE:
 		InitTitle();
+		break;
+
+		// チュートリアルモード
+	case MODE_TUTORIAL:
+		InitTutorial();
 		break;
 
 		// ゲームモード
@@ -568,9 +590,10 @@ void DrawDebug(void)
 	Player* pPlayer = GetPlayer();
 	Option* pOption = GetOption();
 	D3DXVECTOR3 *pCamera = GetCamera();
+	int* pNumEnemy = GetNumEnemy();
 
 	// 文字列を代入
-	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY);		// FPS表示
+	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d\nNumEnemy : %d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY, *pNumEnemy);		// FPS表示
 	sprintf(&aStr1[0], "OpitonPos = { %.2f,%.2f,%.2f }\nCameraPos = { %.2f, %.2f }", pOption->pos.x, pOption->pos.y, pOption->rot.z, pCamera->x, pCamera->y);
 
 	// テキストを描画
@@ -583,11 +606,11 @@ void DrawDebug(void)
 //==================================================================================
 void DrawControl(void)
 {
-	RECT rect = { 0, 600, SCREEN_WIDTH, SCREEN_HEIGHT };
-	char aStr[256] = {};		// 画面に表示する文字列
+	//RECT rect = { 0, 600, SCREEN_WIDTH, SCREEN_HEIGHT };
+	//char aStr[256] = {};		// 画面に表示する文字列
 
-	wsprintf(&aStr[0], "Lスティック WASD : 移動\nA SPACEKEY : ショット\nX F1 : オプション生成\nLB/RB : オプション回転");
+	//wsprintf(&aStr[0], "Lスティック WASD : 移動\nA SPACEKEY : ショット\nX F1 : オプション生成\nLB/RB : オプション回転");
 
-	// テキストを描画
-	g_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
+	//// テキストを描画
+	//g_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
 }

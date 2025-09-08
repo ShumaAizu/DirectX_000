@@ -197,12 +197,7 @@ void UpdateTime(void)
 //====================================
 //	§ŒÀŠÔ‚ÌŠm”Fˆ—
 //====================================
-bool CheckTime(void)
+int GetTime(void)
 {
-	if (g_nTime <= 0)
-	{
-		return false;
-	}
-
-	return true;
+	return g_nTime;
 }

@@ -162,6 +162,7 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="powerup.cpp" />
     <ClCompile Include="ranking.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="score.cpp" />
@@ -169,6 +170,8 @@
     <ClCompile Include="stock.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
+    <ClCompile Include="titlemenu.cpp" />
+    <ClCompile Include="tutorial.cpp" />
     <ClCompile Include="wave.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +192,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="powerup.h" />
     <ClInclude Include="ranking.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="score.h" />
@@ -196,6 +200,8 @@
     <ClInclude Include="stock.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
+    <ClInclude Include="titlemenu.h" />
+    <ClInclude Include="tutorial.h" />
     <ClInclude Include="wave.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

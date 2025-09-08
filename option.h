@@ -65,5 +65,6 @@ void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle);
 Option *GetOption(void);
 void HitOption(int nCntOption);
 D3DXVECTOR3* GetStandardRot(void);
+int GetUseOption(void);
 
 #endif

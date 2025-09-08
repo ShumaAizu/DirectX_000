@@ -28,8 +28,9 @@ LPDIRECT3DTEXTURE9 g_pTextureOption = NULL;						// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffOption = NULL;				// 頂点バッファへのポインタ
 Option g_aOption[MAX_OPTION] = {};								// オプションの情報
 D3DXVECTOR3 g_standard_rot = {};								// 標準向き
-float g_fLengthOption = {};
-float g_fAngleOption = {};
+float g_fLengthOption = {};										// 
+float g_fAngleOption = {};										// 
+int g_nUseOption = {};											// 使用オプション数
 
 //====================================
 //	オプションの初期化処理
@@ -59,6 +60,8 @@ void InitOption(void)
 		g_aOption[nCntOption].state = OPTIONSTATE_NORMAL;
 		g_aOption[nCntOption].bUse = false;			// 使用していない状態にする
 	}
+
+	g_nUseOption = 0;
 
 	g_aOption[0].rot = D3DXVECTOR3(0.0f, 0.0f, 0.75f);
 	g_aOption[1].rot = D3DXVECTOR3(0.0f, 0.0f, -0.75f);
@@ -308,6 +311,7 @@ void SetOption(D3DXVECTOR3 pos, float fDistance, float fAngle)
 			pVtx[2].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x - OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(g_aOption[nCntOption].pos.x + OPTION_RADIUS, g_aOption[nCntOption].pos.y + OPTION_RADIUS, 0.0f);
 
+			g_nUseOption++;
 			break;
 		}
 
@@ -350,4 +354,12 @@ void HitOption(int nCntOption)
 D3DXVECTOR3* GetStandardRot(void)
 {
 	return &g_standard_rot;
+}
+
+//=============================================================================
+//	使用中のオプション数取得
+//=============================================================================
+int GetUseOption(void)
+{
+	return g_nUseOption;
 }

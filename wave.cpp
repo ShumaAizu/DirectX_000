@@ -7,18 +7,19 @@
 
 #include "main.h"
 #include "wave.h"
+#include "game.h"
 #include "enemy.h"
 #include "player.h"
 #include "explosion.h"
 #include "bullet.h"
 #include "score.h"
+#include "time.h"
 #include "sound.h"
 #include "life.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define NUM_ENEMY		(5)			// 敵の種類
 #define MAX_WARD		(256)
 
 //*****************************************************************************
@@ -36,6 +37,8 @@ void InitWave(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	g_nTimeLine = 0;
+
+	LoadWave();
 }
 
 //=============================================================================
@@ -74,8 +77,18 @@ void UpdateWave(void)
 	}
 
 	g_nTimeLine++;
+
+	int* pNumEnemy = GetNumEnemy();		// 敵の数を取得
+
+	if ((*pNumEnemy <= 0 || GetTime() <= 0 || GetScore() <= 0) && GetGameState() != GAMESTATE_END)
+	{// 敵がいなくなった/タイムがなくなった/スコアがなくなった
+		SetGameState(GAMESTATE_END, 60);
+	}
 }
 
+//=============================================================================
+//	敵のロード処理
+//=============================================================================
 void LoadWave(void)
 {
 	// デバイスポインタを宣言
@@ -83,67 +96,93 @@ void LoadWave(void)
 
 	FILE* pFile;
 
+	int* pNumEnemy = GetNumEnemy();
+
 	pFile = fopen("data\\wave.txt", "r");
 
-	if (pFile == NULL)
-	{
-		return;
-	}
+	if (pFile != NULL)
+	{// 開けたら
+		//ローカル変数宣言
+		char aString[MAX_WARD];		// 文字列を読み込む
+		char aStrRelease[3];		// 不要な = を読み込む
 
-	//ローカル変数宣言
-	char aString[MAX_WARD] = {};
-	char aStrRelease[3] = {};
-	D3DXVECTOR3 pos = {};
-	int type = 0;
-	int life = 0;
+		// それぞれの値を読み込む
+		D3DXVECTOR3 pos = {};
+		D3DXVECTOR3 move = {};
+		int type = 0;
+		int life = 0;
+		int timeline = 0;
+		int nData;
 
-	while (true)
-	{
-		(void)fscanf(pFile, "%s", &aString[0]);
+		while (true)
+		{
+			nData = fscanf(pFile, "%s", &aString[0]);
 
-		if (strcmp(&aString[0], "SETENEMY") == 0)
-		{ // SETENEMYを読み取った
-			while (true)
+			if (strcmp(&aString[0], "NUM_ENEMY") == 0)
 			{
-				(void)fscanf(pFile, "%s", &aString[0]);
+				fscanf(pFile, "%s", &aStrRelease[0]);
 
-				if (strcmp(&aString[0], "POS") == 0)
-				{ // POSを読み取った
-					(void)fscanf(pFile, "%s", &aStrRelease[0]);
+				fscanf(pFile, "%d", pNumEnemy);
+			}
 
-					(void)fscanf(pFile, "%f", &pos.x);
-					(void)fscanf(pFile, "%f", &pos.y);
-					(void)fscanf(pFile, "%f", &pos.z);
-				}
-
-				if (strcmp(&aString[0], "TYPE") == 0)
+			if (strcmp(&aString[0], "SETENEMY") == 0)
+			{// SETENEMYを読み取った
+				while (true)
 				{
-					(void)fscanf(pFile, "%s", &aStrRelease[0]);
+					nData = fscanf(pFile, "%s", &aString[0]);
 
-					(void)fscanf(pFile, "%d", &type);
+					if (strcmp(&aString[0], "POS") == 0)
+					{// POSを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
 
-				}
+						fscanf(pFile, "%f", &pos.x);
+						fscanf(pFile, "%f", &pos.y);
+						fscanf(pFile, "%f", &pos.z);
+					}
 
-				if (strcmp(&aString[0], "LIFE") == 0)
-				{
-					(void)fscanf(pFile, "%s", &aStrRelease[0]);
+					if (strcmp(&aString[0], "MOVE") == 0)
+					{// POSを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
 
-					(void)fscanf(pFile, "%d", &life);
-				}
+						fscanf(pFile, "%f", &move.x);
+						fscanf(pFile, "%f", &move.y);
+						fscanf(pFile, "%f", &move.z);
+					}
 
-				if (strcmp(&aString[0], "ENDSET") == 0)
-				{
-					//SetEnemy(pos, type, life);
-					break;
+					if (strcmp(&aString[0], "TYPE") == 0)
+					{// TYPEを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &type);
+
+					}
+
+					if (strcmp(&aString[0], "LIFE") == 0)
+					{// LIFEを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &life);
+					}
+
+					if (strcmp(&aString[0], "TIMELINE") == 0)
+					{// LIFEを読み取った
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%d", &timeline);
+					}
+
+					if (strcmp(&aString[0], "ENDSET") == 0)
+					{// ENDSETを読み取った
+						SetEnemy(pos, move, type, life, timeline);
+						break;
+					}
 				}
 			}
-		}
 
-
-
-		if (strcmp(&aString[0], "END_SCRIPT") == 0)
-		{
-			break;
+			if (strcmp(&aString[0], "END_SCRIPT") == 0)
+			{
+				break;
+			}
 		}
 	}
 }

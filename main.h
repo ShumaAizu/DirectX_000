@@ -29,8 +29,10 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define SCREEN_WIDTH		(1280)												// ウインドウの幅
-#define SCREEN_HEIGHT		(720)												// ウインドウの高さ
+#define SCREEN_WIDTH		(1280.0f)											// ウインドウの幅
+#define SCREEN_HEIGHT		(720.0f)											// ウインドウの高さ
+#define WARLD_WIDTH			(3000.0f)											// ワールド座標X
+#define WARLD_HEIGHT		(3000.0f)											// ワールド座標Y
 #define FVF_VERTEX_2D		(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット(2D)
 #define SQRTF(X, Y)			(sqrtf(X * X + Y * Y) * 0.5f)						// 対角線の長さ算出
 
@@ -41,6 +43,7 @@ typedef enum
 {
 	MODE_TITLE = 0,			// タイトル画面
 	MODE_GAME,				// ゲーム画面
+	MODE_TUTORIAL,			// チュートリアル画面
 	MODE_RESULT,			// リザルト画面
 	MODE_RANKING,			// ランキング画面
 	MODE_PAUSE,				// ポーズ画面

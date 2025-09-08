@@ -13,7 +13,9 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define NUM_KEY_MAX		(256)		//キーの最大数
+#define NUM_KEY_MAX			(256)		//キーの最大数
+#define NUM_JOYSTROKE_MAX	(38)
+#define JOYKEYSTROKE_START	(0x5800)
 
 //*****************************************************************************
 // ジョイパッドのキーの種類
@@ -57,7 +59,9 @@ bool GetJoypadPress(JOYKEY key);
 bool GetJoypadTrigger(JOYKEY key);
 bool GetJoypadRelease(JOYKEY key);
 bool GetJoypadRepeat(JOYKEY key);
-void SetJoypadVibration(int nLVibration, int nRVibration);
+void SetJoypadVibration(int nLVibration, int nRVibration, int nVibCounter);
 XINPUT_STATE *GetJoypadState(void);
+bool GetJoypadStroke(WORD key);
+XINPUT_KEYSTROKE* GetJoypadStroke(void);
 
 #endif

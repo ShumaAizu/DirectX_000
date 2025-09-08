@@ -10,7 +10,16 @@
 
 #include "main.h"
 
-// タイトル構造体の定義
+//*****************************************************************************
+// タイトルの状態
+//*****************************************************************************
+typedef enum
+{
+	TITLESTATE_OP = 0,			// オープニング
+	TITLESTATE_WAIT,			// 待機
+	TITLESTATE_MENU,			// メニュー
+	TITLESTATE_MAX
+}TITLESTATE;
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -19,5 +28,6 @@ void InitTitle(void);
 void UninitTitle(void);
 void UpdateTitle(void);
 void DrawTitle(void);
+TITLESTATE SetTitleState(void);
 
 #endif

@@ -1,38 +1,36 @@
 //=============================================================================
 //
-//	スコア処理 [score.h]
+//	タイトルメニュー処理 [titlemenu.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _SCORE_H_
-#define _SCORE_H_
+#ifndef _TITLEMENU_H_
+#define _TITLEMENU_H_
 
 #include "main.h"
 
-//マクロ定義
+//*****************************************************************************
+// マクロ定義
+//*****************************************************************************
 
 //*****************************************************************************
-// スコアUIの種類
+// タイトルメニュー
 //*****************************************************************************
 typedef enum
 {
-	SCOREUI_GAGE = 0,		// スコア総量
-	SCOREUI_CURTAIN,		// 現在スコア
-	SCOREUI_SCALE,			// メーター
-	SCOREUI_MAX
-}SCOREUI;
+	TITLEMENU_GAMESTART = 0,
+	TITLEMENU_EXIT,
+	TITLEMENU_MAX
+}TITLEMENU;
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitScore(void);
-void UninitScore(void);
-void UpdateScore(void);
-void DrawScore(void);
-void SetScore(int nScore);
-void AddScore(int nValue);
-void SubScore(int nValue);
-int GetScore(void);
+void InitTitleMenu(void);
+void UninitTitleMenu(void);
+void UpdateTitleMenu(void);
+void DrawTitleMenu(void);
+void SetTitleMenu(TITLEMENU titlemenu);
 
-#endif
+#endif // _TITLEMENU_H_

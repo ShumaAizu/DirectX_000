@@ -11,19 +11,30 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define NUM_PLACE		(8)			// スコアの桁数
-#define SCORE_POSX		(1020.0f)	// スコアの座標X
-#define SCORE_POSY		(0.0f)		// スコアの座標Y
-#define SCORE_SIZEX		(30.0f)		// スコアのサイズX
-#define SCORE_SIZEY		(45.0f)		// スコアのサイズY
+#define MAX_SCORE		(50000)				// スコアの最大
+#define MAX_SCORE_UI	(SCOREUI_MAX)		// スコアのUIの数
+#define SCORE_POSX		(880.0f)			// スコアの座標X
+#define SCORE_POSY		(672.0f)			// スコアの座標Y
+#define SCORE_SIZEX		(480.0f)			// スコアのサイズX
+#define SCORE_SIZEY		(32.0f)				// スコアのサイズY
+#define INIT_SCORE		(30000)				// スコアの初期値
+
+//*****************************************************************************
+// スコアUI構造体の定義
+//*****************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;			// 位置
+	SCOREUI type;				// スコアUIの種類
+}ScoreUI;
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_pTextureScore = NULL;				// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffScore = NULL;			// 頂点バッファへのポインタ
-D3DXVECTOR3 g_posScore;									// スコアの位置
-int g_nScore;											// スコアの値
+LPDIRECT3DTEXTURE9 g_pTextureScore[MAX_SCORE_UI] = {};				// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffScore = NULL;						// 頂点バッファへのポインタ
+ScoreUI g_ascoreUI[MAX_SCORE_UI] = {};								// スコアUIの情報
+int g_nScore;														// スコアの値
 
 //=============================================================================
 //	スコアの初期化処理
@@ -34,16 +45,24 @@ void InitScore(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	int nCntScore = 0;
 
+	const char* pUIPass[MAX_SCORE_UI] = {
+		"data\\TEXTURE\\Score_UI000.png",
+		"data\\TEXTURE\\Score_UI001.png",
+		"data\\TEXTURE\\Score_UI002.png"
+	};
+
 	// 初期化
-	g_posScore = D3DXVECTOR3(SCORE_POSX, SCORE_POSY, 0.0f);
 	g_nScore = 0;
 
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,"data\\TEXTURE\\number000.png", &g_pTextureScore);
+	for (int nCntScoreTex = 0; nCntScoreTex < MAX_SCORE_UI; nCntScoreTex++)
+	{
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice, pUIPass[nCntScoreTex], &g_pTextureScore[nCntScoreTex]);
+	}
 
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * NUM_PLACE,		// 桁の数だけ
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_SCORE_UI,		// 桁の数だけ
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
@@ -55,13 +74,16 @@ void InitScore(void)
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffScore->Lock(0, 0, (void * *)&pVtx, 0);
 
-	for (nCntScore = 0; nCntScore < NUM_PLACE; nCntScore++)
+	for (nCntScore = 0; nCntScore < MAX_SCORE_UI; nCntScore++)
 	{
+		g_ascoreUI[nCntScore].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY, 0.0f);
+		g_ascoreUI[nCntScore].type = (SCOREUI)nCntScore;
+
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(SCORE_POSX + (nCntScore * SCORE_SIZEX), SCORE_POSY, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(SCORE_POSX + (nCntScore * SCORE_SIZEX) + SCORE_SIZEX, SCORE_POSY, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(SCORE_POSX + (nCntScore * SCORE_SIZEX), SCORE_POSY + SCORE_SIZEY, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(SCORE_POSX + (nCntScore * SCORE_SIZEX) + SCORE_SIZEX, SCORE_POSY + SCORE_SIZEY, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(SCORE_POSX - SCORE_SIZEX, SCORE_POSY, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(SCORE_POSX - SCORE_SIZEX, SCORE_POSY + SCORE_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY + SCORE_SIZEY, 0.0f);
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -77,15 +99,17 @@ void InitScore(void)
 
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-		pVtx[1].tex = D3DXVECTOR2(0.1f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-		pVtx[3].tex = D3DXVECTOR2(0.1f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
 		pVtx += 4;			// 頂点データのポインタを4つ分進める
 	}
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffScore->Unlock();
+
+	SetScore(INIT_SCORE);
 }
 
 //====================================
@@ -94,10 +118,13 @@ void InitScore(void)
 void UninitScore(void)
 {
 	// テクスチャの破棄
-	if (g_pTextureScore != NULL)
+	for (int nCntTex = 0; nCntTex < MAX_SCORE_UI; nCntTex++)
 	{
-		g_pTextureScore->Release();
-		g_pTextureScore = NULL;
+		if (g_pTextureScore[nCntTex] != NULL)
+		{
+			g_pTextureScore[nCntTex]->Release();
+			g_pTextureScore[nCntTex] = NULL;
+		}
 	}
 
 	// 頂点バッファの破棄
@@ -124,11 +151,11 @@ void DrawScore(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, g_pTextureScore);
-
-	for (int nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
+	for (int nCntNumber = 0; nCntNumber < MAX_SCORE_UI; nCntNumber++)
 	{
+		// テクスチャの設定
+		pDevice->SetTexture(0, g_pTextureScore[nCntNumber]);
+
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntNumber * 4, 2);
 	}
@@ -139,7 +166,33 @@ void DrawScore(void)
 //====================================
 void UpdateScore(void)
 {
+	float fRatio = 0;
 
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int nCntScoreUI = 0; nCntScoreUI < MAX_SCORE_UI; nCntScoreUI++)
+	{
+		if (g_ascoreUI[nCntScoreUI].type != SCOREUI_CURTAIN)
+		{
+			continue;
+		}
+
+		fRatio = ((float)g_nScore / MAX_SCORE);
+
+		pVtx += (nCntScoreUI * 4);
+
+		// 頂点座標の設定
+		pVtx[0].pos = D3DXVECTOR3(SCORE_POSX - (SCORE_SIZEX - SCORE_SIZEX * fRatio), SCORE_POSY, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(SCORE_POSX - (SCORE_SIZEX - SCORE_SIZEX * fRatio), SCORE_POSY + SCORE_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY + SCORE_SIZEY, 0.0f);
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffScore->Unlock();
 }
 
 //====================================
@@ -147,38 +200,18 @@ void UpdateScore(void)
 //====================================
 void SetScore(int nScore)
 {
-	int aTexU[NUM_PLACE];		// 各桁の数字を格納
+	//int aTexU[NUM_PLACE];		// 各桁の数字を格納
 	int nCntNumber = 0;
 	g_nScore = nScore;
 
-	aTexU[0] = g_nScore % 100000000 / 10000000;
-	aTexU[1] = g_nScore % 10000000 / 1000000;
-	aTexU[2] = g_nScore % 1000000 / 100000;
-	aTexU[3] = g_nScore % 100000 / 10000;
-	aTexU[4] = g_nScore % 10000 / 1000;
-	aTexU[5] = g_nScore % 1000 / 100;
-	aTexU[6] = g_nScore % 100 / 10;
-	aTexU[7] = g_nScore % 10 / 1;
-
-	// テクスチャ座標の設定
-	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
-
-	for (nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
-	{
-		// テクスチャ座標の設定
-		pVtx[0].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 0.0f);
-		pVtx[1].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 0.0f);
-		pVtx[2].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 1.0f);
-		pVtx[3].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 1.0f);
-
-		pVtx += 4;
-	}
-
-	// 頂点バッファをアンロックする
-	g_pVtxBuffScore->Unlock();
+	//aTexU[0] = g_nScore % 100000000 / 10000000;
+	//aTexU[1] = g_nScore % 10000000 / 1000000;
+	//aTexU[2] = g_nScore % 1000000 / 100000;
+	//aTexU[3] = g_nScore % 100000 / 10000;
+	//aTexU[4] = g_nScore % 10000 / 1000;
+	//aTexU[5] = g_nScore % 1000 / 100;
+	//aTexU[6] = g_nScore % 100 / 10;
+	//aTexU[7] = g_nScore % 10 / 1;
 }
 
 //====================================
@@ -186,35 +219,21 @@ void SetScore(int nScore)
 //====================================
 void AddScore(int nValue)
 {
-	int aTexU[NUM_PLACE];		// 各桁の数字を格納
 	g_nScore += nValue;
+}
 
-	aTexU[0] = g_nScore % 100000000 / 10000000;
-	aTexU[1] = g_nScore % 10000000 / 1000000;
-	aTexU[2] = g_nScore % 1000000 / 100000;
-	aTexU[3] = g_nScore % 100000 / 10000;
-	aTexU[4] = g_nScore % 10000 / 1000;
-	aTexU[5] = g_nScore % 1000 / 100;
-	aTexU[6] = g_nScore % 100 / 10;
-	aTexU[7] = g_nScore % 10 / 1;
+//====================================
+//	スコアの減算処理
+//====================================
+void SubScore(int nValue)
+{
+	g_nScore -= nValue;
+}
 
-	// テクスチャ座標の設定
-	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
-
-	for (int nCntNumber = 0; nCntNumber < NUM_PLACE; nCntNumber++)
-	{
-		// テクスチャ座標の設定
-		pVtx[0].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 0.0f);
-		pVtx[1].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 0.0f);
-		pVtx[2].tex = D3DXVECTOR2(0.1f * aTexU[nCntNumber], 1.0f);
-		pVtx[3].tex = D3DXVECTOR2(0.1f * (aTexU[nCntNumber] + 1), 1.0f);
-
-		pVtx += 4;
-	}
-
-	// 頂点バッファをアンロックする
-	g_pVtxBuffScore->Unlock();
+//====================================
+//	スコアの取得
+//====================================
+int GetScore(void)
+{
+	return g_nScore;
 }

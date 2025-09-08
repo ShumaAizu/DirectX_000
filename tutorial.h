@@ -1,38 +1,30 @@
 //=============================================================================
 //
-//	スコア処理 [score.h]
+//	チュートリアル画面処理 [tutorial.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _SCORE_H_
-#define _SCORE_H_
+#ifndef _TUTORIAL_H_
+#define _TUTORIAL_H_
 
 #include "main.h"
 
-//マクロ定義
-
 //*****************************************************************************
-// スコアUIの種類
+// チュートリアル構造体の定義
 //*****************************************************************************
-typedef enum
+typedef struct
 {
-	SCOREUI_GAGE = 0,		// スコア総量
-	SCOREUI_CURTAIN,		// 現在スコア
-	SCOREUI_SCALE,			// メーター
-	SCOREUI_MAX
-}SCOREUI;
+	D3DXVECTOR3 pos;
+	bool bDisp;
+}TUTORIAL;
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitScore(void);
-void UninitScore(void);
-void UpdateScore(void);
-void DrawScore(void);
-void SetScore(int nScore);
-void AddScore(int nValue);
-void SubScore(int nValue);
-int GetScore(void);
+void InitTutorial(void);
+void UninitTutorial(void);
+void UpdateTutorial(void);
+void DrawTutorial(void);
 
 #endif

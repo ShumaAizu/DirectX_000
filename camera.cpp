@@ -31,7 +31,6 @@ void UpdateCamera(void)
 	// カメラの位置(プレイヤーの位置)からスクリーンの原点を算出
 	g_camerapos.x = pPlayer->pos.x - SCREEN_WIDTH / 2;
 	g_camerapos.y = pPlayer->pos.y - SCREEN_HEIGHT / 2;
-
 }
 
 void DrawCamera(void)

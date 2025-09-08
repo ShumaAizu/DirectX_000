@@ -196,7 +196,7 @@ void UpdateBullet(void)
 			{// プレイヤーの弾
 				// エフェクトの設定
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 25.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1, 0.75f, 1.0f), 45.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.75f, 1.0f), 45.0f, 50);
 				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 30.0f, 3);
 				// 敵との当たり判定
 				CollisionEnemy(pBullet);
@@ -222,13 +222,34 @@ void UpdateBullet(void)
 				}
 				else
 				{
-					float fAngle = atan2f((pEnemy + pBullet->target)->pos.x - pBullet->pos.x, (pEnemy + pBullet->target)->pos.y - pBullet->pos.y);
+					float fRotMove, fRotDest, fRotDiff;
 
-					pBullet->move.x = sinf(fAngle) * 15.0f;
-					pBullet->move.y = cosf(fAngle) * 15.0f;
+					fRotMove = atan2f(pBullet->move.x, pBullet->move.y);
+					fRotDest = atan2f((pEnemy + pBullet->target)->pos.x - pBullet->pos.x, (pEnemy + pBullet->target)->pos.y - pBullet->pos.y);
+					fRotDiff = fRotDest - fRotMove;
 
-					pBullet->move.x += (0.0f - pBullet->move.x) * 0.1f;
-					pBullet->move.y += (0.0f - pBullet->move.y) * 0.1f;
+					if (fRotDiff < -D3DX_PI)
+					{
+						fRotDiff += D3DX_PI * 2;
+					}
+					else if (fRotDiff > D3DX_PI)
+					{
+						fRotDiff -= D3DX_PI * 2;
+					}
+
+					fRotMove += fRotDiff * 0.25f;
+
+					if (fRotDiff < -D3DX_PI)
+					{
+						fRotDiff += D3DX_PI * 2;
+					}
+					else if (fRotDiff > D3DX_PI)
+					{
+						fRotDiff -= D3DX_PI * 2;
+					}
+
+					pBullet->move.x = sinf(fRotMove) * BULLET_MOVE;
+					pBullet->move.y = cosf(fRotMove) * BULLET_MOVE;
 				}
 
 				break;
@@ -316,7 +337,7 @@ void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type,SHO
 				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
 				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 				{
-					if (pEnemy->bUse == false)
+					if (pEnemy->bUse == false || pEnemy->state != ENEMYSTATE_APPEAR)
 					{
 						continue;
 					}
@@ -400,7 +421,7 @@ void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE ty
 				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
 				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 				{
-					if (pEnemy->bUse == false)
+					if (pEnemy->bUse == false || pEnemy->state == ENEMYSTATE_APPEAR)
 					{
 						continue;
 					}
@@ -468,7 +489,8 @@ void CollisionEnemy(Bullet *pBullet)
 			if (pBullet->pos.x >= pEnemy->pos.x - ENEMY_SIZEX - (BULLET_SIZEX / 2) &&
 				pBullet->pos.y >= pEnemy->pos.y - ENEMY_SIZEY - (BULLET_SIZEY / 2) &&
 				pBullet->pos.x <= pEnemy->pos.x + ENEMY_SIZEX + (BULLET_SIZEX / 2) &&
-				pBullet->pos.y <= pEnemy->pos.y + ENEMY_SIZEY + (BULLET_SIZEY / 2))
+				pBullet->pos.y <= pEnemy->pos.y + ENEMY_SIZEY + (BULLET_SIZEY / 2) &&
+				pEnemy->state != ENEMYSTATE_APPEAR && pEnemy->state != ENEMYSTATE_WAIT)
 			{// もし弾が敵にあたっていたら
 				// 敵のヒット処理
 				HitEnemy(nCntEnemy, 1);

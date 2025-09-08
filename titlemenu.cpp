@@ -1,12 +1,13 @@
 //=============================================================================
 //
-//	ポーズ処理 [pause.cpp]
+//	タイトルメニュー処理 [titlemenu.cpp]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
 #include "main.h"
-#include "pause.h"
+#include "title.h"
+#include "titlemenu.h"
 #include "input.h"
 #include "fade.h"
 #include "game.h"
@@ -14,66 +15,62 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define PAUSE_MENU_POSX		(515.0f)
-#define PAUSE_MENU_POSY		(290.0f)
-#define PAUSE_MENU_SIZEX	(250.0f)
-#define PAUSE_MENU_SIZEY	(100.0f)
+#define TITLEMENU_POSX		(880.0f)
+#define TITLEMENU_POSY		(420.0f)
+#define TITLEMENU_SIZEX		(400.0f)
+#define TITLEMENU_SIZEY		(100.0f)
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_apTexturePause[PAUSE_MENU_MAX] = {};		// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPause = NULL;					// 頂点バッファへのポインタ
-PAUSE_MENU g_pauseMenu = PAUSE_MENU_CONTINUE;					// ポーズメニューの状態
-bool g_bPauseDisp = true;
+LPDIRECT3DTEXTURE9 g_apTextureTitleMenu[TITLEMENU_MAX] = {};		// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitleMenu = NULL;					// 頂点バッファへのポインタ
+TITLEMENU g_titleMenu = TITLEMENU_GAMESTART;						// タイトルメニューの状態
 
 //=============================================================================
-//	ポーズメニューの初期化処理
+//	タイトルメニューの初期化処理
 //=============================================================================
-void InitPause(void)
+void InitTitleMenu(void)
 {
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\Pause_Menu_CONTINUE.png",
-		&g_apTexturePause[0]);
-
-	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\Pause_Menu_RETRY.png",
-		&g_apTexturePause[1]);
-
-	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\Pause_Menu_QUIT.png",
-		&g_apTexturePause[2]);
+	const char* pTitleUIPass[TITLEMENU_MAX] =
+	{
+		"data\\TEXTURE\\Title_GAMESTART.png",
+		"data\\TEXTURE\\Title_EXIT.png",
+	};
 
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * PAUSE_MENU_MAX,
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * TITLEMENU_MAX,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
-		&g_pVtxBuffPause,
+		&g_pVtxBuffTitleMenu,
 		NULL);
 
-	// 初期化
+	for (int nCntTitleMenuTex = 0; nCntTitleMenuTex < TITLEMENU_MAX; nCntTitleMenuTex++)
+	{
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice, pTitleUIPass[nCntTitleMenuTex], &g_apTextureTitleMenu[nCntTitleMenuTex]);
+	}
 
-	g_pauseMenu = PAUSE_MENU_CONTINUE;
-	g_bPauseDisp = true;
+	// 初期化
+	g_titleMenu = TITLEMENU_GAMESTART;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffPause->Lock(0, 0, (void * *)&pVtx, 0);
+	g_pVtxBuffTitleMenu->Lock(0, 0, (void * *)&pVtx, 0);
 
-	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(PAUSE_MENU_POSX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY), 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(PAUSE_MENU_POSX + PAUSE_MENU_SIZEX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY), 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(PAUSE_MENU_POSX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY) + PAUSE_MENU_SIZEY, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(PAUSE_MENU_POSX + PAUSE_MENU_SIZEX, PAUSE_MENU_POSY + (nCntPause * PAUSE_MENU_SIZEY) + PAUSE_MENU_SIZEY, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(TITLEMENU_POSX + TITLEMENU_SIZEX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY) + TITLEMENU_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(TITLEMENU_POSX + TITLEMENU_SIZEX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY) + TITLEMENU_SIZEY, 0.0f);
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -81,7 +78,7 @@ void InitPause(void)
 		pVtx[2].rhw = 1.0f;
 		pVtx[3].rhw = 1.0f;
 
-		if (nCntPause == g_pauseMenu)
+		if (nCntTitleMenu == g_titleMenu)
 		{ // 選択されていれば不透明度を戻す
 			// 頂点カラーの設定
 			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -108,36 +105,36 @@ void InitPause(void)
 	}
 
 	// 頂点バッファをアンロックする
-	g_pVtxBuffPause->Unlock();
+	g_pVtxBuffTitleMenu->Unlock();
 }
 
 //=============================================================================
-//	ポーズメニューの終了処理
+//	タイトルメニューの終了処理
 //=============================================================================
-void UninitPause(void)
+void UninitTitleMenu(void)
 {
 	// テクスチャの破棄
-	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
-		if (g_apTexturePause[nCntPause] != NULL)
+		if (g_apTextureTitleMenu[nCntTitleMenu] != NULL)
 		{
-			g_apTexturePause[nCntPause]->Release();
-			g_apTexturePause[nCntPause] = NULL;
+			g_apTextureTitleMenu[nCntTitleMenu]->Release();
+			g_apTextureTitleMenu[nCntTitleMenu] = NULL;
 		}
 	}
 
 	// 頂点バッファの破棄
-	if (g_pVtxBuffPause != NULL)
+	if (g_pVtxBuffTitleMenu != NULL)
 	{
-		g_pVtxBuffPause->Release();
-		g_pVtxBuffPause = NULL;
+		g_pVtxBuffTitleMenu->Release();
+		g_pVtxBuffTitleMenu = NULL;
 	}
 }
 
 //=============================================================================
-//	ポーズメニューの描画処理
+//	タイトルメニューの描画処理
 //=============================================================================
-void DrawPause(void)
+void DrawTitleMenu(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
@@ -145,38 +142,37 @@ void DrawPause(void)
 	pDevice = GetDevice();
 
 	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, g_pVtxBuffPause, 0, sizeof(VERTEX_2D));
+	pDevice->SetStreamSource(0, g_pVtxBuffTitleMenu, 0, sizeof(VERTEX_2D));
 
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	if (g_bPauseDisp == true)
+	
+	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
-		for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
-		{
-			// テクスチャの設定
-			pDevice->SetTexture(0, g_apTexturePause[nCntPause]);
+		// テクスチャの設定
+		pDevice->SetTexture(0, g_apTextureTitleMenu[nCntTitleMenu]);
 
-			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntPause * 4, 2);
-		}
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitleMenu * 4, 2);
 	}
+	
 }
 
 //=============================================================================
-//	ポーズメニューの更新処理
+//	タイトルメニューの更新処理
 //=============================================================================
-void UpdatePause(void)
+void UpdateTitleMenu(void)
 {
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffPause->Lock(0, 0, (void**)&pVtx, 0);
+	g_pVtxBuffTitleMenu->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCntPause = 0; nCntPause < PAUSE_MENU_MAX; nCntPause++)
+	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
-		if (nCntPause == g_pauseMenu)
+		if (nCntTitleMenu == g_titleMenu)
 		{ // 選択されていれば不透明度を戻す
 			// 頂点カラーの設定
 			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -199,18 +195,14 @@ void UpdatePause(void)
 	if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStroke(VK_PAD_LTHUMB_UP) == true)
 	{ // 上方向キーが押されたら
 		// 現在のモードに合わせて変更
-		switch (g_pauseMenu)
+		switch (g_titleMenu)
 		{
-		case PAUSE_MENU_CONTINUE:
-			g_pauseMenu = PAUSE_MENU_QUIT;
+		case TITLEMENU_GAMESTART:
+			g_titleMenu = TITLEMENU_EXIT;
 			break;
 
-		case PAUSE_MENU_RETRY:
-			g_pauseMenu = PAUSE_MENU_CONTINUE;
-			break;
-
-		case PAUSE_MENU_QUIT:
-			g_pauseMenu = PAUSE_MENU_RETRY;
+		case 	TITLEMENU_EXIT:
+			g_titleMenu = TITLEMENU_GAMESTART;
 			break;
 		}
 	}
@@ -218,57 +210,42 @@ void UpdatePause(void)
 	if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_S) == true || GetJoypadStroke(VK_PAD_LTHUMB_DOWN) == true)
 	{ // 下方向キーが押されたら
 		// 現在のモードに合わせて変更
-		switch (g_pauseMenu)
+		switch (g_titleMenu)
 		{
-		case PAUSE_MENU_CONTINUE:
-			g_pauseMenu = PAUSE_MENU_RETRY;
+		case TITLEMENU_GAMESTART:
+			g_titleMenu = TITLEMENU_EXIT;
 			break;
 
-		case PAUSE_MENU_RETRY:
-			g_pauseMenu = PAUSE_MENU_QUIT;
-			break;
-
-		case PAUSE_MENU_QUIT:
-			g_pauseMenu = PAUSE_MENU_CONTINUE;
+		case TITLEMENU_EXIT:
+			g_titleMenu = TITLEMENU_GAMESTART;
 			break;
 		}
 	}
 
 	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true)
 	{ // 決定キーが押されたら
-		// ポーズを解除
-		SetEnablePause(false);
 
 		// 現在のモードに合わせて変更
-		switch (g_pauseMenu)
+		switch (g_titleMenu)
 		{
-		case PAUSE_MENU_CONTINUE:
-			
+		case TITLEMENU_GAMESTART:
+			SetFade(MODE_TUTORIAL);
 			break;
 
-		case PAUSE_MENU_RETRY:
-			SetFade(MODE_GAME);
-			break;
-
-		case PAUSE_MENU_QUIT:
-			SetFade(MODE_TITLE);
+		case TITLEMENU_EXIT:
+			PostQuitMessage(0);
 			break;
 		}
 	}
 
-	if (GetKeyboardTrigger(DIK_F5) == true)
-	{
-		g_bPauseDisp = g_bPauseDisp ? false : true;
-	}
-
 	// 頂点バッファをアンロックする
-	g_pVtxBuffPause->Unlock();
+	g_pVtxBuffTitleMenu->Unlock();
 }
 
 //=============================================================================
-//	ポーズメニューの設定処理
+//	タイトルメニューの設定処理
 //=============================================================================
-void SetPauseMenu(PAUSE_MENU pause_menu)
+void SetTitleMenu(TITLEMENU titlemenu)
 {
-	g_pauseMenu = pause_menu;
+	g_titleMenu = titlemenu;
 }

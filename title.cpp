@@ -7,15 +7,25 @@
 
 #include "main.h"
 #include "title.h"
+#include "titlemenu.h"
 #include "input.h"
 #include "sound.h"
 #include "fade.h"
 
 //*****************************************************************************
+// マクロ定義
+//*****************************************************************************
+#define MAX_TITLE_UI		(4)
+#define TITLEFADE_TIMER		(300)		// タイマーの秒数
+
+//*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_pTextureTitle = NULL;				// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitle = NULL;			// 頂点バッファへのポインタ
+LPDIRECT3DTEXTURE9 g_pTextureTitle[MAX_TITLE_UI] = {};				// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitle = NULL;						// 頂点バッファへのポインタ
+TITLESTATE g_titleState = TITLESTATE_OP;							// タイトルの状態
+int g_nCounterTitleState = 0;										// 状態管理カウンター
+int g_nTitleFadeCounter = 0;
 
 //====================================
 //	タイトルの初期化処理
@@ -24,16 +34,27 @@ void InitTitle(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
+	const char* pTitle_UI[MAX_TITLE_UI] =
+	{
+		"data\\TEXTURE\\bg000.jpg",
+		"data\\TEXTURE\\Title.png",
+		"data\\TEXTURE\\Title_GAMESTART.png",
+		"data\\TEXTURE\\Title_EXIT.png",
+	};
+
 	// デバイスの取得
 	pDevice = GetDevice();
 
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\bg000.jpg",
-		&g_pTextureTitle);
+	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
+	{
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(pDevice,
+			pTitle_UI[nCntTitle],
+			&g_pTextureTitle[nCntTitle]);
+	}
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_TITLE_UI,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
@@ -72,6 +93,11 @@ void InitTitle(void)
 	// 頂点バッファをアンロックする
 	g_pVtxBuffTitle->Unlock();
 
+	g_nTitleFadeCounter = 0;
+
+	// タイトルメニューの初期化
+	InitTitleMenu();
+
 	PlaySound(SOUND_LABEL_BGM000);
 }
 
@@ -80,14 +106,20 @@ void InitTitle(void)
 //====================================
 void UninitTitle(void)
 {
+	// タイトルメニューの終了処理
+	UninitTitleMenu();
+
 	// サウンドを止める
 	StopSound();
 
 	// テクスチャの破棄
-	if (g_pTextureTitle != NULL)
+	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
 	{
-		g_pTextureTitle->Release();
-		g_pTextureTitle = NULL;
+		if (g_pTextureTitle[nCntTitle] != NULL)
+		{
+			g_pTextureTitle[nCntTitle]->Release();
+			g_pTextureTitle[nCntTitle] = NULL;
+		}
 	}
 
 	// 頂点バッファの破棄
@@ -114,11 +146,17 @@ void DrawTitle(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, g_pTextureTitle);
+	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
+	{
+		// テクスチャの設定
+		pDevice->SetTexture(0, g_pTextureTitle[nCntTitle]);
 
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitle * 4, 2);
+	}
+
+	// タイトルメニューの描画処理
+	DrawTitleMenu();
 }
 
 //====================================
@@ -126,15 +164,30 @@ void DrawTitle(void)
 //====================================
 void UpdateTitle(void)
 {
-	if (GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
-	{// 決定キーが押された
-		// モード設定
-		SetFade(MODE_GAME);
-	}
+	g_nTitleFadeCounter++;
 
-	if (GetJoypadTrigger(JOYKEY_A) == true)
-	{// 決定キーが押された
+	//if (GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
+	//{// 決定キーが押された
+	//	// モード設定
+	//	SetFade(MODE_TUTORIAL);
+	//}
+
+	if (g_nTitleFadeCounter >= TITLEFADE_TIMER)
+	{// カウンターが規定値を超えた
 		// モード設定
 		SetFade(MODE_RANKING);
 	}
+
+	// タイトルメニューの更新処理
+	UpdateTitleMenu();
+}
+
+//========================================
+//	タイトルの状態設定
+//========================================
+void SetTitleState(TITLESTATE titlestate, int nCounter)
+{
+	g_titleState = titlestate;
+
+	g_nCounterTitleState = nCounter;
 }

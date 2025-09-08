@@ -1,177 +1,201 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="リソース ファイル">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="test">
+    <Filter Include="DirectX_000">
       <UniqueIdentifier>{198c6715-1ec9-4545-90ee-9edcac48f06f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="test\ソース ファイル">
+    <Filter Include="DirectX_000\ソース ファイル">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="test\ソース ファイル\game">
+    <Filter Include="DirectX_000\ソース ファイル\game">
       <UniqueIdentifier>{ad20373f-e061-4a85-a4e4-74242f01a3de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX_000\ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="DirectX_000\ソース ファイル\game\ヘッダー">
+      <UniqueIdentifier>{417e2f1b-9c9b-4502-b1e7-fe9f5545570f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectX_000\ソース ファイル\game\ソース">
+      <UniqueIdentifier>{c3203c0e-6a22-4030-965e-f37c6a2d4401}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="bg.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="input.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="bullet.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="explosion.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="enemy.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="score.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="sound.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="title.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="result.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="fade.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="effect.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ranking.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="option.cpp">
-      <Filter>test\ソース ファイル</Filter>
+    <ClCompile Include="tutorial.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="time.cpp">
-      <Filter>test\ソース ファイル</Filter>
+    <ClCompile Include="titlemenu.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="life.cpp">
-      <Filter>test\ソース ファイル</Filter>
+    <ClCompile Include="bg.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
-    <ClCompile Include="stock.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="pause.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="wave.cpp">
-      <Filter>test\ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="particle.cpp">
-      <Filter>test\ソース ファイル</Filter>
+    <ClCompile Include="bullet.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
-    <ClCompile Include="marker.cpp">
-      <Filter>test\ソース ファイル</Filter>
+    <ClCompile Include="effect.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="explosion.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
     <ClCompile Include="frame.cpp">
-      <Filter>test\ソース ファイル</Filter>
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="life.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="marker.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="option.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="pause.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="powerup.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="score.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="stock.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="time.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
+    </ClCompile>
+    <ClCompile Include="wave.cpp">
+      <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="bg.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="input.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="bullet.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="explosion.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="enemy.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="score.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="sound.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="title.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="result.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="fade.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="effect.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ranking.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="option.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="time.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="life.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="stock.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="pause.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="wave.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="particle.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="marker.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="frame.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="powerup.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="tutorial.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="titlemenu.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

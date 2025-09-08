@@ -20,6 +20,7 @@
 // マクロ定義
 //*****************************************************************************
 #define NUM_ENEMY		(5)			// 敵の種類
+#define ENEMY_SCORE		(500)		// 敵撃破時の獲得スコア
 #define MAX_WARD		(256)
 
 //*****************************************************************************
@@ -28,7 +29,7 @@
 LPDIRECT3DTEXTURE9 g_apTextureEnemy[NUM_ENEMY] = {};			// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffEnemy = NULL;					// 頂点バッファへのポインタ
 Enemy g_aEnemy[MAX_ENEMY];										// 敵の情報
-int g_nCounterEnemy;
+int g_nNumEnemy = {};
 
 //====================================
 //	敵の初期化処理
@@ -64,7 +65,8 @@ void InitEnemy(void)
 	for (nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
 		g_aEnemy[nCntEnemy].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_aEnemy[nCntEnemy].move = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+		g_aEnemy[nCntEnemy].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_aEnemy[nCntEnemy].bDisp = false;
 		g_aEnemy[nCntEnemy].bUse = false;			// 使用していない状態にする
 		g_aEnemy[nCntEnemy].bBlinking = false;
 		g_aEnemy[nCntEnemy].nTimeLine = -1;
@@ -75,8 +77,6 @@ void InitEnemy(void)
 		g_aEnemy[nCntEnemy].nCounterAttack = rand() % 300 + 150;
 		g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;
 	}
-
-	g_nCounterEnemy = 0;
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_ENEMY,		// 敵の数だけ
@@ -122,8 +122,6 @@ void InitEnemy(void)
 
 	// 頂点バッファをアンロックする
 	g_pVtxBuffEnemy->Unlock();
-
-	LoadEnemy();
 }
 
 //=============================================================================
@@ -167,7 +165,7 @@ void DrawEnemy(void)
 
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
-		if (g_aEnemy[nCntEnemy].bUse == true)
+		if (g_aEnemy[nCntEnemy].bUse == true && g_aEnemy[nCntEnemy].bDisp == true)
 		{// 敵が使用されている
 			// テクスチャの設定
 			pDevice->SetTexture(0, g_apTextureEnemy[g_aEnemy[nCntEnemy].type]);
@@ -207,21 +205,30 @@ void UpdateEnemy(void)
 			float fAngleE_P = atan2f(pPlayer->pos.x - g_aEnemy[nCntEnemy].pos.x,		// プレイヤーと敵との角度算出
 									 pPlayer->pos.y - g_aEnemy[nCntEnemy].pos.y);
 
-			// 座標を更新
-			g_aEnemy[nCntEnemy].pos += g_aEnemy[nCntEnemy].move;
-			if (nFrameCounter % 180 == 0)
-			{
-				g_aEnemy[nCntEnemy].move.x *= -1.0f;
-			}
-
 			// 頂点座標の設定
 			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
 			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
 			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 
+			// ============== //
+			// 敵の状態		  //
+			// ============== //
 			switch (g_aEnemy[nCntEnemy].state)
 			{// 状態チェック
+				// 出現状態
+			case ENEMYSTATE_APPEAR:
+				SetParticle(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(0.8f, 1.0f, 0.7f, 1.0f), 2500.0f, 10);	// パーティクルを設定
+				g_aEnemy[nCntEnemy].nCounterState--;			// カウントを減らす
+				if (g_aEnemy[nCntEnemy].nCounterState <= 0)
+				{// カウントが0以下になったなら
+					g_aEnemy[nCntEnemy].bDisp = true;				// 描画
+					g_aEnemy[nCntEnemy].nCounterState = 0;			// カウンターリセット
+					g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;	// 状態を通常に
+				}
+				continue;
+				break;
+
 				// 通常状態
 			case ENEMYSTATE_NORMAL:
 				g_aEnemy[nCntEnemy].nCounterAttack--;
@@ -296,8 +303,13 @@ void UpdateEnemy(void)
 				break;
 
 			case ENEMYSTATE_WAIT:
-				g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;
+				g_aEnemy[nCntEnemy].state = ENEMYSTATE_APPEAR;
+				g_aEnemy[nCntEnemy].nCounterState = 60;
+				break;
 			}
+
+			// 座標を更新
+			g_aEnemy[nCntEnemy].pos += g_aEnemy[nCntEnemy].move;
 
 			// テクスチャを更新
 			g_aEnemy[nCntEnemy].nCounterAnim++;
@@ -332,6 +344,13 @@ void UpdateEnemy(void)
 				pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 				pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 			}
+
+			if (g_aEnemy[nCntEnemy].pos.x <= 0 || g_aEnemy[nCntEnemy].pos.x >= WARLD_WIDTH ||
+				g_aEnemy[nCntEnemy].pos.y <= 0 || g_aEnemy[nCntEnemy].pos.y >= WARLD_HEIGHT)
+			{
+				g_aEnemy[nCntEnemy].bUse = false;
+				g_nNumEnemy--;
+			}
 		}
 	}
 
@@ -341,7 +360,7 @@ void UpdateEnemy(void)
 //=============================================================================
 //	敵の設定
 //=============================================================================
-void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine)
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nType, int nLife, int nTimeLine)
 {
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
@@ -356,6 +375,7 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine)
 		if (g_aEnemy[nCntEnemy].bUse == false && g_aEnemy[nCntEnemy].state != ENEMYSTATE_WAIT)
 		{// 敵を使用していない
 			g_aEnemy[nCntEnemy].pos = pos;
+			g_aEnemy[nCntEnemy].move = move;
 			g_aEnemy[nCntEnemy].type = (ENEMYTYPE)nType;
 			g_aEnemy[nCntEnemy].nLife = nLife;
 			g_aEnemy[nCntEnemy].nTimeLine = nTimeLine;
@@ -366,8 +386,6 @@ void SetEnemy(D3DXVECTOR3 pos, int nType, int nLife, int nTimeLine)
 			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
 			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
-
-			g_nCounterEnemy++;
 			//g_aEnemy[nCntEnemy].bUse = true;		// 敵が使用されている状態にする
 			break;		// ここでfor文を抜ける
 		}
@@ -404,9 +422,9 @@ void HitEnemy(int nCntEnemy, int nDamage)
 		//SetExplosion(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 		//SetParticle(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f), 50.0f, 10);
 		SetRainbowParticle(g_aEnemy[nCntEnemy].pos, 3000.0f, 20);
-		AddScore(100);
+		AddScore(ENEMY_SCORE);
 
-		g_nCounterEnemy--;
+		g_nNumEnemy--;
 
 		pVtx += (nCntEnemy * 4);
 
@@ -507,85 +525,9 @@ bool CheckEnemy(void)
 }
 
 //=============================================================================
-//	敵のロード処理
+//	敵の数確認処理
 //=============================================================================
-void LoadEnemy(void)
+int* GetNumEnemy(void)
 {
-	// デバイスポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	FILE* pFile;
-
-	pFile = fopen("data\\wave.txt", "r");
-
-	if (pFile != NULL)
-	{// 開けたら
-		//ローカル変数宣言
-		char aString[MAX_WARD];		// 文字列を読み込む
-		char aStrRelease[3];		// 不要な = を読み込む
-
-		// それぞれの値を読み込む
-		D3DXVECTOR3 pos = {};
-		int type = 0;
-		int life = 0;
-		int timeline = 0;
-		int nData;
-
-		while (true)
-		{
-			nData = fscanf(pFile, "%s", &aString[0]);
-
-			if (strcmp(&aString[0], "SETENEMY") == 0)
-			{// SETENEMYを読み取った
-				while (true)
-				{
-					nData = fscanf(pFile, "%s", &aString[0]);
-
-					if (strcmp(&aString[0], "POS") == 0)
-					{// POSを読み取った
-						fscanf(pFile, "%s", &aStrRelease[0]);
-					
-						fscanf(pFile, "%f", &pos.x);
-						fscanf(pFile, "%f", &pos.y);
-						fscanf(pFile, "%f", &pos.z);
-					}
-
-					if (strcmp(&aString[0], "TYPE") == 0)
-					{// TYPEを読み取った
-						fscanf(pFile, "%s", &aStrRelease[0]);
-
-						fscanf(pFile, "%d", &type);
-
-					}
-
-					if (strcmp(&aString[0], "LIFE") == 0)
-					{// LIFEを読み取った
-						fscanf(pFile, "%s", &aStrRelease[0]);
-
-						fscanf(pFile, "%d", &life);
-					}
-
-					if (strcmp(&aString[0], "TIMELINE") == 0)
-					{// LIFEを読み取った
-						fscanf(pFile, "%s", &aStrRelease[0]);
-
-						fscanf(pFile, "%d", &timeline);
-					}
-
-					if (strcmp(&aString[0], "ENDSET") == 0)
-					{// ENDSETを読み取った
-						SetEnemy(pos, type, life, timeline);
-						break;
-					}
-				}
-			}
-
-			
-
-			if (strcmp(&aString[0], "END_SCRIPT") == 0)
-			{
-				break;
-			}
-		}
-	}
+	return &g_nNumEnemy;
 }

@@ -1,24 +1,21 @@
 //=============================================================================
 //
-//	制限時間処理 [time.h]
+//	パワーアップ処理 [powerup.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _TIME_H_
-#define _TIME_H_
+#ifndef _POWERUP_H_
+#define _POWERUP_H_
 
 #include "main.h"
-
-//マクロ定義
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitTime(void);
-void UninitTime(void);
-void UpdateTime(void);
-void DrawTime(void);
-int GetTime(void);
+void InitPowerup(void);
+void UninitPowerup(void);
+void UpdatePowerup(void);
+void DrawPowerup(void);
 
-#endif
+#endif // _POWERUP_H_

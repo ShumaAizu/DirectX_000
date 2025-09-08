@@ -19,6 +19,7 @@ typedef struct
 {
 	D3DXVECTOR3 pos;		// 位置
 	D3DXCOLOR col;			// 色
+	PARTICLETYPE type;		// 種類
 	float fRadius;			// 半径
 	int nLife;				// 寿命
 	bool bUse;				// 使用状況
@@ -38,6 +39,7 @@ void InitParticle(void)
 	{
 		g_aParticle[nCntParticle].pos = {};
 		g_aParticle[nCntParticle].col = {0.0f, 0.0f, 0.0f, 1.0f};
+		g_aParticle[nCntParticle].type = PARTICLETYPE_NORMAL;
 		g_aParticle[nCntParticle].fRadius = {};
 		g_aParticle[nCntParticle].nLife = {};
 		g_aParticle[nCntParticle].bUse = false;
@@ -83,10 +85,21 @@ void UpdateParticle(void)
 				move.x = sinf(fAngle) * fMove;
 				move.y = cosf(fAngle) * fMove;
 
-				col.r = (float)(rand() % 101) / 100.0f;
-				col.g = (float)(rand() % 101) / 100.0f;
-				col.b = (float)(rand() % 101) / 100.0f;
-				col.a = 1.0f;
+				switch (g_aParticle[nCntParticle].type)
+				{
+				case PARTICLETYPE_NORMAL:
+					col = g_aParticle[nCntParticle].col;
+					break;
+
+				case PARTICLETYPE_RAINBOW:
+					col.r = (float)(rand() % 101) / 100.0f;
+					col.g = (float)(rand() % 101) / 100.0f;
+					col.b = (float)(rand() % 101) / 100.0f;
+					col.a = 1.0f;
+					break;
+
+				}
+
 				fRadius = (float)(rand() % (int)g_aParticle[nCntParticle].fRadius) / 100.0f + 5.0f;
 				nLife = 200;
 
@@ -126,6 +139,7 @@ void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 			g_aParticle[nCntParticle].nLife = nLife;		// 受け取った寿命を代入
 			g_aParticle[nCntParticle].fRadius = fRadius;	// 受け取った半径を代入
 
+			g_aParticle[nCntParticle].type = PARTICLETYPE_NORMAL;
 			g_aParticle[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
 			break;		// ここでfor文を抜ける
 		}
@@ -149,6 +163,8 @@ void SetRainbowParticle(D3DXVECTOR3 pos, float fRadius, int nLife)
 			g_aParticle[nCntParticle].col.r = (float)(rand() % 101) / 100.0f;
 			g_aParticle[nCntParticle].col.g = (float)(rand() % 101) / 100.0f;
 			g_aParticle[nCntParticle].col.b = (float)(rand() % 101) / 100.0f;
+
+			g_aParticle[nCntParticle].type = PARTICLETYPE_RAINBOW;
 
 			g_aParticle[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
 			break;		// ここでfor文を抜ける
