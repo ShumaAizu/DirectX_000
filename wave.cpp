@@ -108,10 +108,12 @@ void LoadWave(void)
 
 		// ÇªÇÍÇºÇÍÇÃílÇì«Ç›çûÇﬁ
 		D3DXVECTOR3 pos = {};
-		D3DXVECTOR3 move = {};
+		D3DXVECTOR3 rot = {};
+		float fMove = 0;
 		int type = 0;
 		int life = 0;
 		int timeline = 0;
+		ENEMYMOVESTATE movestate; 
 		int nData;
 
 		while (true)
@@ -140,13 +142,18 @@ void LoadWave(void)
 						fscanf(pFile, "%f", &pos.z);
 					}
 
-					if (strcmp(&aString[0], "MOVE") == 0)
-					{// POSÇì«Ç›éÊÇ¡ÇΩ
+					if (strcmp(&aString[0], "ROT") == 0)
+					{// ROTÇì«Ç›éÊÇ¡ÇΩ
 						fscanf(pFile, "%s", &aStrRelease[0]);
 
-						fscanf(pFile, "%f", &move.x);
-						fscanf(pFile, "%f", &move.y);
-						fscanf(pFile, "%f", &move.z);
+						fscanf(pFile, "%f", &rot.z);
+					}
+
+					if (strcmp(&aString[0], "MOVE") == 0)
+					{// MOVEÇì«Ç›éÊÇ¡ÇΩ
+						fscanf(pFile, "%s", &aStrRelease[0]);
+
+						fscanf(pFile, "%f", &fMove);
 					}
 
 					if (strcmp(&aString[0], "TYPE") == 0)
@@ -173,7 +180,7 @@ void LoadWave(void)
 
 					if (strcmp(&aString[0], "ENDSET") == 0)
 					{// ENDSETÇì«Ç›éÊÇ¡ÇΩ
-						SetEnemy(pos, move, type, life, timeline);
+						SetEnemy(pos, rot, fMove, type, life, timeline);
 						break;
 					}
 				}

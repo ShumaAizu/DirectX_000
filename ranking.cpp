@@ -15,12 +15,23 @@
 // マクロ定義
 //*****************************************************************************
 #define RANKINGFADE_TIMER		(300)		// タイマーの秒数
+#define MAX_RANK				(5)			// ランク数
+
+//*****************************************************************************
+// ランキング構造体
+//*****************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;			// 位置
+	int nScore;					// スコア
+};
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTextureRanking = NULL;				// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffRanking = NULL;			// 頂点バッファへのポインタ
+int g_nRankUpdate = -1;										// 更新ランクNo.
 int g_nRankingFadeCounter = 0;
 
 //====================================
@@ -91,6 +102,8 @@ void UninitRanking(void)
 	// サウンドを止める
 	StopSound();
 
+	g_nRankUpdate = -1;
+
 	// テクスチャの破棄
 	if (g_pTextureRanking != NULL)
 	{
@@ -141,4 +154,14 @@ void UpdateRanking(void)
 		// モード設定
 		SetFade(MODE_TITLE);
 	}
+}
+
+void ResetRanking(void)
+{
+
+}
+
+void SetRanking(int nScore)
+{
+
 }

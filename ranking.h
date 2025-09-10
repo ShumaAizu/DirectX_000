@@ -19,5 +19,7 @@ void InitRanking(void);
 void UninitRanking(void);
 void UpdateRanking(void);
 void DrawRanking(void);
+void ResetRanking(void);
+void SetRanking(int nScore);
 
 #endif

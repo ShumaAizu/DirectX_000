@@ -26,6 +26,7 @@
 #include "frame.h"
 #include "powerup.h"
 #include "wave.h"
+#include "marker.h"
 
 //*****************************************************************************
 // グローバル変数
@@ -82,6 +83,9 @@ void InitGame(void)
 
 	// 残機の初期化
 	InitStock();
+
+	// マーカーの初期化
+	InitMarker();
 
 	// フレームの初期化
 	InitFrame();
@@ -147,6 +151,9 @@ void UninitGame(void)
 
 	// 残機の終了処理
 	UninitStock();
+
+	// マーカーの終了処理
+	UninitMarker();
 
 	// フレームの終了処理
 	UninitFrame();
@@ -222,6 +229,9 @@ void UpdateGame(void)
 		// パワーアップの更新処理
 		UpdatePowerup();
 
+		// マーカーの更新処理
+		UpdateMarker();
+
 		// フレームの更新処理
 		UpdateFrame();
 
@@ -290,6 +300,9 @@ void DrawGame(void)
 
 	// 残機の描画処理
 	DrawStock();
+
+	// マーカーの描画処理
+	DrawMarker();
 
 	if (g_bPause == true)
 	{// ポーズ中なら

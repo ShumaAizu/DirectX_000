@@ -17,7 +17,7 @@
 #define SCORE_POSY		(672.0f)			// スコアの座標Y
 #define SCORE_SIZEX		(480.0f)			// スコアのサイズX
 #define SCORE_SIZEY		(32.0f)				// スコアのサイズY
-#define INIT_SCORE		(30000)				// スコアの初期値
+#define INIT_SCORE		(2500)				// スコアの初期値
 
 //*****************************************************************************
 // スコアUI構造体の定義

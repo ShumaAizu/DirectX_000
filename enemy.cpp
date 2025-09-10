@@ -21,7 +21,6 @@
 //*****************************************************************************
 #define NUM_ENEMY		(5)			// 敵の種類
 #define ENEMY_SCORE		(500)		// 敵撃破時の獲得スコア
-#define MAX_WARD		(256)
 
 //*****************************************************************************
 // グローバル変数
@@ -65,17 +64,21 @@ void InitEnemy(void)
 	for (nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
 		g_aEnemy[nCntEnemy].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_aEnemy[nCntEnemy].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		g_aEnemy[nCntEnemy].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aEnemy[nCntEnemy].bDisp = false;
 		g_aEnemy[nCntEnemy].bUse = false;			// 使用していない状態にする
 		g_aEnemy[nCntEnemy].bBlinking = false;
+		g_aEnemy[nCntEnemy].fMove = 0.0f;
 		g_aEnemy[nCntEnemy].nTimeLine = -1;
+		g_aEnemy[nCntEnemy].nScore = 0;
 		g_aEnemy[nCntEnemy].nLife = 3;
 		g_aEnemy[nCntEnemy].nCounterAnim = 0;
 		g_aEnemy[nCntEnemy].nPatternAnim = 0;
 		g_aEnemy[nCntEnemy].nCounterState = 0;
 		g_aEnemy[nCntEnemy].nCounterAttack = rand() % 300 + 150;
 		g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;
+		g_aEnemy[nCntEnemy].attacktype = ENEMY_ATTACKTYPE_AIM;
+		g_aEnemy[nCntEnemy].movestate = ENEMY_MOVESTATE_MOVE;
 	}
 
 	// 頂点バッファの生成
@@ -182,9 +185,8 @@ void DrawEnemy(void)
 void UpdateEnemy(void)
 {
 	int nCntEnemy = 0;
-	static int nFrameCounter = 90;
 
-	nFrameCounter++;
+	Enemy* pEnemy = &g_aEnemy[0];
 
 	Player* pPlayer = GetPlayer();		// プレイヤーの情報取得
 
@@ -197,60 +199,60 @@ void UpdateEnemy(void)
 	g_pVtxBuffEnemy->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 使用判定
-	for (nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pVtx += 4)
+	for (nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pVtx += 4, pEnemy++)
 	{
-		if (g_aEnemy[nCntEnemy].bUse == true)
+		if (pEnemy->bUse == true)
 		{// もし敵が使用されていたら
 			Player* pPlayer = GetPlayer();		// プレイヤーの情報取得
 			float fAngleE_P = atan2f(pPlayer->pos.x - g_aEnemy[nCntEnemy].pos.x,		// プレイヤーと敵との角度算出
 									 pPlayer->pos.y - g_aEnemy[nCntEnemy].pos.y);
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX - pCameraPos->x, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(pEnemy->pos.x - ENEMY_SIZEX - pCameraPos->x, pEnemy->pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(pEnemy->pos.x + ENEMY_SIZEX - pCameraPos->x, pEnemy->pos.y - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(pEnemy->pos.x - ENEMY_SIZEX - pCameraPos->x, pEnemy->pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(pEnemy->pos.x + ENEMY_SIZEX - pCameraPos->x, pEnemy->pos.y + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 
 			// ============== //
 			// 敵の状態		  //
 			// ============== //
-			switch (g_aEnemy[nCntEnemy].state)
+			switch (pEnemy->state)
 			{// 状態チェック
 				// 出現状態
 			case ENEMYSTATE_APPEAR:
-				SetParticle(g_aEnemy[nCntEnemy].pos, D3DXCOLOR(0.8f, 1.0f, 0.7f, 1.0f), 2500.0f, 10);	// パーティクルを設定
-				g_aEnemy[nCntEnemy].nCounterState--;			// カウントを減らす
-				if (g_aEnemy[nCntEnemy].nCounterState <= 0)
+				SetParticle(pEnemy->pos, D3DXCOLOR(0.8f, 1.0f, 0.7f, 1.0f), 2500.0f, 10);	// パーティクルを設定
+				pEnemy->nCounterState--;			// カウントを減らす
+				if (pEnemy->nCounterState <= 0)
 				{// カウントが0以下になったなら
-					g_aEnemy[nCntEnemy].bDisp = true;				// 描画
-					g_aEnemy[nCntEnemy].nCounterState = 0;			// カウンターリセット
-					g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;	// 状態を通常に
+					pEnemy->bDisp = true;				// 描画
+					pEnemy->nCounterState = 0;			// カウンターリセット
+					pEnemy->state = ENEMYSTATE_NORMAL;	// 状態を通常に
 				}
 				continue;
 				break;
 
 				// 通常状態
 			case ENEMYSTATE_NORMAL:
-				g_aEnemy[nCntEnemy].nCounterAttack--;
-				if (g_aEnemy[nCntEnemy].nCounterAttack <= 0)
+				pEnemy->nCounterAttack--;
+				if (pEnemy->nCounterAttack <= 0)
 				{
 					if (pPlayer->state != PLAYERSTATE_DEATH)
 					{// プレイヤーが生存していれば
 						// 弾発射とクールタイム設定
 						SetEnemyBullet(g_aEnemy[nCntEnemy].pos, 5.0f, 150, BULLETTYPE_ENEMY,SHOTTYPE_AIM, fAngleE_P);
-						g_aEnemy[nCntEnemy].nCounterAttack = rand() % 300 + 150;
+						pEnemy->nCounterAttack = rand() % 300 + 150;
 					}
 				}
 				break;
 
 				// ダメージ状態
 			case ENEMYSTATE_DAMAGE:
-				g_aEnemy[nCntEnemy].nCounterState--;		// 状態持続時間を減らす
-				if (g_aEnemy[nCntEnemy].nCounterState <= 0)
+				pEnemy->nCounterState--;		// 状態持続時間を減らす
+				if (pEnemy->nCounterState <= 0)
 				{// 状態持続時間がなくなったら
-					if (g_aEnemy[nCntEnemy].nLife <= 1)
+					if (pEnemy->nLife <= 1)
 					{// 体力が1以下なら危険状態に
-						g_aEnemy[nCntEnemy].state = ENEMYSTATE_WARNING;
+						pEnemy->state = ENEMYSTATE_WARNING;
 
 						// 頂点カラーの設定
 						pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
@@ -258,11 +260,11 @@ void UpdateEnemy(void)
 						pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 						pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-						g_aEnemy[nCntEnemy].nCounterAttack = 0;			// すぐ攻撃させる
+						pEnemy->nCounterAttack = 0;			// すぐ攻撃させる
 					}
 					else
 					{// 体力が十分ならノーマル状態に
-						g_aEnemy[nCntEnemy].state = ENEMYSTATE_NORMAL;
+						pEnemy->state = ENEMYSTATE_NORMAL;
 						// 頂点カラーの設定
 						pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 						pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -273,8 +275,8 @@ void UpdateEnemy(void)
 				break;
 
 			case ENEMYSTATE_WARNING:
-				g_aEnemy[nCntEnemy].nCounterAttack--;
-				if (g_aEnemy[nCntEnemy].nCounterAttack <= 0)
+				pEnemy->nCounterAttack--;
+				if (pEnemy->nCounterAttack <= 0)
 				{
 					if (pPlayer->state != PLAYERSTATE_DEATH)
 					{// プレイヤーが生存していたら
@@ -282,44 +284,97 @@ void UpdateEnemy(void)
 						float fAngle = (float)((rand() % 200 + 1 - 100) * 0.01f);
 
 						// 生成した角度に弾を設定
-						SetEnemyBullet(g_aEnemy[nCntEnemy].pos, 10.0f, 150, BULLETTYPE_ENEMY, SHOTTYPE_NORMAL, fAngle * D3DX_PI);
-						g_aEnemy[nCntEnemy].nCounterAttack = 6;			// クールタイムを設ける
+						SetEnemyBullet(pEnemy->pos, 10.0f, 150, BULLETTYPE_ENEMY, SHOTTYPE_NORMAL, fAngle * D3DX_PI);
+						pEnemy->nCounterAttack = 6;			// クールタイムを設ける
 
-						g_aEnemy[nCntEnemy].nCounterState--;		// 状態持続時間を減らす
-						if (g_aEnemy[nCntEnemy].nCounterState <= 0)
+						pEnemy->nCounterState--;		// 状態持続時間を減らす
+						if (pEnemy->nCounterState <= 0)
 						{// 持続時間がなくなったら
 							// 状態切り替えと再セット
-							g_aEnemy[nCntEnemy].bBlinking  = g_aEnemy[nCntEnemy].bBlinking ? false : true;
-							g_aEnemy[nCntEnemy].nCounterState = 3;
+							pEnemy->bBlinking  = pEnemy->bBlinking ? false : true;
+							pEnemy->nCounterState = 3;
 						}
 
 						// 頂点座標の設定
-						pVtx[0].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
-						pVtx[1].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
-						pVtx[2].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
-						pVtx[3].pos = D3DXVECTOR3((g_aEnemy[nCntEnemy].pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (g_aEnemy[nCntEnemy].pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[0].pos = D3DXVECTOR3((pEnemy->pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (pEnemy->pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[1].pos = D3DXVECTOR3((pEnemy->pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (pEnemy->pos.y + (float)(rand() % 3 - 5)) - ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[2].pos = D3DXVECTOR3((pEnemy->pos.x + (float)(rand() % 3 - 5)) - ENEMY_SIZEX - pCameraPos->x, (pEnemy->pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
+						pVtx[3].pos = D3DXVECTOR3((pEnemy->pos.x + (float)(rand() % 3 - 5)) + ENEMY_SIZEX - pCameraPos->x, (pEnemy->pos.y + (float)(rand() % 3 - 5)) + ENEMY_SIZEY - pCameraPos->y, 0.0f);
 					}
 				}
 				break;
 
 			case ENEMYSTATE_WAIT:
-				g_aEnemy[nCntEnemy].state = ENEMYSTATE_APPEAR;
-				g_aEnemy[nCntEnemy].nCounterState = 60;
+				pEnemy->state = ENEMYSTATE_APPEAR;
+				pEnemy->nCounterState = 60;
 				break;
 			}
 
-			// 座標を更新
-			g_aEnemy[nCntEnemy].pos += g_aEnemy[nCntEnemy].move;
-
-			// テクスチャを更新
-			g_aEnemy[nCntEnemy].nCounterAnim++;
-			if ((g_aEnemy[nCntEnemy].nCounterAnim % 18) == 0)
+			switch (pEnemy->movestate)
 			{
-				g_aEnemy[nCntEnemy].nPatternAnim = (g_aEnemy[nCntEnemy].nPatternAnim + 1) % 2;
-				g_aEnemy[nCntEnemy].nCounterAnim = 0;
+			case ENEMY_MOVESTATE_WAIT:
+				pEnemy->nCounterMove--;
+				if (pEnemy->nCounterMove <= 0)
+				{
+					pEnemy->movestate = ENEMY_MOVESTATE_MOVE;
+				}
+				break;
+
+			case ENEMY_MOVESTATE_MOVE:
+				// 座標を更新
+				pEnemy->pos.x += sinf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
+				pEnemy->pos.y += cosf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
+				pEnemy->nCounterMove--;
+				if (pEnemy->nCounterMove <= 0)
+				{
+					pEnemy->movestate = ENEMY_MOVESTATE_WAIT;
+				}
+				break;
+
+			case ENEMY_MOVESTATE_CHASE:
+				if (pPlayer->state == PLAYERSTATE_NORMAL)
+				{
+					float fRotMove, fRotDest, fRotDiff;
+					fRotMove = pEnemy->rot.z * D3DX_PI;
+					fRotDest = atan2f(pPlayer->pos.x - pEnemy->pos.x, pPlayer->pos.y - pEnemy->pos.y);
+					fRotDiff = fRotDest - fRotMove;
+
+					if (fRotDiff < -D3DX_PI)
+					{
+						fRotDiff += D3DX_PI * 2;
+					}
+					else if (fRotDiff > D3DX_PI)
+					{
+						fRotDiff -= D3DX_PI * 2;
+					}
+
+					fRotMove += fRotDiff * 0.25f;
+
+					if (fRotDiff < -D3DX_PI)
+					{
+						fRotDiff += D3DX_PI * 2;
+					}
+					else if (fRotDiff > D3DX_PI)
+					{
+						fRotDiff -= D3DX_PI * 2;
+					}
+					pEnemy->pos.x += sinf(fRotDest) * pEnemy->fMove;
+					pEnemy->pos.y += cosf(fRotDest) * pEnemy->fMove;
+				}
+
+				break;
+
 			}
 
-			if (g_aEnemy[nCntEnemy].state == ENEMYSTATE_DAMAGE)
+			// テクスチャを更新
+			pEnemy->nCounterAnim++;
+			if ((pEnemy->nCounterAnim % 18) == 0)
+			{
+				pEnemy->nPatternAnim = (pEnemy->nPatternAnim + 1) % 2;
+				pEnemy->nCounterAnim = 0;
+			}
+
+			if (pEnemy->state == ENEMYSTATE_DAMAGE)
 			{
 				// テクスチャ座標の設定
 				//pVtx[0].tex = D3DXVECTOR2(0.5f * g_aEnemy[nCntEnemy].nPatternAnim, 0.5f);
@@ -345,10 +400,10 @@ void UpdateEnemy(void)
 				pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 			}
 
-			if (g_aEnemy[nCntEnemy].pos.x <= 0 || g_aEnemy[nCntEnemy].pos.x >= WARLD_WIDTH ||
-				g_aEnemy[nCntEnemy].pos.y <= 0 || g_aEnemy[nCntEnemy].pos.y >= WARLD_HEIGHT)
+			if (pEnemy->pos.x <= 0 || pEnemy->pos.x >= WARLD_WIDTH ||
+				pEnemy->pos.y <= 0 || pEnemy->pos.y >= WARLD_HEIGHT)
 			{
-				g_aEnemy[nCntEnemy].bUse = false;
+				pEnemy->bUse = false;
 				g_nNumEnemy--;
 			}
 		}
@@ -360,7 +415,7 @@ void UpdateEnemy(void)
 //=============================================================================
 //	敵の設定
 //=============================================================================
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nType, int nLife, int nTimeLine)
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fMove, int nType, int nLife, int nTimeLine)
 {
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
@@ -375,18 +430,19 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nType, int nLife, int nTime
 		if (g_aEnemy[nCntEnemy].bUse == false && g_aEnemy[nCntEnemy].state != ENEMYSTATE_WAIT)
 		{// 敵を使用していない
 			g_aEnemy[nCntEnemy].pos = pos;
-			g_aEnemy[nCntEnemy].move = move;
+			g_aEnemy[nCntEnemy].rot = rot;
 			g_aEnemy[nCntEnemy].type = (ENEMYTYPE)nType;
+			g_aEnemy[nCntEnemy].fMove = fMove;
 			g_aEnemy[nCntEnemy].nLife = nLife;
 			g_aEnemy[nCntEnemy].nTimeLine = nTimeLine;
 			g_aEnemy[nCntEnemy].state = ENEMYSTATE_WAIT;
+			g_aEnemy[nCntEnemy].movestate = ENEMY_MOVESTATE_CHASE;
 
 			// 頂点座標の設定
 			pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
 			pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
 			pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
 			pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
-			//g_aEnemy[nCntEnemy].bUse = true;		// 敵が使用されている状態にする
 			break;		// ここでfor文を抜ける
 		}
 

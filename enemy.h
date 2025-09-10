@@ -37,6 +37,7 @@ typedef enum
 {
 	ENEMY_MOVESTATE_WAIT = 0,			// 待機
 	ENEMY_MOVESTATE_MOVE,				// 移動
+	ENEMY_MOVESTATE_CHASE,				// 追跡
 	ENEMY_MOVESTATE_MAX
 }ENEMYMOVESTATE;
 
@@ -56,9 +57,9 @@ typedef enum
 //*****************************************************************************
 typedef enum
 {
-	ENEMY_ATTACKTYPE_AIM = 0,
-	ENEMY_ATTACKTYPE_HOMING,
-	ENEMY_ATTACKTYPE_SCATTE,
+	ENEMY_ATTACKTYPE_AIM = 0,			// 自機狙い
+	ENEMY_ATTACKTYPE_HOMING,			// ホーミング
+	ENEMY_ATTACKTYPE_SCATTE,			// ばらまき
 	ENEMY_ATTACKTYPE_MAX
 }ENEMYATTACKTYPE;
 
@@ -68,12 +69,14 @@ typedef enum
 typedef struct
 {
 	D3DXVECTOR3 pos;				// 位置
-	D3DXVECTOR3 move;				// 移動量
 	D3DXVECTOR3 rot;				// 向き
 	ENEMYSTATE state;				// 状態
+	ENEMYMOVESTATE movestate;		// 移動状態
 	ENEMYTYPE type;					// 種類
 	ENEMYATTACKTYPE attacktype;		// 攻撃種類
+	float fMove;					// 移動量
 	int nTimeLine;					// タイムライン
+	int nScore;						// 撃破時獲得スコア
 	int nLife;						// 体力
 	int nCounterAnim;				// アニメーションカウンター
 	int nPatternAnim;				// アニメーションNO.
@@ -92,7 +95,7 @@ void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nType, int nLife, int nTimeLine);
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fMove, int nType, int nLife, int nTimeLine);
 Enemy *GetEnemy(void);
 void HitEnemy(int nCntEnemy, int nDamage);
 void ResetEnemy(void);

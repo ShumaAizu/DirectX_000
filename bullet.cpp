@@ -204,8 +204,9 @@ void UpdateBullet(void)
 			else if (pBullet->type == BULLETTYPE_ENEMY)
 			{// 敵の弾
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.1f, 0.1f, 1.0f, 1.0f), 15.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.1f, 1.0f), 30.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 30.0f, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.64f, 0.88f, 0.49f, 1.0f), 3000.0f, 3);
 				// プレイヤーとの当たり判定
 				CollisionPlayer(pBullet);
 				CollisionOption(pBullet);

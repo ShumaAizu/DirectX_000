@@ -36,7 +36,6 @@ typedef enum
 	SHOTTYPE_NORMAL = 0,			// 通常
 	SHOTTYPE_AIM,					// 自機狙い
 	SHOTTYPE_HOMING,				// 追尾
-	SHOTTYPE_LASER,					// レーザー
 	SHOTTYPE_MAX					// 総数
 }SHOTTYPE;
 
