@@ -37,9 +37,22 @@ SOUNDINFO g_aSoundInfo[SOUND_LABEL_MAX] =
 	{"data/BGM/bgm000.wav", -1},		// BGM0
 	{"data/BGM/bgm001.wav", -1},		// BGM1
 	{"data/BGM/bgm002.wav", -1},		// BGM2
+	{"data/BGM/gamebgm000.wav", -1},	// ゲームBGM
+	{"data/BGM/titlebgm000.wav", -1},	// タイトルBGM
+	{"data/BGM/rankingbgm000.wav", -1},	// ランキングBGM
+	{"data/BGM/tutorialbgm000.wav", -1},// チュートリアルBGM
 	{"data/SE/shot000.wav", 0},			// 弾発射音
 	{"data/SE/hit000.wav", 0},			// ヒット音
 	{"data/SE/explosion000.wav", 0},	// 爆発音
+	{"data/SE/select000.wav", 0},
+	{"data/SE/select001.wav", 0},
+	{"data/SE/pause000.wav", 0},
+	{"data/SE/appear000.wav", 0},
+	{"data/SE/shot001.wav", 0},			// 弾発射音
+	{"data/SE/hit001.wav", 0},			// ヒット音
+	{"data/SE/speedup000.wav", 0},		// 加速音
+	{"data/SE/explosion001.wav", 0},	// 爆発音
+	{"data/SE/titleset000.wav", 0},		// タイトルセット
 };
 
 //=============================================================================

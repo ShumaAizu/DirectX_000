@@ -62,6 +62,7 @@ void InitBullet(void)
 		g_aBullet[nCntBullet].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aBullet[nCntBullet].target = NULL;
 		g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
+		g_aBullet[nCntBullet].nHomingTimer = 0;
 		g_aBullet[nCntBullet].nLife = 30;
 		g_aBullet[nCntBullet].bUse = false;			// 使用していない状態にする
 
@@ -101,10 +102,10 @@ void InitBullet(void)
 		pVtx[3].rhw = 1.0f;
 
 		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f);
 
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -156,7 +157,7 @@ void DrawBullet(void)
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, g_pTextureBullet);
+	pDevice->SetTexture(0, NULL);
 
 	// 使用判定
 	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
@@ -192,12 +193,14 @@ void UpdateBullet(void)
 		if (pBullet->bUse == true)
 		{// 弾が使用されている
 
+			float fRotMove = atan2f(pBullet->move.x, pBullet->move.y);
+
 			if (pBullet->type == BULLETTYPE_PLAYER)
 			{// プレイヤーの弾
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 25.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.75f, 0.1f, 0.75f, 1.0f), 45.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 30.0f, 3);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.1f, 1.0f, 0.5f), 40.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.15f, 0.1f, 0.15f, 0.5f), 30.0f, 50);
+				//SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 2500.0f, 5, fRotMove - D3DX_PI, fRotMove -D3DX_PI);
 				// 敵との当たり判定
 				CollisionEnemy(pBullet);
 			}
@@ -206,7 +209,7 @@ void UpdateBullet(void)
 				// エフェクトの設定
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 15.0f, 50);
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 30.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(0.64f, 0.88f, 0.49f, 1.0f), 3000.0f, 3);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.65f, 0.9f, 0.5f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
 				// プレイヤーとの当たり判定
 				CollisionPlayer(pBullet);
 				CollisionOption(pBullet);
@@ -215,7 +218,31 @@ void UpdateBullet(void)
 			switch (pBullet->shottype)
 			{
 			case SHOTTYPE_HOMING:
-				Enemy* pEnemy = GetEnemy();
+				float fLength = NULL;			// 対角線の長さ
+				float fLengthLast = 250.0f;		// 一番短い対角線の長さ
+				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
+				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+				{
+					if (pEnemy->bUse == false || pEnemy->state == ENEMYSTATE_APPEAR)
+					{
+						continue;
+					}
+
+					// 対角線の長さ算出
+					fLength = SQRTF((pEnemy->pos.x - pBullet->pos.x), (pEnemy->pos.y - pBullet->pos.y));
+					if (fLength < fLengthLast)
+					{// もし一番短い対角線の長さが更新されたら
+						fLengthLast = fLength;
+						pBullet->target = nCntEnemy;
+					}
+				}
+
+				if (fLengthLast >= 300.0f)
+				{
+					g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
+				}
+
+				pEnemy = GetEnemy();		// 敵の情報取得
 
 				if ((pEnemy + pBullet->target)->bUse == false)
 				{
@@ -223,7 +250,7 @@ void UpdateBullet(void)
 				}
 				else
 				{
-					float fRotMove, fRotDest, fRotDiff;
+					float fRotDest, fRotDiff;
 
 					fRotMove = atan2f(pBullet->move.x, pBullet->move.y);
 					fRotDest = atan2f((pEnemy + pBullet->target)->pos.x - pBullet->pos.x, (pEnemy + pBullet->target)->pos.y - pBullet->pos.y);
@@ -238,7 +265,14 @@ void UpdateBullet(void)
 						fRotDiff -= D3DX_PI * 2;
 					}
 
-					fRotMove += fRotDiff * 0.25f;
+					if (pBullet->nHomingTimer <= 0)
+					{
+						fRotMove += fRotDiff * 0.5f;
+					}
+					else
+					{
+						pBullet->nHomingTimer--;
+					}
 
 					if (fRotDiff < -D3DX_PI)
 					{
@@ -276,18 +310,18 @@ void UpdateBullet(void)
 			pVtx[3].pos.y = pBullet->pos.y - pCameraPos->y + cosf(pBullet->rot.z + pBullet->fAngle) * pBullet->fLength;
 			pVtx[3].pos.z = 0.0f;
 
-			//// 使用判定
-			//if (g_aBullet[nCntBullet].pos.x > SCREEN_WIDTH || g_aBullet[nCntBullet].pos.x < 0 ||
-			//	g_aBullet[nCntBullet].pos.y > SCREEN_HEIGHT || g_aBullet[nCntBullet].pos.y < 0)
-			//{// もし弾が画面外に出たら
-			//	g_aBullet[nCntBullet].bUse = false;		// 弾を使用していない状態にする
-			//}
+			// 使用判定
+			if (g_aBullet[nCntBullet].pos.x - pCameraPos->x > SCREEN_WIDTH || g_aBullet[nCntBullet].pos.x - pCameraPos->x < 0 ||
+				g_aBullet[nCntBullet].pos.y - pCameraPos->y > SCREEN_HEIGHT || g_aBullet[nCntBullet].pos.y - pCameraPos->y < 0)
+			{// もし弾が画面外に出たら
+				g_aBullet[nCntBullet].bUse = false;		// 弾を使用していない状態にする
+			}
 
 			pBullet->nLife--;				// 寿命を削る
 
 			if (pBullet->nLife < 0)
 			{//もし寿命が尽きたら
-				SetExplosion(pBullet->pos, D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f));
+				SetRainbowParticle(pBullet->pos, 3000.0f, 5, D3DX_PI, -D3DX_PI);
 				pBullet->bUse = false;		// 弾を使用していない状態にする
 			}
 
@@ -338,7 +372,7 @@ void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type,SHO
 				Enemy* pEnemy = GetEnemy();		// 敵の情報取得
 				for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 				{
-					if (pEnemy->bUse == false || pEnemy->state != ENEMYSTATE_APPEAR)
+					if (pEnemy->bUse == false || pEnemy->state == ENEMYSTATE_APPEAR)
 					{
 						continue;
 					}
@@ -474,6 +508,64 @@ void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE ty
 	g_pVtxBuffBullet->Unlock();
 
 }
+
+//=============================================================================
+//	ホーミング弾の設定
+//=============================================================================
+void SetHomingBullet(D3DXVECTOR3 pos, BULLETTYPE type, float fmove, float fAngle, int nLife, int nHomingTimer)
+{
+
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
+	Player* pPlayer = GetPlayer();
+
+	// 頂点座標の更新
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffBullet->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int nCntBullet = 0; nCntBullet < MAX_BULLET; nCntBullet++)
+	{
+		if (g_aBullet[nCntBullet].bUse == false)
+		{// 弾を使用していない
+			g_aBullet[nCntBullet].pos = pos;
+			g_aBullet[nCntBullet].shottype = SHOTTYPE_HOMING;
+
+			pVtx[0].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[0].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z + D3DX_PI + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[0].pos.z = 0.0f;
+
+			pVtx[1].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z - D3DX_PI - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[1].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z - D3DX_PI - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[1].pos.z = 0.0f;
+
+			pVtx[2].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[2].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z - g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[2].pos.z = 0.0f;
+
+			pVtx[3].pos.x = g_aBullet[nCntBullet].pos.x - pCameraPos->x + sinf(g_aBullet[nCntBullet].rot.z + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[3].pos.y = g_aBullet[nCntBullet].pos.y - pCameraPos->y + cosf(g_aBullet[nCntBullet].rot.z + g_aBullet[nCntBullet].fAngle) * g_aBullet[nCntBullet].fLength;
+			pVtx[3].pos.z = 0.0f;
+
+			g_aBullet[nCntBullet].move.x = sinf(fAngle) * fmove + pPlayer->fSpeed;
+			g_aBullet[nCntBullet].move.y = cosf(fAngle) * fmove + pPlayer->fSpeed;
+
+			g_aBullet[nCntBullet].nLife = nLife;
+			g_aBullet[nCntBullet].type = type;
+			g_aBullet[nCntBullet].nHomingTimer = nHomingTimer;
+			g_aBullet[nCntBullet].bUse = true;		// 弾が使用されている状態にする
+			break;		// ここでfor文を抜ける
+		}
+
+		pVtx += 4;
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffBullet->Unlock();
+
+}
+
 //=============================================================================
 //	敵との当たり判定
 //=============================================================================
@@ -487,14 +579,24 @@ void CollisionEnemy(Bullet *pBullet)
 	{
 		if (pEnemy->bUse == true)
 		{// 敵が使用されている
-			if (pBullet->pos.x >= pEnemy->pos.x - ENEMY_SIZEX - (BULLET_SIZEX / 2) &&
-				pBullet->pos.y >= pEnemy->pos.y - ENEMY_SIZEY - (BULLET_SIZEY / 2) &&
-				pBullet->pos.x <= pEnemy->pos.x + ENEMY_SIZEX + (BULLET_SIZEX / 2) &&
-				pBullet->pos.y <= pEnemy->pos.y + ENEMY_SIZEY + (BULLET_SIZEY / 2) &&
+			if (pBullet->pos.x >= pEnemy->pos.x - pEnemy->fRadius - (BULLET_SIZEX / 2) &&
+				pBullet->pos.y >= pEnemy->pos.y - pEnemy->fRadius - (BULLET_SIZEY / 2) &&
+				pBullet->pos.x <= pEnemy->pos.x + pEnemy->fRadius + (BULLET_SIZEX / 2) &&
+				pBullet->pos.y <= pEnemy->pos.y + pEnemy->fRadius + (BULLET_SIZEY / 2) &&
 				pEnemy->state != ENEMYSTATE_APPEAR && pEnemy->state != ENEMYSTATE_WAIT)
 			{// もし弾が敵にあたっていたら
 				// 敵のヒット処理
-				HitEnemy(nCntEnemy, 1);
+				switch (pBullet->shottype)
+				{
+				case SHOTTYPE_HOMING:
+					HitEnemy(nCntEnemy, 1);
+					break;
+
+				case SHOTTYPE_NORMAL:
+					HitEnemy(nCntEnemy, 3);
+					break;
+				}
+				SetRainbowParticle(pBullet->pos, 3000.0f, 5, D3DX_PI, -D3DX_PI);
 				pBullet->bUse = false;
 			}
 		}
@@ -516,7 +618,7 @@ void CollisionPlayer(Bullet* pBullet)
 		pPlayer->state == PLAYERSTATE_NORMAL)
 	{// もし弾がプレイヤーにあたっていたら
 		// 敵のヒット処理
-		HitPlayer(1);
+		HitPlayer(1000);
 		pBullet->bUse = false;
 	}
 }

@@ -7,7 +7,11 @@
 
 #include "main.h"
 #include "title.h"
+#include "titlebg.h"
 #include "titlemenu.h"
+#include "titlelogo.h"
+#include "effect.h"
+#include "particle.h"
 #include "input.h"
 #include "sound.h"
 #include "fade.h"
@@ -16,7 +20,6 @@
 // ƒ}ƒNƒ’è‹`
 //*****************************************************************************
 #define MAX_TITLE_UI		(4)
-#define TITLEFADE_TIMER		(300)		// ƒ^ƒCƒ}[‚Ì•b”
 
 //*****************************************************************************
 // ƒOƒ[ƒoƒ‹•Ï”
@@ -25,80 +28,31 @@ LPDIRECT3DTEXTURE9 g_pTextureTitle[MAX_TITLE_UI] = {};				// ƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitle = NULL;						// ’¸“_ƒoƒbƒtƒ@‚Ö‚Ìƒ|ƒCƒ“ƒ^
 TITLESTATE g_titleState = TITLESTATE_OP;							// ƒ^ƒCƒgƒ‹‚Ìó‘Ô
 int g_nCounterTitleState = 0;										// ó‘ÔŠÇ—ƒJƒEƒ“ƒ^[
-int g_nTitleFadeCounter = 0;
 
 //====================================
 //	ƒ^ƒCƒgƒ‹‚Ì‰Šú‰»ˆ—
 //====================================
 void InitTitle(void)
 {
-	LPDIRECT3DDEVICE9 pDevice;				// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^
 
-	const char* pTitle_UI[MAX_TITLE_UI] =
-	{
-		"data\\TEXTURE\\bg000.jpg",
-		"data\\TEXTURE\\Title.png",
-		"data\\TEXTURE\\Title_GAMESTART.png",
-		"data\\TEXTURE\\Title_EXIT.png",
-	};
+	g_titleState = TITLESTATE_OP;
 
-	// ƒfƒoƒCƒX‚Ìæ“¾
-	pDevice = GetDevice();
+	// ƒ^ƒCƒgƒ‹”wŒi‚Ì‰Šú‰»
+	InitTitleBG();
 
-	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
-	{
-		// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
-		D3DXCreateTextureFromFile(pDevice,
-			pTitle_UI[nCntTitle],
-			&g_pTextureTitle[nCntTitle]);
-	}
+	// ƒGƒtƒFƒNƒg‚Ì‰Šú‰»
+	InitEffect();
 
-	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_TITLE_UI,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&g_pVtxBuffTitle,
-		NULL);
+	// ƒp[ƒeƒBƒNƒ‹‚Ì‰Šú‰»
+	InitParticle();
 
-	VERTEX_2D *pVtx;			// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
-
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒƒbƒN‚µ,’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
-	g_pVtxBuffTitle->Lock(0, 0, (void * *)&pVtx, 0);
-
-	// ’¸“_À•W‚Ìİ’è
-	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(1280.0f, 0.0f, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(0.0f, 720.0f, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(1280.0f, 720.0f, 0.0f);
-
-	// rhw‚Ìİ’è
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
-
-	// ’¸“_ƒJƒ‰[‚Ìİ’è
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ìİ’è
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
-	g_pVtxBuffTitle->Unlock();
-
-	g_nTitleFadeCounter = 0;
+	// ƒ^ƒCƒgƒ‹ƒƒS‚Ì‰Šú‰»ˆ—
+	InitTitleLogo();
 
 	// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚Ì‰Šú‰»
 	InitTitleMenu();
 
-	PlaySound(SOUND_LABEL_BGM000);
+	PlaySound(SOUND_LABEL_BGM_TITLE000);
 }
 
 //====================================
@@ -106,28 +60,23 @@ void InitTitle(void)
 //====================================
 void UninitTitle(void)
 {
+	// ƒ^ƒCƒgƒ‹”wŒi‚ÌI—¹ˆ—
+	UninitTitleBG();
+
+	// ƒGƒtƒFƒNƒg‚ÌI—¹ˆ—
+	UninitEffect();
+
+	// ƒp[ƒeƒBƒNƒ‹‚ÌI—¹ˆ—
+	UninitParticle();
+
+	// ƒ^ƒCƒgƒ‹ƒƒS‚ÌI—¹ˆ—
+	UninitTitleLogo();
+
 	// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚ÌI—¹ˆ—
 	UninitTitleMenu();
 
 	// ƒTƒEƒ“ƒh‚ğ~‚ß‚é
 	StopSound();
-
-	// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
-	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
-	{
-		if (g_pTextureTitle[nCntTitle] != NULL)
-		{
-			g_pTextureTitle[nCntTitle]->Release();
-			g_pTextureTitle[nCntTitle] = NULL;
-		}
-	}
-
-	// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
-	if (g_pVtxBuffTitle != NULL)
-	{
-		g_pVtxBuffTitle->Release();
-		g_pVtxBuffTitle = NULL;
-	}
 }
 
 //====================================
@@ -135,28 +84,23 @@ void UninitTitle(void)
 //====================================
 void DrawTitle(void)
 {
-	LPDIRECT3DDEVICE9 pDevice;				// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	// ƒ^ƒCƒgƒ‹”wŒi‚Ì•`‰æˆ—
+	DrawTitleBG();
 
-	// ƒfƒoƒCƒX‚Ìæ“¾
-	pDevice = GetDevice();
+	// ƒGƒtƒFƒNƒg‚Ì•`‰æˆ—
+	DrawEffect();
 
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
-	pDevice->SetStreamSource(0, g_pVtxBuffTitle, 0, sizeof(VERTEX_2D));
+	// ƒp[ƒeƒBƒNƒ‹‚Ì•`‰æˆ—
+	DrawParticle();
 
-	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
-	pDevice->SetFVF(FVF_VERTEX_2D);
+	// ƒ^ƒCƒgƒ‹ƒƒS‚Ì•`‰æˆ—
+	DrawTitleLogo();
 
-	for (int nCntTitle = 0; nCntTitle < MAX_TITLE_UI; nCntTitle++)
+	if (g_titleState == TITLESTATE_MENU)
 	{
-		// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-		pDevice->SetTexture(0, g_pTextureTitle[nCntTitle]);
-
-		// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitle * 4, 2);
+		// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚Ì•`‰æˆ—
+		DrawTitleMenu();
 	}
-
-	// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚Ì•`‰æˆ—
-	DrawTitleMenu();
 }
 
 //====================================
@@ -164,30 +108,38 @@ void DrawTitle(void)
 //====================================
 void UpdateTitle(void)
 {
-	g_nTitleFadeCounter++;
 
-	//if (GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
-	//{// Œˆ’èƒL[‚ª‰Ÿ‚³‚ê‚½
-	//	// ƒ‚[ƒhİ’è
-	//	SetFade(MODE_TUTORIAL);
-	//}
+	// ƒ^ƒCƒgƒ‹”wŒi‚ÌXVˆ—
+	UpdateTitleBG();
 
-	if (g_nTitleFadeCounter >= TITLEFADE_TIMER)
-	{// ƒJƒEƒ“ƒ^[‚ª‹K’è’l‚ğ’´‚¦‚½
-		// ƒ‚[ƒhİ’è
-		SetFade(MODE_RANKING);
+	// ƒGƒtƒFƒNƒg‚ÌXVˆ—
+	UpdateEffect();
+
+	// ƒp[ƒeƒBƒNƒ‹‚ÌXVˆ—
+	UpdateParticle();
+
+	// ƒ^ƒCƒgƒ‹ƒƒS‚ÌXVˆ—
+	UpdateTitleLogo();
+
+	if (g_titleState == TITLESTATE_MENU)
+	{
+		// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚ÌXVˆ—
+		UpdateTitleMenu();
 	}
-
-	// ƒ^ƒCƒgƒ‹ƒƒjƒ…[‚ÌXVˆ—
-	UpdateTitleMenu();
 }
 
 //========================================
 //	ƒ^ƒCƒgƒ‹‚Ìó‘Ôİ’è
 //========================================
-void SetTitleState(TITLESTATE titlestate, int nCounter)
+void SetTitleState(TITLESTATE titlestate)
 {
 	g_titleState = titlestate;
+}
 
-	g_nCounterTitleState = nCounter;
+//========================================
+//	ƒ^ƒCƒgƒ‹‚Ìó‘Ôæ“¾
+//========================================
+TITLESTATE GetTitleState(void)
+{
+	return g_titleState;
 }

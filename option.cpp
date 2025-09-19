@@ -231,6 +231,8 @@ void UpdateOption(void)
 			}
 		}
 
+#if 0
+
 		if (GetKeyboardPress(DIK_Q) == true || GetJoypadPress(JOYKEY_LEFT_SHOULDER))
 		{// 左キーが押された
 			// 左に回転
@@ -246,9 +248,6 @@ void UpdateOption(void)
 		g_standard_rot.z += pOption->move.z;
 
 		pOption->move.z += (0.0f - pOption->move.z) * 0.1f;
-
-		pOption->fAngle = atan2f(pOption->fDistance, pOption->fDistance);
-
 		pOption->pos.x = pPlayer->pos.x + sinf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
 		pOption->pos.y = pPlayer->pos.y + cosf((g_standard_rot.z + pOption->rot.z) * D3DX_PI) * pOption->fDistance;
 
@@ -268,6 +267,28 @@ void UpdateOption(void)
 		pVtx[3].pos.x = g_aOption[nCntOption].pos.x - pCameraPos->x + sinf(g_aOption[nCntOption].rot.z + g_standard_rot.z + g_fAngleOption) * g_fLengthOption;
 		pVtx[3].pos.y = g_aOption[nCntOption].pos.y - pCameraPos->y + cosf(g_aOption[nCntOption].rot.z + g_standard_rot.z + g_fAngleOption) * g_fLengthOption;
 		pVtx[3].pos.z = 0.0f;
+#elif 1
+		pOption->pos.x = pPlayer->pos.x + sinf(pPlayer->rot.z + (pOption->rot.z * D3DX_PI)) * pOption->fDistance;
+		pOption->pos.y = pPlayer->pos.y + cosf(pPlayer->rot.z + (pOption->rot.z * D3DX_PI)) * pOption->fDistance;
+
+		// 頂点座標の設定
+		pVtx[0].pos.x = pOption->pos.x - pCameraPos->x + sinf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.y = pOption->pos.y - pCameraPos->y + cosf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + g_fAngleOption) * g_fLengthOption;
+		pVtx[0].pos.z = 0.0f;
+
+		pVtx[1].pos.x = pOption->pos.x - pCameraPos->x + sinf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z - g_fAngleOption)* g_fLengthOption;
+		pVtx[1].pos.y = pOption->pos.y - pCameraPos->y + cosf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z - g_fAngleOption) * g_fLengthOption;
+		pVtx[1].pos.z = 0.0f;
+
+		pVtx[2].pos.x = pOption->pos.x - pCameraPos->x + sinf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.y = pOption->pos.y - pCameraPos->y + cosf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + D3DX_PI - g_fAngleOption) * g_fLengthOption;
+		pVtx[2].pos.z = 0.0f;
+
+		pVtx[3].pos.x = pOption->pos.x - pCameraPos->x + sinf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.y = pOption->pos.y - pCameraPos->y + cosf((pOption->rot.z * D3DX_PI) + pPlayer->rot.z + D3DX_PI + g_fAngleOption) * g_fLengthOption;
+		pVtx[3].pos.z = 0.0f;
+#endif
+
 
 		pVtx += 4;			// 頂点データのポインタを4つ分進める
 	}

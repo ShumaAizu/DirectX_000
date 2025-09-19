@@ -1,6 +1,6 @@
 //=============================================================================
 //
-//	シューティングゲームβ版 [main.cpp]
+//	Elemental Flight [main.cpp]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
@@ -25,7 +25,7 @@
 // マクロ定義
 //*****************************************************************************
 #define CLASS_NAME			"WindowClass"					// ウインドウクラスの名前
-#define WINDOW_NAME			"シューティングゲームβ版"		// ウインドウの名前
+#define WINDOW_NAME			"Elemental Flight"				// ウインドウの名前
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -335,6 +335,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// モードの設定
 	InitFade(g_mode);
 
+	ResetRanking();
 
 	return S_OK;
 }
@@ -532,6 +533,11 @@ void SetMode(MODE mode)
 	case MODE_RESULT:
 		UninitResult();
 		break;
+
+		// ランキングモード
+	case MODE_RANKING:
+		UninitRanking();
+		break;
 	}
 
 	// 新しいモードの初期化処理
@@ -591,10 +597,11 @@ void DrawDebug(void)
 	Option* pOption = GetOption();
 	D3DXVECTOR3 *pCamera = GetCamera();
 	int* pNumEnemy = GetNumEnemy();
+	bool bControl = GetJoypadControl();
 
 	// 文字列を代入
 	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d\nNumEnemy : %d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY, *pNumEnemy);		// FPS表示
-	sprintf(&aStr1[0], "OpitonPos = { %.2f,%.2f,%.2f }\nCameraPos = { %.2f, %.2f }", pOption->pos.x, pOption->pos.y, pOption->rot.z, pCamera->x, pCamera->y);
+	sprintf(&aStr1[0], "Playerrot = { %.2f }\nCameraPos = { %.2f, %.2f }\n%d", pPlayer->rot.z, pCamera->x, pCamera->y, bControl);
 
 	// テキストを描画
 	g_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));

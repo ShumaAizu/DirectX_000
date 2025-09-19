@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "score.h"
+#include "powerup.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -17,7 +18,7 @@
 #define SCORE_POSY		(672.0f)			// スコアの座標Y
 #define SCORE_SIZEX		(480.0f)			// スコアのサイズX
 #define SCORE_SIZEY		(32.0f)				// スコアのサイズY
-#define INIT_SCORE		(2500)				// スコアの初期値
+#define INIT_SCORE		(10000)				// スコアの初期値
 
 //*****************************************************************************
 // スコアUI構造体の定義
@@ -117,6 +118,9 @@ void InitScore(void)
 //====================================
 void UninitScore(void)
 {
+
+	g_nScore = 0;
+
 	// テクスチャの破棄
 	for (int nCntTex = 0; nCntTex < MAX_SCORE_UI; nCntTex++)
 	{
@@ -168,7 +172,14 @@ void UpdateScore(void)
 {
 	float fRatio = 0;
 
+	if (g_nScore <= 0)
+	{
+		g_nScore = 0;
+	}
+
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	bool bPowerUp = GetPowerUp();
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
@@ -189,6 +200,23 @@ void UpdateScore(void)
 		pVtx[1].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY, 0.0f);
 		pVtx[2].pos = D3DXVECTOR3(SCORE_POSX - (SCORE_SIZEX - SCORE_SIZEX * fRatio), SCORE_POSY + SCORE_SIZEY, 0.0f);
 		pVtx[3].pos = D3DXVECTOR3(SCORE_POSX, SCORE_POSY + SCORE_SIZEY, 0.0f);
+
+		if (bPowerUp == true)
+		{
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		}
+		else
+		{
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	// 頂点バッファをアンロックする

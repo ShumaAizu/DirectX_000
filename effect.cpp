@@ -13,7 +13,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAX_EFFECT		(35500)			// エフェクトの最大数
+#define MAX_EFFECT		(71000)			// エフェクトの最大数
 
 // エフェクト構造体
 typedef struct
@@ -219,7 +219,7 @@ void UpdateEffect(void)
 
 			if (g_aEffect[nCntEffect].fRadius <= 0)
 			{// 大きさが0以下になったら
-				g_aEffect[nCntEffect].fRadius = 0;		// 0で固定
+				g_aEffect[nCntEffect].bUse = false;
 			}
 
 			g_aEffect[nCntEffect].col.a -= 0.025f;		// 透明にしていく
@@ -244,12 +244,18 @@ void UpdateEffect(void)
 
 			g_aEffect[nCntEffect].nLife--;				// 寿命を削る
 
+			// 使用判定
+			if (g_aEffect[nCntEffect].pos.x - pCameraPos->x > SCREEN_WIDTH || g_aEffect[nCntEffect].pos.x - pCameraPos->x < 0 ||
+				g_aEffect[nCntEffect].pos.y - pCameraPos->y > SCREEN_HEIGHT || g_aEffect[nCntEffect].pos.y - pCameraPos->y < 0)
+			{// もし弾が画面外に出たら
+				g_aEffect[nCntEffect].bUse = false;		// 弾を使用していない状態にする
+			}
+
 			if (g_aEffect[nCntEffect].nLife < 0)
 			{//もし寿命が尽きたら
 				g_aEffect[nCntEffect].bUse = false;		// エフェクトを使用していない状態にする
 				g_aEffect[nCntEffect].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			}
-
 			
 		}
 

@@ -32,6 +32,8 @@
 //*****************************************************************************
 LPDIRECT3DTEXTURE9 g_pTexturePlayer = NULL;				// プレイヤーのテクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPlayer = NULL;		// プレイヤーの頂点バッファへのポインタ
+float g_fLengthPlayer = NULL;
+float g_fAnglePlayer = NULL;
 Player g_player;										// プレイヤーの情報
 int g_nCounterAnimPlayer;								// アニメーションカウンター
 int g_nPatternAnimPlayer;								// アニメーションパターンNo.
@@ -46,7 +48,7 @@ void InitPlayer(void)
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\player000.png",
+		"data\\TEXTURE\\player0001.png",
 		&g_pTexturePlayer);
 
 	// 頂点バッファの生成
@@ -57,15 +59,16 @@ void InitPlayer(void)
 		&g_pVtxBuffPlayer,
 		NULL);
 
+	g_fLengthPlayer = SQRTF(PLAYER_SIZE, PLAYER_SIZE);
+	g_fAnglePlayer = atan2f(PLAYER_SIZE, PLAYER_SIZE);
+
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
 	g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置
 	g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量
-	g_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 向きを初期化する
+	g_player.rot = D3DXVECTOR3(0.0f, 0.0f, 3.14f);			// 向きを初期化する
 	g_player.fSpeed = PLAYER_SPEED;							// 速度を初期化
 	g_player.fRadius = PLAYER_SIZE;							// プレイヤーの大きさの初期化
-	g_player.nLife = MAX_LIFE;								// ライフの初期化
-	g_player.nStock = MAX_STOCK;							// 残機の初期化
 	g_player.state = PLAYERSTATE_NORMAL;					// 状態の初期化
 	g_player.bDisp = true;									// 表示状態の初期化
 
@@ -164,6 +167,7 @@ void DrawPlayer(void)
 //=============================================================================
 void UpdatePlayer(void)
 {
+	float fRot = g_player.rot.z - D3DX_PI;	// プレイヤーの向きの反対
 
 	switch (g_player.state)
 	{
@@ -186,7 +190,6 @@ void UpdatePlayer(void)
 		if (g_player.nCounterState <= 0)
 		{
 			g_player.state = PLAYERSTATE_APPEAR;		// 状態を出現に
-			g_player.nLife = MAX_LIFE;					// ライフ初期化
 			g_player.nCounterState = 60;				// 状態持続時間セット
 			g_player.bDisp = true;						// 表示状態に
 		}
@@ -194,12 +197,23 @@ void UpdatePlayer(void)
 
 	case PLAYERSTATE_NORMAL:
 		// パーティクル設定
-		SetRainbowParticle(g_player.pos, 3000.0f, 15);
+		if (fRot < -D3DX_PI)
+		{
+			fRot += D3DX_PI * 2;
+		}
+		else if (fRot > D3DX_PI)
+		{
+			fRot -= D3DX_PI * 2;
+		}
+
+		//SetRainbowParticle(g_player.pos, 3000.0f, 15);
+		SetParticle(g_player.pos, D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 3000.0f, 30, fRot, fRot);
 		CollisionPlayertoEnemy();
 		break;
 
 	case PLAYERSTATE_DAMAGE:
 		g_player.nCounterState--;		// 状態持続時間を減らす
+		SetRainbowParticle(g_player.pos, 5000.0f, 5, D3DX_PI, -D3DX_PI);
 		if (g_player.nCounterState <= 0)
 		{// 状態持続時間がなくなったら
 			g_player.state = PLAYERSTATE_APPEAR;		// 初期化
@@ -227,11 +241,8 @@ void UpdatePlayer(void)
 		// テスト用セットエネミー
 		if (GetKeyboardTrigger(DIK_L) == true)
 		{
-			// 敵のリセット
-			ResetEnemy();
 
 			g_player.state = PLAYERSTATE_NORMAL;		// 状態の初期化
-			g_player.nLife = 5;							// ライフの初期化
 			g_player.bDisp = true;						// 表示状態の初期化
 
 			// 頂点座標の更新
@@ -261,63 +272,82 @@ void UpdatePlayer(void)
 
 		Option* pOption = GetOption();
 
-		PlaySound(SOUND_LABEL_SE_SHOT);
+		PlaySound(SOUND_LABEL_SE_SHOT001);
 
 		//弾の設定
-		SetPlayerBullet(g_player.pos, D3DXVECTOR3(0.0f, -BULLET_MOVE, 0.0f), 150, BULLETTYPE_PLAYER, SHOTTYPE_HOMING);
-
+		SetHomingBullet(g_player.pos - D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z + (0.15f * D3DX_PI), 250, 15);
+		SetHomingBullet(g_player.pos + D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z - (0.15f * D3DX_PI), 250, 15);
 
 		//弾の設定
 		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
 		{
 			if ((pOption + nCntOption)->bUse == true)
 			{
-				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+				//SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
+				SetEnemyBullet((pOption + nCntOption)->pos, 25.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, ((pOption + nCntOption)->rot.z* D3DX_PI + g_player.rot.z));
+
 			}
 		}
 	}
 
-	if (GetKeyboardPress(DIK_A) == true)
+	float fRotMove = 0.0f, fRotDest = 0.0f, fRotDiff = 0.0f;
+
+	float fMoveKeyboard;
+
+	D3DXVECTOR3 KeyboardMove = {0.0f, 0.0f, 0.0f};
+
+	if (GetKeyboardPress(DIK_A) == true || GetJoypadPress(JOYKEY_LEFT) == true)
 	{//Aキーが押された
-		if (GetKeyboardPress(DIK_W) == true)
-		{//かつWキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-		}
-		else if (GetKeyboardPress(DIK_S) == true)
-		{//かつSキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
-		}
-		else
-		{
-			g_player.move.x -= PLAYER_SPEED;
-		}
+		KeyboardMove.x -= 1;
 	}
-	else if (GetKeyboardPress(DIK_D) == true)
+
+	if (GetKeyboardPress(DIK_D) == true || GetJoypadPress(JOYKEY_RIGHT) == true)
 	{//Dキーが押された
-		if (GetKeyboardPress(DIK_W) == true)
-		{//かつWキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-		}
-		else if (GetKeyboardPress(DIK_S) == true)
-		{//かつSキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_SPEED;
-			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_SPEED;
-		}
-		else
-		{
-			g_player.move.x += PLAYER_SPEED;
-		}
+		KeyboardMove.x += 1;
 	}
-	else if (GetKeyboardPress(DIK_W) == true)
+
+	if (GetKeyboardPress(DIK_W) == true || GetJoypadPress(JOYKEY_UP) == true)
 	{//Wキーが押された
-		g_player.move.y -= PLAYER_SPEED;
+		KeyboardMove.y -= 1;
 	}
-	else if (GetKeyboardPress(DIK_S) == true)
+
+	if (GetKeyboardPress(DIK_S) == true || GetJoypadPress(JOYKEY_DOWN) == true)
 	{//Sキーが押された
-		g_player.move.y += PLAYER_SPEED;
+		KeyboardMove.y += 1;
+	}
+
+	fMoveKeyboard = SQRTF(KeyboardMove.x, KeyboardMove.y);
+
+	if (fMoveKeyboard != 0)
+	{
+		fRotMove = g_player.rot.z;								// 今の向き
+		fRotDest = atan2f(KeyboardMove.x, KeyboardMove.y);		// 目的地への向き
+		fRotDiff = fRotDest - fRotMove;							// 差分
+
+		if (fRotDiff < -D3DX_PI)
+		{
+			fRotDiff += D3DX_PI * 2;
+		}
+		else if (fRotDiff > D3DX_PI)
+		{
+			fRotDiff -= D3DX_PI * 2;
+		}
+
+		fRotMove += fRotDiff * 0.65f;
+
+		if (fRotDiff < -D3DX_PI)
+		{
+			fRotDiff += D3DX_PI * 2;
+		}
+		else if (fRotDiff > D3DX_PI)
+		{
+			fRotDiff -= D3DX_PI * 2;
+		}
+
+		// 移動量の更新
+		g_player.move.x += sinf(fRotMove) * g_player.fSpeed;
+		g_player.move.y += cosf(fRotMove) * g_player.fSpeed;
+		g_player.rot.z = atan2f(g_player.move.x, g_player.move.y);
 	}
 
 	// ジョイパッドの状態を取得
@@ -337,6 +367,35 @@ void UpdatePlayer(void)
 		// 正規化
 		fThumbLX = (fThumbLX) / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
 		fThumbLY = (fThumbLY) / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+
+		fRotMove = g_player.rot.z;					// 今の向き
+		fRotDest = atan2f(fThumbLX, -fThumbLY);		// 目的地への向き
+		fRotDiff = fRotDest - fRotMove;				// 差分
+
+		if (fRotDiff < -D3DX_PI)
+		{
+			fRotDiff += D3DX_PI * 2;
+		}
+		else if (fRotDiff > D3DX_PI)
+		{
+			fRotDiff -= D3DX_PI * 2;
+		}
+
+		fRotMove += fRotDiff * 0.65f;
+
+		if (fRotDiff < -D3DX_PI)
+		{
+			fRotDiff += D3DX_PI * 2;
+		}
+		else if (fRotDiff > D3DX_PI)
+		{
+			fRotDiff -= D3DX_PI * 2;
+		}
+
+		// 移動量の更新
+		g_player.move.x += sinf(fRotMove) * g_player.fSpeed;
+		g_player.move.y += cosf(fRotMove) * g_player.fSpeed;
+		g_player.rot.z = atan2f(g_player.move.x, g_player.move.y);
 	}
 	else
 	{// デッドゾーン外なら
@@ -346,66 +405,11 @@ void UpdatePlayer(void)
 		fThumbLY = 0.0f;
 	}
 
-	// 移動量の更新
-	g_player.move.x += fThumbLX * g_player.fSpeed;
-	g_player.move.y -= fThumbLY * g_player.fSpeed;
+	g_player.pos += g_player.move;
 
-	if (GetJoypadPress(JOYKEY_LEFT) == true)
-	{//Aキーが押された
-		if (GetJoypadPress(JOYKEY_UP) == true)
-		{//かつWキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-		}
-		else if (GetJoypadPress(JOYKEY_DOWN) == true)
-		{//かつSキーが押された
-			g_player.move.x += sinf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.25f) * PLAYER_SPEED;
-		}
-		else
-		{
-			g_player.move.x -= PLAYER_SPEED;
-		}
-	}
-	else if (GetJoypadPress(JOYKEY_RIGHT) == true)
-	{//Dキーが押された
-		if (GetJoypadPress(JOYKEY_UP) == true)
-		{//かつWキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.75f) * PLAYER_SPEED;
-			g_player.move.y += cosf(-D3DX_PI * 0.75f) * PLAYER_SPEED;
-		}
-		else if (GetJoypadPress(JOYKEY_DOWN) == true)
-		{//かつSキーが押された
-			g_player.move.x += sinf(D3DX_PI * 0.25f) * PLAYER_SPEED;
-			g_player.move.y += cosf(D3DX_PI * 0.25f) * PLAYER_SPEED;
-		}
-		else
-		{
-			g_player.move.x += PLAYER_SPEED;
-		}
-	}
-	else if (GetJoypadPress(JOYKEY_UP) == true)
-	{//Wキーが押された
-		g_player.move.y -= PLAYER_SPEED;
-	}
-	else if (GetJoypadPress(JOYKEY_DOWN) == true)
-	{//Sキーが押された
-		g_player.move.y += PLAYER_SPEED;
-	}
-
-	// テスト用敵消去
-	if (GetKeyboardRepeat(DIK_DELETE) == true)
-	{
-		DeleteEnemy();
-	}
-
-	// 位置を更新
-	g_player.pos.x += g_player.move.x;
-	g_player.pos.y += g_player.move.y;
-
-	// 慣性を更新
-	g_player.move.x += (0.0f - g_player.move.x) * 0.1f;
-	g_player.move.y += (0.0f - g_player.move.y) * 0.1f;
+	 //慣性を更新
+	g_player.move.x += (0.0f - g_player.move.x) * 0.05f;
+	g_player.move.y += (0.0f - g_player.move.y) * 0.05f;
 
 	// 端に行ったら反対に移動する
 	if (g_player.pos.x < 0)
@@ -426,13 +430,6 @@ void UpdatePlayer(void)
 		g_player.pos.y = WARLD_HEIGHT;
 	}
 
-	// テクスチャを更新
-	g_nCounterAnimPlayer++;
-	if ((g_nCounterAnimPlayer % 5) == 0)
-	{
-		g_nPatternAnimPlayer = (g_nPatternAnimPlayer + 1) % 10;
-	}
-
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
 	// 頂点座標の更新
@@ -441,21 +438,20 @@ void UpdatePlayer(void)
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffPlayer->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点座標の設定
-	pVtx[0].pos.x = g_player.pos.x - g_player.fRadius - pCameraPos->x;
-	pVtx[0].pos.y = g_player.pos.y - g_player.fRadius - pCameraPos->y;
+	pVtx[0].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_player.pos.x + g_player.fRadius - pCameraPos->x;
-	pVtx[1].pos.y = g_player.pos.y - g_player.fRadius - pCameraPos->y;
+	pVtx[1].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_player.pos.x - g_player.fRadius - pCameraPos->x;
-	pVtx[2].pos.y = g_player.pos.y + g_player.fRadius - pCameraPos->y;
+	pVtx[2].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_player.pos.x + g_player.fRadius - pCameraPos->x;
-	pVtx[3].pos.y = g_player.pos.y + g_player.fRadius - pCameraPos->y;
+	pVtx[3].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
 	pVtx[3].pos.z = 0.0f;
 
 	// 頂点バッファをアンロックする
@@ -476,7 +472,6 @@ Player* GetPlayer(void)
 //=============================================================================
 void HitPlayer(int nDamage)
 {
-
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
@@ -484,62 +479,18 @@ void HitPlayer(int nDamage)
 
 	if (g_player.state != PLAYERSTATE_DEATH)
 	{
-		g_player.nLife -= nDamage;
-		SubScore(1000);
-		if (g_player.nLife <= 0)
-		{// プレイヤーのライフがなくなった
-			SetExplosion(g_player.pos, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
-			SetJoypadVibration(9000, 12000, 45);
-			if (g_player.nStock > 0)
-			{// プレイヤーのストックが残っていたら
-				g_player.state = PLAYERSTATE_WAIT;
-				g_player.nStock--;
-				g_player.nCounterState = 60;
+		SubScore(nDamage);
+		g_player.state = PLAYERSTATE_DAMAGE;
+		g_player.nCounterState = 5;
+		SetJoypadVibration(6000, 9000, 30);
 
-				g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);		// 位置の初期化
-				g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);				// 移動量の初期化
+		PlaySound(SOUND_LABEL_SE_HIT);
 
-				// 頂点座標の設定
-				pVtx[0].pos.x = g_player.pos.x - g_player.fRadius;
-				pVtx[0].pos.y = g_player.pos.y - g_player.fRadius;
-				pVtx[0].pos.z = 0.0f;
-
-				pVtx[1].pos.x = g_player.pos.x + g_player.fRadius;
-				pVtx[1].pos.y = g_player.pos.y - g_player.fRadius;
-				pVtx[1].pos.z = 0.0f;
-
-				pVtx[2].pos.x = g_player.pos.x - g_player.fRadius;
-				pVtx[2].pos.y = g_player.pos.y + g_player.fRadius;
-				pVtx[2].pos.z = 0.0f;
-
-				pVtx[3].pos.x = g_player.pos.x + g_player.fRadius;
-				pVtx[3].pos.y = g_player.pos.y + g_player.fRadius;
-				pVtx[3].pos.z = 0.0f;
-			}
-			else
-			{
-				g_player.state = PLAYERSTATE_DEATH;
-			}
-
-			PlaySound(SOUND_LABEL_SE_EXPLOSION);
-
-			g_player.bDisp = false;
-		}
-		else
-		{// プレイヤーの体力が残っていたら
-			g_player.state = PLAYERSTATE_DAMAGE;
-			g_player.nCounterState = 5;
-			SetJoypadVibration(6000, 9000, 30);
-
-			PlaySound(SOUND_LABEL_SE_HIT);
-
-			// 頂点カラーの設定
-			pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-			pVtx[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-			pVtx[2].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-			pVtx[3].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-
-		}
+		// 頂点カラーの設定
+		pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 	// 頂点バッファをアンロックする
 	g_pVtxBuffPlayer->Unlock();
@@ -557,14 +508,14 @@ void CollisionPlayertoEnemy(void)
 	{
 		if (pEnemy->bUse == true)
 		{
-			if (pEnemy->pos.x >= g_player.pos.x - ENEMY_SIZEX - (PLAYER_SIZE / 2) &&
-				pEnemy->pos.y >= g_player.pos.y - ENEMY_SIZEY - (PLAYER_SIZE / 2) &&
-				pEnemy->pos.x <= g_player.pos.x + ENEMY_SIZEX + (PLAYER_SIZE / 2) &&
-				pEnemy->pos.y <= g_player.pos.y + ENEMY_SIZEY + (PLAYER_SIZE / 2) &&
+			if (pEnemy->pos.x >= g_player.pos.x - pEnemy->fRadius - (PLAYER_SIZE / 2) &&
+				pEnemy->pos.y >= g_player.pos.y - pEnemy->fRadius - (PLAYER_SIZE / 2) &&
+				pEnemy->pos.x <= g_player.pos.x + pEnemy->fRadius + (PLAYER_SIZE / 2) &&
+				pEnemy->pos.y <= g_player.pos.y + pEnemy->fRadius + (PLAYER_SIZE / 2) &&
 				g_player.state == PLAYERSTATE_NORMAL && pEnemy->state != ENEMYSTATE_APPEAR)
 			{// もし敵とプレイヤーがあたっていたら
 				// ヒット処理
-				HitPlayer(MAX_LIFE);
+				HitPlayer(1500);
 			}
 		}
 	}

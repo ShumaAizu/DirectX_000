@@ -150,6 +150,6 @@ void UpdateResult(void)
 	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true || g_nResultFadeCounter >= RESULTFADE_TIMER)
 	{// 決定キーが押された
 		// モード設定
-		SetFade(MODE_TITLE);
+		SetFade(MODE_RANKING, 0.025f, 0.025f);
 	}
 }

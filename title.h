@@ -28,6 +28,7 @@ void InitTitle(void);
 void UninitTitle(void);
 void UpdateTitle(void);
 void DrawTitle(void);
-TITLESTATE SetTitleState(void);
+void SetTitleState(TITLESTATE state);
+TITLESTATE GetTitleState(void);
 
 #endif

@@ -17,5 +17,6 @@ void InitPowerup(void);
 void UninitPowerup(void);
 void UpdatePowerup(void);
 void DrawPowerup(void);
+bool GetPowerUp(void);
 
 #endif // _POWERUP_H_

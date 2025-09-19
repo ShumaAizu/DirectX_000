@@ -27,7 +27,7 @@ void UninitFade(void);
 void UpdateFade(void);
 void DrawFade(void);
 
-void SetFade(MODE modeNext);
+void SetFade(MODE modeNext, float fFadeInSpeed, float fFadeOutSpeed);
 FADE GetFade(void);
 
 #endif

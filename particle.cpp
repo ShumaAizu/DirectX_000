@@ -20,6 +20,8 @@ typedef struct
 	D3DXVECTOR3 pos;		// 位置
 	D3DXCOLOR col;			// 色
 	PARTICLETYPE type;		// 種類
+	float fStartAngle;		// 開始地点角度
+	float fEndAngle;		// 終了地点角度
 	float fRadius;			// 半径
 	int nLife;				// 寿命
 	bool bUse;				// 使用状況
@@ -41,6 +43,8 @@ void InitParticle(void)
 		g_aParticle[nCntParticle].col = {0.0f, 0.0f, 0.0f, 1.0f};
 		g_aParticle[nCntParticle].type = PARTICLETYPE_NORMAL;
 		g_aParticle[nCntParticle].fRadius = {};
+		g_aParticle[nCntParticle].fStartAngle = {};
+		g_aParticle[nCntParticle].fEndAngle = {};
 		g_aParticle[nCntParticle].nLife = {};
 		g_aParticle[nCntParticle].bUse = false;
 	}
@@ -67,6 +71,8 @@ void UpdateParticle(void)
 	int nLife = {};				// 寿命
 
 	float fAngle = {};
+	int nStartAngle = {};
+	int nEndAngle = {};
 
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
 	{
@@ -76,10 +82,25 @@ void UpdateParticle(void)
 			{
 				pos = g_aParticle[nCntParticle].pos;
 
-				pos.x += (float)(rand() % 300) / 100.0f + 1.0f;
-				pos.y += (float)(rand() % 300) / 100.0f + 1.0f;
+				//pos.x += (float)(rand() % 300) / 100.0f + 1.0f;
+				//pos.y += (float)(rand() % 300) / 100.0f + 1.0f;
 
-				fAngle = (float)(rand() % 629 - 314) / 100.0f;
+				nStartAngle = (int)(g_aParticle[nCntParticle].fStartAngle * 100) + 1;
+				nEndAngle = (int)(g_aParticle[nCntParticle].fEndAngle * 100);
+
+				nStartAngle = nStartAngle - nEndAngle;
+
+				fAngle = (float)(rand() % nStartAngle + nEndAngle) / 100.0f;
+
+				if (fAngle < -D3DX_PI)
+				{
+					fAngle += D3DX_PI * 2;
+				}
+				else if (fAngle > D3DX_PI)
+				{
+					fAngle -= D3DX_PI * 2;
+				}
+
 				fMove = (float)(rand() % 500) / 100.0f + 0.5f;
 
 				move.x = sinf(fAngle) * fMove;
@@ -127,7 +148,7 @@ void DrawParticle(void)
 //====================================
 //	パーティクルの設定処理
 //====================================
-void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
+void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife, float fStartAngle, float fEndAngle)
 {
 
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
@@ -138,7 +159,8 @@ void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 			g_aParticle[nCntParticle].col = col;			// 受け取った色を代入
 			g_aParticle[nCntParticle].nLife = nLife;		// 受け取った寿命を代入
 			g_aParticle[nCntParticle].fRadius = fRadius;	// 受け取った半径を代入
-
+			g_aParticle[nCntParticle].fStartAngle = fStartAngle;
+			g_aParticle[nCntParticle].fEndAngle = fEndAngle;
 			g_aParticle[nCntParticle].type = PARTICLETYPE_NORMAL;
 			g_aParticle[nCntParticle].bUse = true;			// エフェクトが使用されている状態にする
 			break;		// ここでfor文を抜ける
@@ -149,7 +171,7 @@ void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, float fRadius, int nLife)
 //====================================
 //	パーティクルの設定処理
 //====================================
-void SetRainbowParticle(D3DXVECTOR3 pos, float fRadius, int nLife)
+void SetRainbowParticle(D3DXVECTOR3 pos, float fRadius, int nLife, float fStartAngle, float fEndAngle)
 {
 
 	for (int nCntParticle = 0; nCntParticle < MAX_PARTICLE; nCntParticle++)
@@ -159,6 +181,8 @@ void SetRainbowParticle(D3DXVECTOR3 pos, float fRadius, int nLife)
 			g_aParticle[nCntParticle].pos = pos;			// 受け取った位置を代入
 			g_aParticle[nCntParticle].nLife = nLife;		// 受け取った寿命を代入
 			g_aParticle[nCntParticle].fRadius = fRadius;	// 受け取った半径を代入
+			g_aParticle[nCntParticle].fStartAngle = fStartAngle;
+			g_aParticle[nCntParticle].fEndAngle = fEndAngle;
 
 			g_aParticle[nCntParticle].col.r = (float)(rand() % 101) / 100.0f;
 			g_aParticle[nCntParticle].col.g = (float)(rand() % 101) / 100.0f;

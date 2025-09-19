@@ -6,6 +6,7 @@
 //=============================================================================
 
 #include "main.h"
+#include "camera.h"
 #include "bg.h"
 
 //*****************************************************************************
@@ -30,7 +31,7 @@ void InitBg(void)
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\bg100.png",
+		"data\\TEXTURE\\BG000.jpg",
 		&g_apTextureBg[0]);
 
 	D3DXCreateTextureFromFile(pDevice,
@@ -64,9 +65,9 @@ void InitBg(void)
 
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x, g_abg[nCntBg].pos.y, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + SCREEN_WIDTH, g_abg[nCntBg].pos.y, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x, g_abg[nCntBg].pos.x + SCREEN_HEIGHT, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + SCREEN_WIDTH, g_abg[nCntBg].pos.x + SCREEN_HEIGHT, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + WARLD_WIDTH, g_abg[nCntBg].pos.y, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x, g_abg[nCntBg].pos.x + WARLD_HEIGHT, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + WARLD_WIDTH, g_abg[nCntBg].pos.x + WARLD_HEIGHT, 0.0f);
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -132,7 +133,7 @@ void DrawBg(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	for (int nCntBg = 0; nCntBg < MAX_BG; nCntBg++)
+	for (int nCntBg = 0; nCntBg < 1; nCntBg++)
 	{
 		// テクスチャの設定
 		pDevice->SetTexture(0, g_apTextureBg[nCntBg]);
@@ -149,15 +150,17 @@ void UpdateBg(void)
 {
 	int nCntBg;
 	
-	for (nCntBg = 0; nCntBg < MAX_BG; nCntBg++)
-	{
-		g_abg[nCntBg].pos += g_abg[nCntBg].move;
+	//for (nCntBg = 0; nCntBg < MAX_BG; nCntBg++)
+	//{
+	//	g_abg[nCntBg].pos += g_abg[nCntBg].move;
 
-		if (g_abg[nCntBg].pos.y >= SCREEN_HEIGHT)
-		{
-			g_abg[nCntBg].pos.y = 0.0f - 960;
-		}
-	}
+	//	if (g_abg[nCntBg].pos.y >= SCREEN_HEIGHT)
+	//	{
+	//		g_abg[nCntBg].pos.y = 0.0f - 960;
+	//	}
+	//}
+
+	D3DXVECTOR3* pCameraPos = GetCamera();
 
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
@@ -168,10 +171,10 @@ void UpdateBg(void)
 	for (nCntBg = 0; nCntBg < MAX_BG; nCntBg++)
 	{
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x, g_abg[nCntBg].pos.y, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + SCREEN_WIDTH, g_abg[nCntBg].pos.y, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x, g_abg[nCntBg].pos.y + SCREEN_HEIGHT, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x + SCREEN_WIDTH, g_abg[nCntBg].pos.y + SCREEN_HEIGHT, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x - pCameraPos->x, g_abg[nCntBg].pos.y - pCameraPos->y, 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x - pCameraPos->x + WARLD_WIDTH, g_abg[nCntBg].pos.y - pCameraPos->y, 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x - pCameraPos->x, g_abg[nCntBg].pos.y - pCameraPos->y + WARLD_HEIGHT, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(g_abg[nCntBg].pos.x - pCameraPos->x + WARLD_WIDTH, g_abg[nCntBg].pos.y - pCameraPos->y + WARLD_HEIGHT, 0.0f);
 
 		pVtx += 4;
 	}

@@ -21,6 +21,6 @@ void InitWave(void);
 void UninitWave(void);
 void UpdateWave(void);
 void DrawWave(void);
-void LoadWave(void);
+void LoadWave(int nWave);
 
 #endif

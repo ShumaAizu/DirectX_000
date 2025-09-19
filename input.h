@@ -42,6 +42,18 @@ typedef enum
 }JOYKEY;
 
 //*****************************************************************************
+// ジョイパッドのスティックの種類
+//*****************************************************************************
+typedef enum
+{
+	JOYSTICK_UP = 0,			// 上
+	JOYSTICK_DOWN,				// 下
+	JOYSTICK_LEFT,				// 左
+	JOYSTICK_RIGHT,				// 右
+	JOYSTICK_MAX
+}JOYSTICK;
+
+//*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
 HRESULT InitKeyboard(HINSTANCE hInstance, HWND hWnd);
@@ -51,6 +63,7 @@ bool GetKeyboardPress(int nKey);
 bool GetKeyboardTrigger(int nKey); 
 bool GetKeyboardRelease(int nKey);
 bool GetKeyboardRepeat(int nKey);
+bool GetKeyboardAny(void);
 
 HRESULT InitJoypad(void);
 void UninitJoypad(void);
@@ -59,9 +72,12 @@ bool GetJoypadPress(JOYKEY key);
 bool GetJoypadTrigger(JOYKEY key);
 bool GetJoypadRelease(JOYKEY key);
 bool GetJoypadRepeat(JOYKEY key);
+bool GetJoypadAny(void);
+bool GetJoypadStick(JOYSTICK stick);
 void SetJoypadVibration(int nLVibration, int nRVibration, int nVibCounter);
 XINPUT_STATE *GetJoypadState(void);
 bool GetJoypadStroke(WORD key);
 XINPUT_KEYSTROKE* GetJoypadStroke(void);
+bool GetJoypadControl(void);
 
 #endif

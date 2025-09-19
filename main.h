@@ -32,8 +32,8 @@
 #define SCREEN_WIDTH		(1280.0f)											// ウインドウの幅
 #define SCREEN_HEIGHT		(720.0f)											// ウインドウの高さ
 #define SCREEN_RADIUS		(640.0f)
-#define WARLD_WIDTH			(3000.0f)											// ワールド座標X
-#define WARLD_HEIGHT		(3000.0f)											// ワールド座標Y
+#define WARLD_WIDTH			(2000.0f)											// ワールド座標X
+#define WARLD_HEIGHT		(2000.0f)											// ワールド座標Y
 #define FVF_VERTEX_2D		(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット(2D)
 #define SQRTF(X, Y)			(sqrtf(X * X + Y * Y) * 0.5f)						// 対角線の長さ算出
 

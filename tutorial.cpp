@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "tutorial.h"
+#include "tutorialmenu.h"
 #include "input.h"
 #include "sound.h"
 #include "fade.h"
@@ -29,6 +30,8 @@ TUTORIAL g_tutorial[MAX_TUTORIAL] = {};
 //====================================
 void InitTutorial(void)
 {
+	InitTutorialMenu();
+
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
 	// デバイスの取得
@@ -83,7 +86,7 @@ void InitTutorial(void)
 	// 頂点バッファをアンロックする
 	g_pVtxBuffTutorial->Unlock();
 
-	PlaySound(SOUND_LABEL_BGM002);
+	PlaySound(SOUND_LABEL_BGM_TUTORIAL000);
 }
 
 //====================================
@@ -91,6 +94,8 @@ void InitTutorial(void)
 //====================================
 void UninitTutorial(void)
 {
+	UninitTutorialMenu();
+
 	// サウンドを止める
 	StopSound();
 
@@ -117,6 +122,7 @@ void UninitTutorial(void)
 //====================================
 void DrawTutorial(void)
 {
+
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
 	// デバイスの取得
@@ -133,6 +139,8 @@ void DrawTutorial(void)
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	DrawTutorialMenu();
 }
 
 //====================================
@@ -140,9 +148,5 @@ void DrawTutorial(void)
 //====================================
 void UpdateTutorial(void)
 {
-	if (GetJoypadTrigger(JOYKEY_A) == true || GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
-	{// 決定キーが押された
-		// モード設定
-		SetFade(MODE_GAME);
-	}
+	UpdateTutorialMenu();
 }

@@ -27,6 +27,8 @@
 #include "powerup.h"
 #include "wave.h"
 #include "marker.h"
+#include "radar.h"
+#include "ranking.h"
 
 //*****************************************************************************
 // グローバル変数
@@ -78,12 +80,6 @@ void InitGame(void)
 	// 制限時間の初期化
 	InitTime();
 
-	// ライフの初期化
-	InitLife();
-
-	// 残機の初期化
-	InitStock();
-
 	// マーカーの初期化
 	InitMarker();
 
@@ -92,6 +88,12 @@ void InitGame(void)
 
 	// ポーズメニューの初期化
 	InitPause();
+
+	// パワーアップの初期化
+	InitPowerup();
+
+	// レーダーの初期化
+	InitRadar();
 
 	g_gameState = GAMESTATE_NORMAL;
 
@@ -102,7 +104,7 @@ void InitGame(void)
 	g_bPause = false;
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_BGM001);
+	PlaySound(SOUND_LABEL_BGM_GAME000);
 }
 
 //========================================
@@ -134,6 +136,8 @@ void UninitGame(void)
 	// スコアの終了処理
 	UninitScore();
 
+	UninitPowerup();
+
 	// エフェクトの終了処理
 	UninitEffect();
 
@@ -146,14 +150,11 @@ void UninitGame(void)
 	// 制限時間の終了処理
 	UninitTime();
 
-	// ライフの終了処理
-	UninitLife();
-
-	// 残機の終了処理
-	UninitStock();
-
 	// マーカーの終了処理
 	UninitMarker();
+
+	// レーダーの終了処理
+	UninitRadar();
 
 	// フレームの終了処理
 	UninitFrame();
@@ -173,6 +174,7 @@ void UpdateGame(void)
 
 	if ((GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true) && GetFade() != FADE_OUT)
 	{// ポーズキーが押された
+		PlaySound(SOUND_LABEL_SE_PAUSE000);
 		g_bPause = g_bPause ? false : true;		// ポーズ状態を切り替える
 		SetPauseMenu(PAUSE_MENU_CONTINUE);
 	}
@@ -184,6 +186,10 @@ void UpdateGame(void)
 	}
 	else if(GetFade() != FADE_OUT)
 	{
+
+		// スコアの更新処理
+		UpdateScore();
+
 		// ウェーブの更新処理
 		UpdateWave();
 
@@ -205,9 +211,6 @@ void UpdateGame(void)
 		// 敵の更新処理
 		UpdateEnemy();
 
-		// スコアの更新処理
-		UpdateScore();
-
 		// エフェクトの更新処理
 		UpdateEffect();
 
@@ -220,17 +223,14 @@ void UpdateGame(void)
 		// 制限時間の更新処理
 		UpdateTime();
 
-		// ライフの更新処理
-		UpdateLife();
-
-		// 残機の更新処理
-		UpdateStock();
-
 		// パワーアップの更新処理
 		UpdatePowerup();
 
 		// マーカーの更新処理
 		UpdateMarker();
+
+		// レーダーの更新処理
+		UpdateRadar();
 
 		// フレームの更新処理
 		UpdateFrame();
@@ -243,7 +243,9 @@ void UpdateGame(void)
 			{
 				// モード設定(リザルト画面に移行)
 				g_gameend = GAMEEND_CLEAR;
-				SetFade(MODE_RESULT);
+				AddScore((GetTime() * 100));
+				SetRanking(GetScore());
+				SetFade(MODE_RANKING, 0.025f, 0.025f);
 			}
 			break;
 		}
@@ -292,17 +294,16 @@ void DrawGame(void)
 	// スコアの描画処理
 	DrawScore();
 
+	DrawPowerup();
+
 	// 制限時間の描画処理
 	DrawTime();
 
-	// ライフの描画処理
-	DrawLife();
-
-	// 残機の描画処理
-	DrawStock();
-
 	// マーカーの描画処理
 	DrawMarker();
+
+	//// レーダーの描画処理
+	//DrawRadar();
 
 	if (g_bPause == true)
 	{// ポーズ中なら

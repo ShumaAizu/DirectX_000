@@ -11,12 +11,12 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define NUM_PLACE		(3)			// 制限時間の桁数
-#define TIME_POSX		(565.0f)	// 制限時間の座標X
+#define NUM_PLACE		(2)			// 制限時間の桁数
+#define TIME_POSX		(580.0f)	// 制限時間の座標X
 #define TIME_POSY		(0.0f)		// 制限時間の座標Y
 #define TIME_SIZEX		(50.0f)		// 制限時間のサイズX
-#define TIME_SIZEY		(75.0f)		// 制限時間のサイズY
-#define LIMIT_TIME		(30)		// 制限時間
+#define TIME_SIZEY		(100.0f)		// 制限時間のサイズY
+#define LIMIT_TIME		(60)		// 制限時間
 
 //*****************************************************************************
 // グローバル変数
@@ -40,7 +40,7 @@ void InitTime(void)
 	g_nTime = 0;
 
 	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(pDevice,"data\\TEXTURE\\number000.png", &g_pTextureTime);
+	D3DXCreateTextureFromFile(pDevice,"data\\TEXTURE\\number001.png", &g_pTextureTime);
 
 
 	// 頂点バッファの生成
@@ -74,10 +74,10 @@ void InitTime(void)
 		pVtx[3].rhw = 1.0f;
 
 		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -160,9 +160,8 @@ void UpdateTime(void)
 		g_nTime = 0;
 	}
 
-	aTexU[0] = g_nTime % 1000 / 100;
-	aTexU[1] = g_nTime % 100 / 10;
-	aTexU[2] = g_nTime % 10 / 1;
+	aTexU[0] = g_nTime % 100 / 10;
+	aTexU[1] = g_nTime % 10 / 1;
 
 	// テクスチャ座標の設定
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ

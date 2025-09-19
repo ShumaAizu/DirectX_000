@@ -6,6 +6,7 @@
 //=============================================================================
 
 #include "main.h"
+#include "sound.h"
 #include "title.h"
 #include "titlemenu.h"
 #include "input.h"
@@ -15,10 +16,21 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TITLEMENU_POSX		(880.0f)
-#define TITLEMENU_POSY		(420.0f)
+#define TITLEMENU_POSX		(440.0f)
+#define TITLEMENU_POSY		(410.0f)
 #define TITLEMENU_SIZEX		(400.0f)
 #define TITLEMENU_SIZEY		(100.0f)
+#define TITLEFADE_TIMER		(300)		// タイマーの秒数
+
+//*****************************************************************************
+// タイトルメニュー構造体
+//*****************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;		// 位置
+	int nDispCounter;		// カウンター
+	bool bDisp;				// 表示状態
+}TitleMenu;
 
 //*****************************************************************************
 // グローバル変数
@@ -26,6 +38,10 @@
 LPDIRECT3DTEXTURE9 g_apTextureTitleMenu[TITLEMENU_MAX] = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitleMenu = NULL;					// 頂点バッファへのポインタ
 TITLEMENU g_titleMenu = TITLEMENU_GAMESTART;						// タイトルメニューの状態
+TitleMenu g_atitleMenu[TITLEMENU_MAX] = {};							// タイトルメニューの情報
+int g_nMenuChangeCounter = 0;										// メニュー切り替えカウンター
+bool g_bUpdate_TitleMenu = true;									// タイトルメニュー操作可能か
+int g_nTitleFadeCounter = 0;
 
 //=============================================================================
 //	タイトルメニューの初期化処理
@@ -58,6 +74,9 @@ void InitTitleMenu(void)
 
 	// 初期化
 	g_titleMenu = TITLEMENU_GAMESTART;
+	g_bUpdate_TitleMenu = true;
+	g_nMenuChangeCounter = 60;
+	g_nTitleFadeCounter = 0;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -66,6 +85,10 @@ void InitTitleMenu(void)
 
 	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
+		g_atitleMenu[nCntTitleMenu].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY, 0.0f);
+		g_atitleMenu[nCntTitleMenu].nDispCounter = 4;
+		g_atitleMenu[nCntTitleMenu].bDisp = true;
+
 		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
 		pVtx[1].pos = D3DXVECTOR3(TITLEMENU_POSX + TITLEMENU_SIZEX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
@@ -150,11 +173,14 @@ void DrawTitleMenu(void)
 	
 	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
 	{
-		// テクスチャの設定
-		pDevice->SetTexture(0, g_apTextureTitleMenu[nCntTitleMenu]);
+		if (g_atitleMenu[nCntTitleMenu].bDisp == true)
+		{
+			// テクスチャの設定
+			pDevice->SetTexture(0, g_apTextureTitleMenu[nCntTitleMenu]);
 
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitleMenu * 4, 2);
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitleMenu * 4, 2);
+		}
 	}
 	
 }
@@ -192,52 +218,87 @@ void UpdateTitleMenu(void)
 		pVtx += 4;
 	}
 
-	if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStroke(VK_PAD_LTHUMB_UP) == true)
-	{ // 上方向キーが押されたら
-		// 現在のモードに合わせて変更
-		switch (g_titleMenu)
-		{
-		case TITLEMENU_GAMESTART:
-			g_titleMenu = TITLEMENU_EXIT;
-			break;
+	if (g_bUpdate_TitleMenu == true)
+	{
+		if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStick(JOYSTICK_UP) == true)
+		{ // 上方向キーが押されたら
+			// 現在のモードに合わせて変更
+			PlaySound(SOUND_LABEL_SE_SELECT001);
+			switch (g_titleMenu)
+			{
+			case TITLEMENU_GAMESTART:
+				g_titleMenu = TITLEMENU_EXIT;
+				break;
 
-		case 	TITLEMENU_EXIT:
-			g_titleMenu = TITLEMENU_GAMESTART;
-			break;
+			case 	TITLEMENU_EXIT:
+				g_titleMenu = TITLEMENU_GAMESTART;
+				break;
+			}
+		}
+
+		if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_S) == true || GetJoypadStick(JOYSTICK_DOWN) == true)
+		{ // 下方向キーが押されたら
+			// 現在のモードに合わせて変更
+			PlaySound(SOUND_LABEL_SE_SELECT001);
+			switch (g_titleMenu)
+			{
+			case TITLEMENU_GAMESTART:
+				g_titleMenu = TITLEMENU_EXIT;
+				break;
+
+			case TITLEMENU_EXIT:
+				g_titleMenu = TITLEMENU_GAMESTART;
+				break;
+			}
 		}
 	}
 
-	if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_S) == true || GetJoypadStroke(VK_PAD_LTHUMB_DOWN) == true)
-	{ // 下方向キーが押されたら
-		// 現在のモードに合わせて変更
-		switch (g_titleMenu)
-		{
-		case TITLEMENU_GAMESTART:
-			g_titleMenu = TITLEMENU_EXIT;
-			break;
-
-		case TITLEMENU_EXIT:
-			g_titleMenu = TITLEMENU_GAMESTART;
-			break;
-		}
-	}
-
-	if (GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true)
+	if ((GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true) && GetFade() != FADE_OUT)
 	{ // 決定キーが押されたら
-
-		// 現在のモードに合わせて変更
-		switch (g_titleMenu)
+		if (g_bUpdate_TitleMenu == true)
 		{
-		case TITLEMENU_GAMESTART:
-			SetFade(MODE_TUTORIAL);
-			break;
+			PlaySound(SOUND_LABEL_SE_SELECT000);
+		}
+		g_bUpdate_TitleMenu = false;
+	}
 
-		case TITLEMENU_EXIT:
-			PostQuitMessage(0);
-			break;
+	if (g_bUpdate_TitleMenu == false)
+	{
+		g_nMenuChangeCounter--;
+		g_atitleMenu[g_titleMenu].nDispCounter++;
+		if (g_atitleMenu[g_titleMenu].nDispCounter % 5 == 0 && g_nMenuChangeCounter >= 0)
+		{
+			g_atitleMenu[g_titleMenu].bDisp = g_atitleMenu[g_titleMenu].bDisp ? false : true;
+		}
+
+		if (g_nMenuChangeCounter <= 0)
+		{
+			// 現在のモードに合わせて変更
+			switch (g_titleMenu)
+			{
+			case TITLEMENU_GAMESTART:
+				SetFade(MODE_TUTORIAL, 0.025f, 0.025f);
+				break;
+
+			case TITLEMENU_EXIT:
+				PostQuitMessage(0);
+				break;
+			}
 		}
 	}
 
+	g_nTitleFadeCounter++;
+
+	if (GetKeyboardAny() == true || GetJoypadAny() == true)
+	{
+		g_nTitleFadeCounter = 0;
+	}
+
+	if (g_nTitleFadeCounter >= TITLEFADE_TIMER && g_bUpdate_TitleMenu != false)
+	{// カウンターが規定値を超えた
+		// モード設定
+		SetFade(MODE_RANKING, 0.025f, 0.025f);
+	}
 	// 頂点バッファをアンロックする
 	g_pVtxBuffTitleMenu->Unlock();
 }

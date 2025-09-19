@@ -111,6 +111,30 @@
     <ClCompile Include="wave.cpp">
       <Filter>DirectX_000\ソース ファイル\game\ソース</Filter>
     </ClCompile>
+    <ClCompile Include="titlebg.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="titlelogo.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="radar.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="enemybullet.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="rankingbg.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="tutorialmenu.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="rankingrank.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="currentscore.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -197,5 +221,34 @@
     <ClInclude Include="titlemenu.h">
       <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="titlebg.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="titlelogo.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="radar.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="enemybullet.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="rankingbg.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="tutorialmenu.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="rankingrank.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="currentscore.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="OptionIcon.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

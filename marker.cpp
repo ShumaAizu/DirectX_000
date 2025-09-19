@@ -19,7 +19,7 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_pTextureMarker = NULL;		// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9 g_pTextureMarker = NULL;			// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffMarker = NULL;	// 頂点バッファへのポインタ
 Marker g_amarker[MAX_MARKER] = {};
 
@@ -69,10 +69,10 @@ void InitMarker(void)
 		pVtx[3].rhw = 1.0f;
 
 		// 頂点カラーの設定
-		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+		pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
 
 		// テクスチャ座標の設定
 		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -175,8 +175,18 @@ void UpdateMarker(void)
 
 			fAngle = atan2f(pEnemy->pos.x - pPlayer->pos.x, pEnemy->pos.y - pPlayer->pos.y);
 
-			g_amarker[nCntEnemy].pos.x = (SCREEN_WIDTH / 2) + sinf(fAngle) * MARKER_DIFF;
-			g_amarker[nCntEnemy].pos.y = (SCREEN_HEIGHT / 2 ) + cosf(fAngle) * MARKER_DIFF;
+			g_amarker[nCntEnemy].pos.x = (SCREEN_WIDTH / 2) + sinf(fAngle) * MARKER_POS;
+			g_amarker[nCntEnemy].pos.y = (SCREEN_HEIGHT / 2 ) + cosf(fAngle) * MARKER_POS;
+
+			if (g_amarker[nCntEnemy].pos.y >= SCREEN_HEIGHT)
+			{
+				g_amarker[nCntEnemy].pos.y = SCREEN_HEIGHT;
+			}
+
+			if (g_amarker[nCntEnemy].pos.y <= 0)
+			{
+				g_amarker[nCntEnemy].pos.y = 0;
+			}
 
 
 			// 頂点座標の設定
@@ -185,26 +195,33 @@ void UpdateMarker(void)
 			(pVtx + (nCntEnemy * 4))[2].pos = D3DXVECTOR3(g_amarker[nCntEnemy].pos.x - MARKER_SIZEX, g_amarker[nCntEnemy].pos.y + MARKER_SIZEY, 0.0f);
 			(pVtx + (nCntEnemy * 4))[3].pos = D3DXVECTOR3(g_amarker[nCntEnemy].pos.x + MARKER_SIZEX, g_amarker[nCntEnemy].pos.y + MARKER_SIZEY, 0.0f);
 
-			if (fLength > MARKER_DIFF_C)
-			{
-				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.25f);
-				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.25f);
-				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.25f);
-				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.25f);
-			}
-			else if (fLength > MARKER_DIFF_B)
+			if (pEnemy->state == ENEMYSTATE_APPEAR)
 			{
 				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 			}
-			else if (fLength > MARKER_DIFF_A)
+			else if (fLength > MARKER_DIFF_LONG)
 			{
-				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.75f);
-				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.75f);
-				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.75f);
-				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.25f);
+				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+			else if (fLength > MARKER_DIFF_SHORT)
+			{
+				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 0.5f, 0.15f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 0.5f, 0.15f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 0.5f, 0.15f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 0.5f, 0.15f, 1.0f);
+			}
+			else if (fLength > MARKER_DIFF)
+			{
+				(pVtx + (nCntEnemy * 4))[0].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[1].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[2].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+				(pVtx + (nCntEnemy * 4))[3].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
 			}
 
 			g_amarker[nCntEnemy].bUse = true;

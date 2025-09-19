@@ -17,6 +17,8 @@ LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffFade = NULL;			// 頂点バッファへのポインタ
 FADE g_fade;											// フェードの状態
 MODE g_modeNext;										// 次の画面(モード)
 D3DXCOLOR g_colorFade;									// ポリゴン(フェード)の色
+float g_fFadeInSpeed = 0;								// フェードイン速度
+float g_fFadeOutSpeed = 0;								// フェードアウト速度
 
 //====================================
 //	フェードの初期化処理
@@ -42,6 +44,10 @@ void InitFade(MODE modeNext)
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffFade,
 		NULL);
+
+	// 初期化
+	g_fFadeInSpeed = 0.025f;
+	g_fFadeOutSpeed = 0.025f;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -118,7 +124,7 @@ void UpdateFade(void)
 	{
 		if (g_fade == FADE_IN)
 		{// フェードイン状態
-			g_colorFade.a -= 0.025f;		// ポリゴンを透明にしていく
+			g_colorFade.a -= g_fFadeInSpeed;		// ポリゴンを透明にしていく
 			if (g_colorFade.a <= 0.0f)
 			{
 				g_colorFade.a = 0.0f;
@@ -127,7 +133,7 @@ void UpdateFade(void)
 		}
 		else if (g_fade == FADE_OUT)
 		{// フェードアウト状態
-			g_colorFade.a += 0.025f;		// ポリゴンを不透明にしていく
+			g_colorFade.a += g_fFadeOutSpeed;		// ポリゴンを不透明にしていく
 			if (g_colorFade.a >= 1.0f)
 			{
 				g_colorFade.a = 1.0f;
@@ -157,11 +163,15 @@ void UpdateFade(void)
 //====================================
 //	フェードの設定
 //====================================
-void SetFade(MODE modeNext)
+void SetFade(MODE modeNext, float fFadeInSpeed, float fFadeOutSpeed)
 {
 	if (g_fade == FADE_NONE)
 	{
 		g_fade = FADE_OUT;			// フェードアウト状態に
+
+		g_fFadeInSpeed = fFadeInSpeed;
+
+		g_fFadeOutSpeed = fFadeOutSpeed;
 
 		g_modeNext = modeNext;		// 次の画面(モード)を設定
 

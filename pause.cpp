@@ -6,6 +6,7 @@
 //=============================================================================
 
 #include "main.h"
+#include "sound.h"
 #include "pause.h"
 #include "input.h"
 #include "fade.h"
@@ -196,9 +197,10 @@ void UpdatePause(void)
 		pVtx += 4;
 	}
 
-	if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStroke(VK_PAD_LTHUMB_UP) == true)
+	if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStick(JOYSTICK_UP) == true)
 	{ // 上方向キーが押されたら
 		// 現在のモードに合わせて変更
+		PlaySound(SOUND_LABEL_SE_SELECT001);
 		switch (g_pauseMenu)
 		{
 		case PAUSE_MENU_CONTINUE:
@@ -215,9 +217,10 @@ void UpdatePause(void)
 		}
 	}
 
-	if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_S) == true || GetJoypadStroke(VK_PAD_LTHUMB_DOWN) == true)
+	if (GetJoypadRepeat(JOYKEY_DOWN) == true || GetKeyboardRepeat(DIK_S) == true || GetJoypadStick(JOYSTICK_DOWN) == true)
 	{ // 下方向キーが押されたら
 		// 現在のモードに合わせて変更
+		PlaySound(SOUND_LABEL_SE_SELECT001);
 		switch (g_pauseMenu)
 		{
 		case PAUSE_MENU_CONTINUE:
@@ -238,7 +241,7 @@ void UpdatePause(void)
 	{ // 決定キーが押されたら
 		// ポーズを解除
 		SetEnablePause(false);
-
+		PlaySound(SOUND_LABEL_SE_PAUSE000);
 		// 現在のモードに合わせて変更
 		switch (g_pauseMenu)
 		{
@@ -247,11 +250,11 @@ void UpdatePause(void)
 			break;
 
 		case PAUSE_MENU_RETRY:
-			SetFade(MODE_GAME);
+			SetFade(MODE_GAME, 0.025f, 0.025f);
 			break;
 
 		case PAUSE_MENU_QUIT:
-			SetFade(MODE_TITLE);
+			SetFade(MODE_TITLE, 0.025f, 0.025f);
 			break;
 		}
 	}

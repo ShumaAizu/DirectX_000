@@ -20,7 +20,7 @@ void InitCamera(void)
 
 void UninitCamera(void)
 {
-
+	g_camerapos = {};
 }
 
 void UpdateCamera(void)
@@ -31,6 +31,26 @@ void UpdateCamera(void)
 	// カメラの位置(プレイヤーの位置)からスクリーンの原点を算出
 	g_camerapos.x = pPlayer->pos.x - SCREEN_WIDTH / 2;
 	g_camerapos.y = pPlayer->pos.y - SCREEN_HEIGHT / 2;
+
+	if (g_camerapos.x > WARLD_WIDTH - SCREEN_WIDTH)
+	{
+		g_camerapos.x = WARLD_WIDTH - SCREEN_WIDTH;
+	}
+
+	if (g_camerapos.x < 0)
+	{
+		g_camerapos.x = 0;
+	}
+
+	if (g_camerapos.y > WARLD_HEIGHT - SCREEN_HEIGHT)
+	{
+		g_camerapos.y = WARLD_HEIGHT - SCREEN_HEIGHT;
+	}
+
+	if (g_camerapos.y < 0)
+	{
+		g_camerapos.y = 0;
+	}
 }
 
 void DrawCamera(void)
