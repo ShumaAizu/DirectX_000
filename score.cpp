@@ -18,7 +18,7 @@
 #define SCORE_POSY		(672.0f)			// スコアの座標Y
 #define SCORE_SIZEX		(480.0f)			// スコアのサイズX
 #define SCORE_SIZEY		(32.0f)				// スコアのサイズY
-#define INIT_SCORE		(10000)				// スコアの初期値
+#define INIT_SCORE		(5000)				// スコアの初期値
 
 //*****************************************************************************
 // スコアUI構造体の定義
@@ -111,6 +111,10 @@ void InitScore(void)
 	g_pVtxBuffScore->Unlock();
 
 	SetScore(INIT_SCORE);
+
+#ifdef _DEBUG
+	SetScore(50000);
+#endif
 }
 
 //====================================
@@ -118,8 +122,6 @@ void InitScore(void)
 //====================================
 void UninitScore(void)
 {
-
-	g_nScore = 0;
 
 	// テクスチャの破棄
 	for (int nCntTex = 0; nCntTex < MAX_SCORE_UI; nCntTex++)

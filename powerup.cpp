@@ -15,7 +15,8 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define POWERUP_LOWESTLINE		(2500)		// パワーアップするために必要なスコアの下限
+#define OPTION_LOWESTLINE		(5000)		// パワーアップするために必要なスコアの下限
+#define SPEEDUP_LOWESTLINE		(2500)		// スピードアップするための必要なスコアの下限
 #define OPTION_COST				(1500)		// オプションを生成するために必要なスコア
 #define SPEEDUP_COST			(5)			// 速度を上げるために必要なスコア
 #define SPEED_LIMIT				(1.25f)		// 速度上限
@@ -143,9 +144,9 @@ void UpdatePowerup(void)
 	}
 
 
-	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_LCONTROL) == true || GetKeyboardTrigger(DIK_RCONTROL) == true)
+	if (GetJoypadTrigger(JOYKEY_B) == true || GetKeyboardTrigger(DIK_LCONTROL) == true || GetKeyboardTrigger(DIK_RCONTROL) == true)
 	{
-		if (GetScore() >= POWERUP_LOWESTLINE && nUseOption < MAX_OPTION)
+		if (GetScore() >= OPTION_LOWESTLINE && nUseOption < MAX_OPTION)
 		{
 			SetOption(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y, 0.0f), 64.0f, (pOptionStandardRot->z) * D3DX_PI);
 			SubScore(OPTION_COST);
@@ -154,9 +155,9 @@ void UpdatePowerup(void)
 
 	g_bSpeedUp = false;
 
-	if (GetJoypadPress(JOYKEY_B) == true || GetKeyboardPress(DIK_LSHIFT) == true || GetKeyboardPress(DIK_RSHIFT) == true)
+	if (GetJoypadPress(JOYKEY_X) == true || GetKeyboardPress(DIK_LSHIFT) == true || GetKeyboardPress(DIK_RSHIFT) == true)
 	{
-		if (GetScore() >= POWERUP_LOWESTLINE)
+		if (GetScore() >= SPEEDUP_LOWESTLINE)
 		{
 			PlaySound(SOUND_LABEL_SE_SPEEDUP000);
 			if (pPlayer->fSpeed < SPEED_LIMIT)

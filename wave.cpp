@@ -42,7 +42,7 @@ void InitWave(void)
 
 	g_nTimeLine = 0;
 
-	g_nWave = 0;
+	g_nWave = 3;
 
 	LoadWave(g_nWave);
 }

@@ -195,24 +195,55 @@ void UpdateBullet(void)
 
 			float fRotMove = atan2f(pBullet->move.x, pBullet->move.y);
 
-			if (pBullet->type == BULLETTYPE_PLAYER)
-			{// プレイヤーの弾
+			switch (pBullet->type)
+			{
+			case BULLETTYPE_PLAYER:
 				// エフェクトの設定
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.1f, 1.0f, 0.5f), 40.0f, 50);
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.15f, 0.1f, 0.15f, 0.5f), 30.0f, 50);
 				//SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 2500.0f, 5, fRotMove - D3DX_PI, fRotMove -D3DX_PI);
 				// 敵との当たり判定
 				CollisionEnemy(pBullet);
-			}
-			else if (pBullet->type == BULLETTYPE_ENEMY)
-			{// 敵の弾
+				break;
+
+			case BULLETTYPE_FLAME:
+				// エフェクトの設定
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 30.0f, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				CollisionPlayer(pBullet);
+				break;
+
+			case BULLETTYPE_WATER:
+				// エフェクトの設定
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				CollisionPlayer(pBullet);
+				break;
+
+			case BULLETTYPE_WIND:
 				// エフェクトの設定
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 15.0f, 50);
 				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 30.0f, 50);
 				SetParticle(pBullet->pos, D3DXCOLOR(0.65f, 0.9f, 0.5f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
-				// プレイヤーとの当たり判定
 				CollisionPlayer(pBullet);
-				CollisionOption(pBullet);
+				break;
+
+			case BULLETTYPE_EARTH:
+				// エフェクトの設定
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 30.0f, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				CollisionPlayer(pBullet);
+				break;
+
+			case BULLETTYPE_BOSS:
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f), 15.0f, 50);
+				SetRainbowParticle(pBullet->pos, 3000.0f, 3, D3DX_PI, -D3DX_PI);
+				CollisionPlayer(pBullet);
+				break;
+
 			}
 
 			switch (pBullet->shottype)

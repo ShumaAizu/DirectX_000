@@ -283,7 +283,6 @@ void UpdatePlayer(void)
 		{
 			if ((pOption + nCntOption)->bUse == true)
 			{
-				//SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, (((pOption + nCntOption)->rot.z + pOptionStandardRot->z)* D3DX_PI));
 				SetEnemyBullet((pOption + nCntOption)->pos, 25.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, ((pOption + nCntOption)->rot.z* D3DX_PI + g_player.rot.z));
 
 			}
@@ -484,7 +483,7 @@ void HitPlayer(int nDamage)
 		g_player.nCounterState = 5;
 		SetJoypadVibration(6000, 9000, 30);
 
-		PlaySound(SOUND_LABEL_SE_HIT);
+		PlaySound(SOUND_LABEL_SE_HIT001);
 
 		// í∏ì_ÉJÉâÅ[ÇÃê›íË
 		pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);

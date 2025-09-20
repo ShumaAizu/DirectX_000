@@ -9,6 +9,7 @@
 #include "score.h"
 #include "currentscore.h"
 #include "ranking.h"
+#include "rankingrank.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -17,10 +18,9 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_pTextureCurrentScore[2] = {};				// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9 g_pTextureCurrentScore = NULL;				// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffCurrentScore = NULL;			// 頂点バッファへのポインタ
 D3DXVECTOR3 g_CurrentScore_pos = {};
-D3DXVECTOR3 g_CurrentScoreInfo_pos = {};
 
 //=============================================================================
 //	スコアの初期化処理
@@ -35,10 +35,11 @@ void InitCurrentScore(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
 		"data\\TEXTURE\\number001.png",
-		&g_pTextureCurrentScore[0]);
+		&g_pTextureCurrentScore);
+
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_NUM + 1,
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_NUM,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
@@ -101,13 +102,10 @@ void InitCurrentScore(void)
 void UninitCurrentScore(void)
 {
 	// テクスチャの破棄
-	for (int nCntTex = 0; nCntTex < 2; nCntTex++)
+	if (g_pTextureCurrentScore != NULL)
 	{
-		if (g_pTextureCurrentScore[nCntTex] != NULL)
-		{
-			g_pTextureCurrentScore[nCntTex]->Release();
-			g_pTextureCurrentScore[nCntTex] = NULL;
-		}
+		g_pTextureCurrentScore->Release();
+		g_pTextureCurrentScore = NULL;
 	}
 
 	// 頂点バッファの破棄
@@ -134,17 +132,10 @@ void DrawCurrentScore(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	for (int nCntNumber = 0; nCntNumber < MAX_NUM + 1; nCntNumber++)
+	for (int nCntNumber = 0; nCntNumber < MAX_NUM; nCntNumber++)
 	{
-		if (nCntNumber > MAX_NUM)
-		{
-			pDevice->SetTexture(0, g_pTextureCurrentScore[1]);
-		}
-		else
-		{
-			// テクスチャの設定
-			pDevice->SetTexture(0, g_pTextureCurrentScore[0]);
-		}
+		// テクスチャの設定
+		pDevice->SetTexture(0, g_pTextureCurrentScore);
 
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntNumber * 4, 2);

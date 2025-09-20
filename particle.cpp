@@ -82,8 +82,8 @@ void UpdateParticle(void)
 			{
 				pos = g_aParticle[nCntParticle].pos;
 
-				//pos.x += (float)(rand() % 300) / 100.0f + 1.0f;
-				//pos.y += (float)(rand() % 300) / 100.0f + 1.0f;
+				pos.x += (float)(rand() % 300) / 100.0f + 1.0f;
+				pos.y += (float)(rand() % 300) / 100.0f + 1.0f;
 
 				nStartAngle = (int)(g_aParticle[nCntParticle].fStartAngle * 100) + 1;
 				nEndAngle = (int)(g_aParticle[nCntParticle].fEndAngle * 100);

@@ -38,6 +38,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffRanking = NULL;			// 頂点バッファへのポインタ
 Ranking g_aranking[MAX_RANK] = {};							// ランキング情報
 int g_nRankUpdate = -1;										// 更新ランクNo.
 int g_nRankingFadeCounter = 0;
+bool g_bRanking_Modechange = false;
 
 //====================================
 //	ランキングの初期化処理
@@ -67,6 +68,8 @@ void InitRanking(void)
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffRanking,
 		NULL);
+
+	g_bRanking_Modechange = false;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -138,6 +141,8 @@ void UninitRanking(void)
 	UninitRankingRank();
 
 	UninitCurrentScore();
+
+	SetGameState(GAMESTATE_NORMAL, 60);
 
 	g_nRankUpdate = -1;
 
@@ -223,7 +228,11 @@ void UpdateRanking(void)
 	if ((GetKeyboardTrigger(DIK_RETURN) == true || GetJoypadTrigger(JOYKEY_A) == true) && GetFade() != FADE_OUT)
 	{// 決定キーが押された
 		// モード設定
-		PlaySound(SOUND_LABEL_SE_SELECT000);
+		if (g_bRanking_Modechange == false)
+		{
+			PlaySound(SOUND_LABEL_SE_SELECT000);
+		}
+		g_bRanking_Modechange = true;
 		SetFade(MODE_TITLE, 0.025f, 0.025f);
 	}
 

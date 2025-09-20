@@ -15,11 +15,11 @@
 //*****************************************************************************
 #define MAX_RANK				(5)			// ランク数
 #define MAX_NUM					(5)			// 桁数
-#define RANKING_DIFF			(25.0f)
+#define RANKING_DIFF			(15.0f)
 #define RANKING_SIZEX			(50.0f)
 #define RANKING_SIZEY			(100.0f)
 #define RANKING_POSX			(540.0f)
-#define RANKING_POSY			(50.0f)
+#define RANKING_POSY			(25.0f)
 
 //*****************************************************************************
 // プロトタイプ宣言

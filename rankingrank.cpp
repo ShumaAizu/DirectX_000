@@ -16,11 +16,6 @@
 // マクロ定義
 //*****************************************************************************
 #define RANKINGRANKFADE_TIMER		(300)		// タイマーの秒数
-#define RANKINGRANK_DIFF			(75.0f)
-#define RANKINGRANK_SIZEX			(100.0f)
-#define RANKINGRANK_SIZEY			(50.0f)
-#define RANKINGRANK_POSX			(420.0f)
-#define RANKINGRANK_POSY			(75.0f)
 
 //*****************************************************************************
 // ランキング構造体

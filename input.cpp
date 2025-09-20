@@ -408,6 +408,9 @@ bool GetJoypadStick(JOYSTICK stick)
 		nFrameCounter[stick] = 0;
 		return false;
 	}
+
+	return false;
+
 }
 
 //=============================================================================

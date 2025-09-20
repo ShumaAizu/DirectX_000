@@ -18,6 +18,7 @@
 #include "fade.h"
 #include "option.h"
 #include "camera.h"
+#include "score.h"
 #include <crtdbg.h>
 
 
@@ -598,9 +599,10 @@ void DrawDebug(void)
 	D3DXVECTOR3 *pCamera = GetCamera();
 	int* pNumEnemy = GetNumEnemy();
 	bool bControl = GetJoypadControl();
+	int nScore = GetScore();
 
 	// 文字列を代入
-	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d\nNumEnemy : %d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY, *pNumEnemy);		// FPS表示
+	wsprintf(&aStr[0], "FPS:%d\nLX:%d\nLY:%d\nNumEnemy : %d\nnScore : %d", g_nCountFPS, pjoystate->Gamepad.sThumbLX, pjoystate->Gamepad.sThumbLY, *pNumEnemy, nScore);		// FPS表示
 	sprintf(&aStr1[0], "Playerrot = { %.2f }\nCameraPos = { %.2f, %.2f }\n%d", pPlayer->rot.z, pCamera->x, pCamera->y, bControl);
 
 	// テキストを描画

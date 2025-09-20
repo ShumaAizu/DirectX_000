@@ -243,7 +243,10 @@ void UpdateGame(void)
 			{
 				// モード設定(リザルト画面に移行)
 				g_gameend = GAMEEND_CLEAR;
-				AddScore((GetTime() * 100));
+				if (GetScore() > 0)
+				{
+					AddScore((GetTime() * 100));
+				}
 				SetRanking(GetScore());
 				SetFade(MODE_RANKING, 0.025f, 0.025f);
 			}
