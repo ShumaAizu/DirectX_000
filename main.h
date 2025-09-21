@@ -35,7 +35,7 @@
 #define WARLD_WIDTH			(2000.0f)											// ワールド座標X
 #define WARLD_HEIGHT		(2000.0f)											// ワールド座標Y
 #define FVF_VERTEX_2D		(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット(2D)
-#define SQRTF(X, Y)			(sqrtf(X * X + Y * Y) * 0.5f)						// 対角線の長さ算出
+#define SQRTF(X, Y)			(sqrtf(X * X + Y * Y))								// 対角線の長さ算出
 
 //*****************************************************************************
 // モードの種類

@@ -13,7 +13,7 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define PLAYER_SIZE			(75.0f)		// プレイヤーのサイズ
+#define PLAYER_SIZE			(40.0f)		// プレイヤーのサイズ
 #define PLAYER_SPEED		(0.5f)		// プレイヤーの移動量
 
 //*****************************************************************************0
@@ -54,5 +54,6 @@ void DrawPlayer(void);
 Player *GetPlayer(void);
 void HitPlayer(int nDamage);
 void CollisionPlayertoEnemy(void);
+void CollisionPlayertoBossParts(void);
 
 #endif

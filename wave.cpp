@@ -10,6 +10,7 @@
 #include "input.h"
 #include "game.h"
 #include "enemy.h"
+#include "bossparts.h"
 #include "player.h"
 #include "explosion.h"
 #include "bullet.h"
@@ -42,7 +43,7 @@ void InitWave(void)
 
 	g_nTimeLine = 0;
 
-	g_nWave = 3;
+	g_nWave = 0;
 
 	LoadWave(g_nWave);
 }
@@ -77,11 +78,22 @@ void UpdateWave(void)
 
 	Enemy* pEnemy = GetEnemy();
 
+	BossParts* pBossParts = GetBossParts();
+
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 	{
 		if (pEnemy->nTimeLine == g_nTimeLine)
 		{// タイムラインが重なったら
 			pEnemy->bUse = true;		// 出現
+		}
+	}
+
+	for (int nCntBossParts = 0; nCntBossParts < MAX_BOSSPARTS; nCntBossParts++, pBossParts++)
+	{
+		if (pBossParts->nTimeLine == g_nTimeLine)
+		{// タイムラインが重なっていたら出現
+			PlaySound(SOUND_LABEL_SE_APPEAR000);
+			pBossParts->bUse = true;
 		}
 	}
 
@@ -91,13 +103,23 @@ void UpdateWave(void)
 	{
 		if (*pNumEnemy != 0 && CheckEnemy() == false)
 		{// ウェーブの敵が残っているかつ盤面に敵がいない
-			Enemy* pEnemy = GetEnemy();
+			pEnemy = GetEnemy();
+			pBossParts = GetBossParts();
 			for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 			{
 				if (pEnemy->nTimeLine == g_nTimeLine)
 				{// タイムラインが重なっていたら出現
 					PlaySound(SOUND_LABEL_SE_APPEAR000);
 					pEnemy->bUse = true;
+				}
+			}
+
+			for (int nCntBossParts = 0; nCntBossParts < MAX_BOSSPARTS; nCntBossParts++, pBossParts++)
+			{
+				if (pBossParts->nTimeLine == g_nTimeLine)
+				{// タイムラインが重なっていたら出現
+					PlaySound(SOUND_LABEL_SE_APPEAR000);
+					pBossParts->bUse = true;
 				}
 			}
 		}
@@ -252,6 +274,12 @@ void LoadWave(int nWave)
 				if (strcmp(&aString[0], "ENDSET") == 0)
 				{// ENDSETを読み取った
 					SetEnemy(pos, rot, fRadius, fMove, type, life, timeline, nScore);
+					break;
+				}
+
+				if (strcmp(&aString[0], "BOSSPARTSENDSET") == 0)
+				{// ENDSETを読み取った
+					SetBossParts(pos, rot, fRadius, fMove, type, life, timeline, nScore);
 					break;
 				}
 			}

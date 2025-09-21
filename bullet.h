@@ -30,6 +30,7 @@ typedef enum
 	BULLETTYPE_WIND,
 	BULLETTYPE_EARTH,
 	BULLETTYPE_BOSS,
+	BULLETTYPE_WING,
 	BULLETTYPE_MAX						// 総数
 }BULLETTYPE;
 
@@ -41,6 +42,9 @@ typedef enum
 	SHOTTYPE_NORMAL = 0,			// 通常
 	SHOTTYPE_AIM,					// 自機狙い
 	SHOTTYPE_HOMING,				// 追尾
+	SHOTTYPE_WING,
+	SHOTTYPE_HAND,
+	SHOTTYPE_FLARE,
 	SHOTTYPE_MAX					// 総数
 }SHOTTYPE;
 
@@ -59,6 +63,8 @@ typedef struct
 	int target;							// ホーミングの目標
 	int nLife;							// 寿命
 	int nHomingTimer;					// 切り替え用タイマー
+	int nModeChangeCounter;				// モード切替カウンター
+	bool bModeChange;					// モードが切り替わっているか
 	bool bUse;							// 使用しているかどうか
 }Bullet;
 
@@ -73,6 +79,7 @@ void SetPlayerBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move, int nLife, BULLETTYPE ty
 void SetEnemyBullet(D3DXVECTOR3 pos, float fmove, int nLife, BULLETTYPE type, SHOTTYPE shottype, float fAngleE_P);
 void SetHomingBullet(D3DXVECTOR3 pos, BULLETTYPE type, float fmove, float fAngle, int nLife, int nHomingTimer);
 void CollisionEnemy(Bullet *pBullet);
+void CollisionBossParts(Bullet* pBullet);
 void CollisionPlayer(Bullet* pBullet);
 void CollisionOption(Bullet* pBullet);
 

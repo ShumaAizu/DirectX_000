@@ -169,7 +169,9 @@ void UpdateMarker(void)
 		fLength = SQRTF((pPlayer->pos.x - pEnemy->pos.x), (pPlayer->pos.y - pEnemy->pos.y));
 
 
-		if (fLength > MARKER_DIFF)
+		// Žg—p”»’è
+		if (pEnemy->pos.x - pEnemy->fRadius - pCameraPos->x > SCREEN_WIDTH || pEnemy->pos.x + pEnemy->fRadius - pCameraPos->x < 0 ||
+			pEnemy->pos.y - pEnemy->fRadius - pCameraPos->y > SCREEN_HEIGHT || pEnemy->pos.y + pEnemy->fRadius - pCameraPos->y < 0)
 		{
 			float fAngle = NULL;
 

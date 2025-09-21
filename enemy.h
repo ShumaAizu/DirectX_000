@@ -102,5 +102,6 @@ void ResetEnemy(Enemy* pEnemy);
 void DeleteEnemy(void);
 bool CheckEnemy(void);
 int* GetNumEnemy(void);
+Enemy* GetBOSSEnemy(void);
 
 #endif

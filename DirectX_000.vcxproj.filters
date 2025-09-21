@@ -135,6 +135,9 @@
     <ClCompile Include="currentscore.cpp">
       <Filter>DirectX_000\ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="bossparts.cpp">
+      <Filter>DirectX_000\ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -243,6 +246,9 @@
       <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="currentscore.h">
+      <Filter>DirectX_000\ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="bossparts.h">
       <Filter>DirectX_000\ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

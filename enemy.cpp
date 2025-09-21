@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "enemy.h"
+#include "bossparts.h"
 #include "player.h"
 #include "explosion.h"
 #include "bullet.h"
@@ -38,6 +39,7 @@ void InitEnemy(void)
 	// デバイスの取得p
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	int nCntEnemy = 0;
+	D3DXVECTOR3* pCameraPos = GetCamera();
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
@@ -98,11 +100,26 @@ void InitEnemy(void)
 
 	for (nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++)
 	{
+
+		float fAngle = atan2f(g_aEnemy[nCntEnemy].fRadius, g_aEnemy[nCntEnemy].fRadius);
+		float fRadius = SQRTF(g_aEnemy[nCntEnemy].fRadius, g_aEnemy[nCntEnemy].fRadius);
+
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y - ENEMY_SIZEY, 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x - ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(g_aEnemy[nCntEnemy].pos.x + ENEMY_SIZEX, g_aEnemy[nCntEnemy].pos.y + ENEMY_SIZEY, 0.0f);
+		pVtx[0].pos.x = g_aEnemy[nCntEnemy].pos.x - pCameraPos->x + sinf(fAngle) * fRadius;
+		pVtx[0].pos.y = g_aEnemy[nCntEnemy].pos.y - pCameraPos->y + cosf(fAngle) * fRadius;
+		pVtx[0].pos.z = 0.0f;
+
+		pVtx[1].pos.x = g_aEnemy[nCntEnemy].pos.x - pCameraPos->x + sinf(fAngle) * fRadius;
+		pVtx[1].pos.y = g_aEnemy[nCntEnemy].pos.y - pCameraPos->y + cosf(fAngle) * fRadius;
+		pVtx[1].pos.z = 0.0f;
+
+		pVtx[2].pos.x = g_aEnemy[nCntEnemy].pos.x - pCameraPos->x + sinf(D3DX_PI - fAngle) * fRadius;
+		pVtx[2].pos.y = g_aEnemy[nCntEnemy].pos.y - pCameraPos->y + cosf(D3DX_PI - fAngle) * fRadius;
+		pVtx[2].pos.z = 0.0f;
+
+		pVtx[3].pos.x = g_aEnemy[nCntEnemy].pos.x - pCameraPos->x + sinf(D3DX_PI + fAngle) * fRadius;
+		pVtx[3].pos.y = g_aEnemy[nCntEnemy].pos.y - pCameraPos->y + cosf(D3DX_PI + fAngle) * fRadius;
+		pVtx[3].pos.z = 0.0f;
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -216,11 +233,25 @@ void UpdateEnemy(void)
 				pEnemy->nUseCounter--;
 			}
 
+			float fAngle = atan2f(pEnemy->fRadius, pEnemy->fRadius);
+			float fRadius = SQRTF(pEnemy->fRadius, pEnemy->fRadius);
+
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(pEnemy->pos.x - pEnemy->fRadius - pCameraPos->x, pEnemy->pos.y - pEnemy->fRadius - pCameraPos->y, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(pEnemy->pos.x + pEnemy->fRadius - pCameraPos->x, pEnemy->pos.y - pEnemy->fRadius - pCameraPos->y, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(pEnemy->pos.x - pEnemy->fRadius - pCameraPos->x, pEnemy->pos.y + pEnemy->fRadius - pCameraPos->y, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(pEnemy->pos.x + pEnemy->fRadius - pCameraPos->x, pEnemy->pos.y + pEnemy->fRadius - pCameraPos->y, 0.0f);
+			pVtx[0].pos.x = pEnemy->pos.x - pCameraPos->x + sinf(D3DX_PI + fAngle) * fRadius;
+			pVtx[0].pos.y = pEnemy->pos.y - pCameraPos->y + cosf(D3DX_PI + fAngle) * fRadius;
+			pVtx[0].pos.z = 0.0f;
+
+			pVtx[1].pos.x = pEnemy->pos.x - pCameraPos->x + sinf(D3DX_PI - fAngle) * fRadius;
+			pVtx[1].pos.y = pEnemy->pos.y - pCameraPos->y + cosf(D3DX_PI - fAngle) * fRadius;
+			pVtx[1].pos.z = 0.0f;
+
+			pVtx[2].pos.x = pEnemy->pos.x - pCameraPos->x + sinf(D3DX_PI + D3DX_PI - fAngle) * fRadius;
+			pVtx[2].pos.y = pEnemy->pos.y - pCameraPos->y + cosf(D3DX_PI + D3DX_PI - fAngle) * fRadius;
+			pVtx[2].pos.z = 0.0f;
+
+			pVtx[3].pos.x = pEnemy->pos.x - pCameraPos->x + sinf(D3DX_PI + D3DX_PI + fAngle) * fRadius;
+			pVtx[3].pos.y = pEnemy->pos.y - pCameraPos->y + cosf(D3DX_PI + D3DX_PI + fAngle) * fRadius;
+			pVtx[3].pos.z = 0.0f;
 
 			// ============== //
 			// 敵の状態		  //
@@ -340,6 +371,13 @@ void UpdateEnemy(void)
 				SetRainbowParticle(D3DXVECTOR3(pEnemy->pos.x + pEnemy->fRadius * 0.25f, pEnemy->pos.y - pEnemy->fRadius * 0.5f, 0.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
 				SetRainbowParticle(D3DXVECTOR3(pEnemy->pos.x - pEnemy->fRadius * 0.25f, pEnemy->pos.y + pEnemy->fRadius * 0.5f, 0.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
 				SetRainbowParticle(D3DXVECTOR3(pEnemy->pos.x + pEnemy->fRadius * 0.25f, pEnemy->pos.y + pEnemy->fRadius * 0.5f, 0.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+
+	
+				pEnemy->rot.z -= 0.0075f;
+
+				pEnemy->pos.x += sinf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
+				pEnemy->pos.y += cosf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
+
 				pEnemy->nCounterAttack--;
 				if (pEnemy->nCounterAttack <= 0)
 				{
@@ -468,6 +506,26 @@ Enemy *GetEnemy(void)
 }
 
 //=============================================================================
+//	敵の取得
+//=============================================================================
+Enemy* GetBOSSEnemy(void)
+{
+	Enemy* pEnemy = &g_aEnemy[0];
+
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+	{
+		if (pEnemy->bUse == true)
+		{
+			if (pEnemy->type == ENEMYTYPE_BOSS)
+			{
+				return pEnemy;
+			}
+		}
+	}
+	return NULL;
+}
+
+//=============================================================================
 //	敵のヒット処理
 //=============================================================================
 void HitEnemy(int nCntEnemy, int nDamage)
@@ -526,8 +584,21 @@ void HitEnemy(int nCntEnemy, int nDamage)
 //=============================================================================
 void ResetEnemy(Enemy *pEnemy)
 {
-	// 初期化
+	if (pEnemy->type == ENEMYTYPE_BOSS)
+	{
+		BossParts* pBossParts = GetBossParts();
+		for (int nCntBossParts = 0; nCntBossParts < MAX_BOSSPARTS; nCntBossParts++, pBossParts++)
+		{
+			if (pBossParts->bUse == false)
+			{
+				continue;
+			}
 
+			ResetBossParts(pBossParts);
+
+		}
+	}
+	// 初期化
 	pEnemy->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	pEnemy->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	pEnemy->fRadius = 0.0f;

@@ -15,7 +15,7 @@
 #define TIME_POSX		(580.0f)	// 制限時間の座標X
 #define TIME_POSY		(0.0f)		// 制限時間の座標Y
 #define TIME_SIZEX		(50.0f)		// 制限時間のサイズX
-#define TIME_SIZEY		(100.0f)		// 制限時間のサイズY
+#define TIME_SIZEY		(100.0f)	// 制限時間のサイズY
 #define LIMIT_TIME		(60)		// 制限時間
 
 //*****************************************************************************

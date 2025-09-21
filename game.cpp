@@ -12,6 +12,7 @@
 #include "bullet.h"
 #include "explosion.h"
 #include "enemy.h"
+#include "bossparts.h"
 #include "score.h"
 #include "sound.h"
 #include "fade.h"
@@ -59,14 +60,18 @@ void InitGame(void)
 	// 爆発の初期化処理
 	InitExplosion();
 
+	// ボスパーツの初期化
+	InitBossParts();
+
 	// 敵の初期化処理
 	InitEnemy();
 
-	// ウェーブの初期化処理
-	InitWave();
 
 	// スコアの初期化処理
 	InitScore();
+
+	// ウェーブの初期化処理
+	InitWave();
 
 	// エフェクトの初期化処理
 	InitEffect();
@@ -129,6 +134,9 @@ void UninitGame(void)
 
 	//爆発の終了処理
 	UninitExplosion();
+
+	// ボスパーツの終了処理
+	UninitBossParts();
 
 	// 敵の終了処理
 	UninitEnemy();
@@ -211,6 +219,9 @@ void UpdateGame(void)
 		// 敵の更新処理
 		UpdateEnemy();
 
+		// ボスパーツの更新処理
+		UpdateBossParts();
+
 		// エフェクトの更新処理
 		UpdateEffect();
 
@@ -287,6 +298,9 @@ void DrawGame(void)
 
 	// 敵の描画処理
 	DrawEnemy();
+
+	// ボスパーツの描画処理
+	DrawBossParts();
 
 	// オプションの描画処理
 	DrawOption();

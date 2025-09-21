@@ -11,6 +11,7 @@
 #include "bullet.h"
 #include "explosion.h"
 #include "enemy.h"
+#include "bossparts.h"
 #include "score.h"
 #include "sound.h"
 #include "effect.h"
@@ -209,6 +210,7 @@ void UpdatePlayer(void)
 		//SetRainbowParticle(g_player.pos, 3000.0f, 15);
 		SetParticle(g_player.pos, D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 3000.0f, 30, fRot, fRot);
 		CollisionPlayertoEnemy();
+		CollisionPlayertoBossParts();
 		break;
 
 	case PLAYERSTATE_DAMAGE:
@@ -284,7 +286,6 @@ void UpdatePlayer(void)
 			if ((pOption + nCntOption)->bUse == true)
 			{
 				SetEnemyBullet((pOption + nCntOption)->pos, 25.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, ((pOption + nCntOption)->rot.z* D3DX_PI + g_player.rot.z));
-
 			}
 		}
 	}
@@ -359,7 +360,7 @@ void UpdatePlayer(void)
 	float fJoypadMove;		// ベクトル
 
 	// ベクトルの長さを算出
-	fJoypadMove = sqrtf(fThumbLX * fThumbLX + fThumbLY * fThumbLY);
+	fJoypadMove = sqrtf(fThumbLX * fThumbLX + fThumbLY * fThumbLY) * 0.5f;
 
 	if (fJoypadMove > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
 	{// もしデッドゾーン以内なら
@@ -507,11 +508,34 @@ void CollisionPlayertoEnemy(void)
 	{
 		if (pEnemy->bUse == true)
 		{
-			if (pEnemy->pos.x >= g_player.pos.x - pEnemy->fRadius - (PLAYER_SIZE / 2) &&
-				pEnemy->pos.y >= g_player.pos.y - pEnemy->fRadius - (PLAYER_SIZE / 2) &&
-				pEnemy->pos.x <= g_player.pos.x + pEnemy->fRadius + (PLAYER_SIZE / 2) &&
-				pEnemy->pos.y <= g_player.pos.y + pEnemy->fRadius + (PLAYER_SIZE / 2) &&
+			float fLenght = SQRTF((g_player.pos.x - pEnemy->pos.x), (g_player.pos.y - pEnemy->pos.y));
+
+			if (fLenght <= g_player.fRadius + pEnemy->fRadius &&
 				g_player.state == PLAYERSTATE_NORMAL && pEnemy->state != ENEMYSTATE_APPEAR)
+			{// もし敵とプレイヤーがあたっていたら
+				// ヒット処理
+				HitPlayer(1500);
+			}
+		}
+	}
+}
+
+//=============================================================================
+//	プレイヤーとボス部品との当たり判定
+//=============================================================================
+void CollisionPlayertoBossParts(void)
+{
+	// 敵の情報を取得
+	BossParts* pBossParts = GetBossParts();
+
+	for (int nCntEnemy = 0; nCntEnemy < MAX_BOSSPARTS; nCntEnemy++, pBossParts++)
+	{
+		if (pBossParts->bUse == true)
+		{
+			float fLenght = SQRTF((g_player.pos.x - pBossParts->pos.x), (g_player.pos.y - pBossParts->pos.y));
+
+			if (fLenght <= g_player.fRadius + pBossParts->fRadius &&
+				g_player.state == PLAYERSTATE_NORMAL && pBossParts->state != ENEMYSTATE_APPEAR)
 			{// もし敵とプレイヤーがあたっていたら
 				// ヒット処理
 				HitPlayer(1500);
