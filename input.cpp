@@ -254,7 +254,7 @@ bool GetKeyboardRepeat(int nKey)
    		nFrameCounter[nKey]++;		// フレームカウンターを増やす
 		if (nFrameCounter[nKey] >= 30)
 		{// カウントが一定以上なら
-			if (nFrameCounter[nKey] % 10 == 0)
+			if (nFrameCounter[nKey] % 5 == 0)
 			{// 一定間隔ごとにtrueを返す
 				return true;
 			}

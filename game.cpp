@@ -30,21 +30,35 @@
 #include "marker.h"
 #include "radar.h"
 #include "ranking.h"
+#include "tutorial.h"
+#include "tutorialmenu.h"
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-GAMESTATE g_gameState = GAMESTATE_NONE;		// ゲームの状態
-GAMEEND g_gameend = GAMEEND_MAX;			// 終了条件の情報
-int g_nCounterGameState = 0;				// 状態管理カウンター
-bool g_bGameend = false;					// 終了するかどうか
-bool g_bPause = false;						// ポーズ中かどうか
+GAMESTATE g_gameState = GAMESTATE_TUTORIAL;				// ゲームの状態
+GAMEEND g_gameend = GAMEEND_MAX;						// 終了条件の情報
+GAMEMODE g_gamemode = GAMEMODE_MAX;						// ゲームモードの状態
+TUTORIALEVENT g_tutorialevent = TUTORIALEVENT_MOVE;		// チュートリアルイベントの状態
+int g_nCounterGameState = 0;							// 状態管理カウンター
+bool g_bGameend = false;								// 終了するかどうか
+bool g_bPause = false;									// ポーズ中かどうか
 
 //========================================
 //	ゲーム画面の初期化処理
 //========================================
 void InitGame(void)
 {
+	g_gameState = GAMESTATE_TUTORIAL;
+
+	g_tutorialevent = TUTORIALEVENT_MOVE;
+
+	// 終了条件を初期化
+	g_bGameend = false;
+
+	// ポーズ状態の初期化
+	g_bPause = false;
+
 	// カメラの初期化処理
 	InitCamera();
 
@@ -65,7 +79,6 @@ void InitGame(void)
 
 	// 敵の初期化処理
 	InitEnemy();
-
 
 	// スコアの初期化処理
 	InitScore();
@@ -97,16 +110,14 @@ void InitGame(void)
 	// パワーアップの初期化
 	InitPowerup();
 
+	// 
+	InitTutorial();
+
+	//
+	InitTutorialMenu();
+
 	// レーダーの初期化
 	InitRadar();
-
-	g_gameState = GAMESTATE_NORMAL;
-
-	// 終了条件を初期化
-	g_bGameend = false;
-
-	// ポーズ状態の初期化
-	g_bPause = false;
 
 	// サウンドの再生
 	PlaySound(SOUND_LABEL_BGM_GAME000);
@@ -144,6 +155,7 @@ void UninitGame(void)
 	// スコアの終了処理
 	UninitScore();
 
+	// パワーアップの終了処理
 	UninitPowerup();
 
 	// エフェクトの終了処理
@@ -170,6 +182,12 @@ void UninitGame(void)
 	// ポーズメニューの終了処理
 	UninitPause();
 
+	//
+	UninitTutorial();
+
+	//
+	UninitTutorialMenu();
+
 	// サウンドを止める
 	StopSound();
 }
@@ -179,6 +197,11 @@ void UninitGame(void)
 //========================================
 void UpdateGame(void)
 {
+
+	if (GetJoypadTrigger(JOYKEY_BACK) == true)
+	{
+		g_tutorialevent = TUTORIALEVENT_MOVE;
+	}
 
 	if ((GetKeyboardTrigger(DIK_P) == true || GetJoypadTrigger(JOYKEY_START) == true) && GetFade() != FADE_OUT)
 	{// ポーズキーが押された
@@ -194,7 +217,6 @@ void UpdateGame(void)
 	}
 	else if(GetFade() != FADE_OUT)
 	{
-
 		// スコアの更新処理
 		UpdateScore();
 
@@ -239,6 +261,15 @@ void UpdateGame(void)
 
 		// マーカーの更新処理
 		UpdateMarker();
+
+		if (g_gameState == GAMESTATE_TUTORIAL)
+		{
+			//
+			UpdateTutorial();
+
+			// 
+			UpdateTutorialMenu();
+		}
 
 		// レーダーの更新処理
 		UpdateRadar();
@@ -316,11 +347,17 @@ void DrawGame(void)
 	// 制限時間の描画処理
 	DrawTime();
 
+	if (g_gameState == GAMESTATE_TUTORIAL)
+	{
+		//
+		DrawTutorial();
+
+		// 
+		DrawTutorialMenu();
+	}
+
 	// マーカーの描画処理
 	DrawMarker();
-
-	//// レーダーの描画処理
-	//DrawRadar();
 
 	if (g_bPause == true)
 	{// ポーズ中なら
@@ -340,11 +377,43 @@ void SetGameState(GAMESTATE state, int nCounter)
 }
 
 //========================================
+//	ゲームモードの設定
+//========================================
+void SetGameMode(GAMEMODE gamemode)
+{
+	g_gamemode = gamemode;
+}
+
+//========================================
+//	チュートリアルイベントの設定
+//========================================
+void SetTutorialEvent(TUTORIALEVENT tutorialevent)
+{
+	g_tutorialevent = tutorialevent;
+}
+
+//========================================
 //	ゲームの状態の取得
 //========================================
 GAMESTATE GetGameState(void)
 {
 	return g_gameState;
+}
+
+//========================================
+//	ゲームモードの取得
+//========================================
+GAMEMODE GetGameMode(void)
+{
+	return g_gamemode;
+}
+
+//========================================
+//	チュートリアルイベントの状態の取得
+//========================================
+TUTORIALEVENT GetTutorialEvent(void)
+{
+	return g_tutorialevent;
 }
 
 //========================================

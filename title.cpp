@@ -9,6 +9,7 @@
 #include "title.h"
 #include "titlebg.h"
 #include "titlemenu.h"
+#include "selectlevel.h"
 #include "titlelogo.h"
 #include "effect.h"
 #include "particle.h"
@@ -52,6 +53,9 @@ void InitTitle(void)
 	// タイトルメニューの初期化
 	InitTitleMenu();
 
+	// 難易度選択の初期化処理
+	InitSelectLevel();
+
 	PlaySound(SOUND_LABEL_BGM_TITLE000);
 }
 
@@ -74,6 +78,9 @@ void UninitTitle(void)
 
 	// タイトルメニューの終了処理
 	UninitTitleMenu();
+
+	// 難易度選択の終了処理
+	UninitSelectLevel();
 
 	// サウンドを止める
 	StopSound();
@@ -101,6 +108,10 @@ void DrawTitle(void)
 		// タイトルメニューの描画処理
 		DrawTitleMenu();
 	}
+	else if (g_titleState == TITLESTATE_SELECTLEVEL)
+	{
+		DrawSelectLevel();
+	}
 }
 
 //====================================
@@ -125,6 +136,10 @@ void UpdateTitle(void)
 	{
 		// タイトルメニューの更新処理
 		UpdateTitleMenu();
+	}
+	else if (g_titleState == TITLESTATE_SELECTLEVEL)
+	{
+		UpdateSelectLevel();
 	}
 }
 

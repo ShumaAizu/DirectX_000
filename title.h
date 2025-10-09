@@ -18,6 +18,7 @@ typedef enum
 	TITLESTATE_OP = 0,			// オープニング
 	TITLESTATE_WAIT,			// 待機
 	TITLESTATE_MENU,			// メニュー
+	TITLESTATE_SELECTLEVEL,		// 難易度選択
 	TITLESTATE_MAX
 }TITLESTATE;
 

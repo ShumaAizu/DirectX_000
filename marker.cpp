@@ -166,7 +166,7 @@ void UpdateMarker(void)
 
 		float fLength = NULL;			// ‘ÎŠpü‚Ì’·‚³
 
-		fLength = SQRTF((pPlayer->pos.x - pEnemy->pos.x), (pPlayer->pos.y - pEnemy->pos.y));
+		fLength = SQRTF((pCameraPos->x - pEnemy->pos.x), (pCameraPos->y - pEnemy->pos.y));
 
 
 		// Žg—p”»’è
@@ -175,7 +175,7 @@ void UpdateMarker(void)
 		{
 			float fAngle = NULL;
 
-			fAngle = atan2f(pEnemy->pos.x - pPlayer->pos.x, pEnemy->pos.y - pPlayer->pos.y);
+			fAngle = atan2f(pEnemy->pos.x - pCameraPos->x - SCREEN_WIDTH / 2, pEnemy->pos.y - pCameraPos->y - SCREEN_HEIGHT / 2);
 
 			g_amarker[nCntEnemy].pos.x = (SCREEN_WIDTH / 2) + sinf(fAngle) * MARKER_POS;
 			g_amarker[nCntEnemy].pos.y = (SCREEN_HEIGHT / 2 ) + cosf(fAngle) * MARKER_POS;

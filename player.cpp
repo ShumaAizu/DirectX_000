@@ -21,12 +21,13 @@
 #include <stdlib.h>
 #include "particle.h"
 #include "camera.h"
+#include "game.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define INIT_POSX		(WARLD_WIDTH / 2)			// 初期位置X
-#define INIT_POSY		(WARLD_HEIGHT / 2)			// 初期位置Y
+#define PLAYEREFFECT_RADIUSDECREASE		(1.25f)
+#define PLAYEREFFECT_ALPHADECREASE		(0.025f)
 
 //*****************************************************************************
 // グローバル変数
@@ -65,7 +66,7 @@ void InitPlayer(void)
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
-	g_player.pos = D3DXVECTOR3(INIT_POSX, INIT_POSY, 0.0f);	// 位置
+	g_player.pos = D3DXVECTOR3(PLAYER_INIT_POSX, PLAYER_INIT_POSY, 0.0f);	// 位置
 	g_player.move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 移動量
 	g_player.rot = D3DXVECTOR3(0.0f, 0.0f, 3.14f);			// 向きを初期化する
 	g_player.fSpeed = PLAYER_SPEED;							// 速度を初期化
@@ -170,6 +171,8 @@ void UpdatePlayer(void)
 {
 	float fRot = g_player.rot.z - D3DX_PI;	// プレイヤーの向きの反対
 
+	TUTORIALEVENT tutorialevent = GetTutorialEvent();
+
 	switch (g_player.state)
 	{
 	case PLAYERSTATE_APPEAR:
@@ -208,7 +211,7 @@ void UpdatePlayer(void)
 		}
 
 		//SetRainbowParticle(g_player.pos, 3000.0f, 15);
-		SetParticle(g_player.pos, D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 3000.0f, 30, fRot, fRot);
+		SetParticle(g_player.pos, D3DXCOLOR(0.25f, 0.1f, 0.25f, 1.0f), 3000.0f, PLAYEREFFECT_RADIUSDECREASE, PLAYEREFFECT_ALPHADECREASE, 30, fRot, fRot);
 		CollisionPlayertoEnemy();
 		CollisionPlayertoBossParts();
 		break;
@@ -266,29 +269,32 @@ void UpdatePlayer(void)
 		return;
 	}
 
-	// オプションの標準向き取得
-	D3DXVECTOR3* pOptionStandardRot = GetStandardRot();
+	D3DXVECTOR3* pCameraPos = GetCamera();
 
-	if (GetKeyboardRepeat(DIK_SPACE) == true || GetJoypadRepeat(JOYKEY_A) == true)
-	{//SPACEキーが押された
+	// 頂点座標の更新
+	VERTEX_2D* pVtx;			//頂点情報へのポインタ
 
-		Option* pOption = GetOption();
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffPlayer->Lock(0, 0, (void**)&pVtx, 0);
 
-		PlaySound(SOUND_LABEL_SE_SHOT001);
+	pVtx[0].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[0].pos.z = 0.0f;
 
-		//弾の設定
-		SetHomingBullet(g_player.pos - D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z + (0.15f * D3DX_PI), 250, 15);
-		SetHomingBullet(g_player.pos + D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z - (0.15f * D3DX_PI), 250, 15);
+	pVtx[1].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[1].pos.z = 0.0f;
 
-		//弾の設定
-		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
-		{
-			if ((pOption + nCntOption)->bUse == true)
-			{
-				SetEnemyBullet((pOption + nCntOption)->pos, 25.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, ((pOption + nCntOption)->rot.z* D3DX_PI + g_player.rot.z));
-			}
-		}
-	}
+	pVtx[2].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[2].pos.z = 0.0f;
+
+	pVtx[3].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
+	pVtx[3].pos.z = 0.0f;
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffPlayer->Unlock();
 
 	float fRotMove = 0.0f, fRotDest = 0.0f, fRotDiff = 0.0f;
 
@@ -430,33 +436,34 @@ void UpdatePlayer(void)
 		g_player.pos.y = WARLD_HEIGHT;
 	}
 
-	D3DXVECTOR3* pCameraPos = GetCamera();
+	if (tutorialevent == TUTORIALEVENT_MOVE)
+	{
+		return;
+	}
 
-	// 頂点座標の更新
-	VERTEX_2D* pVtx;			//頂点情報へのポインタ
+	// オプションの標準向き取得
+	D3DXVECTOR3* pOptionStandardRot = GetStandardRot();
 
-	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffPlayer->Lock(0, 0, (void**)&pVtx, 0);
+	if (GetKeyboardRepeat(DIK_SPACE) == true || GetJoypadRepeat(JOYKEY_A) == true)
+	{//SPACEキーが押された
 
-	pVtx[0].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[0].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[0].pos.z = 0.0f;
+		Option* pOption = GetOption();
 
-	pVtx[1].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[1].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[1].pos.z = 0.0f;
+		PlaySound(SOUND_LABEL_SE_SHOT001);
 
-	pVtx[2].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[2].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI - g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[2].pos.z = 0.0f;
+		//弾の設定
+		SetHomingBullet(g_player.pos - D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z + (0.15f * D3DX_PI), 250, 15);
+		SetHomingBullet(g_player.pos + D3DXVECTOR3(20.0f, 0.0f, 0.0f), BULLETTYPE_PLAYER, 15.0f, g_player.rot.z - (0.15f * D3DX_PI), 250, 15);
 
-	pVtx[3].pos.x = g_player.pos.x - pCameraPos->x + sinf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[3].pos.y = g_player.pos.y - pCameraPos->y + cosf(g_player.rot.z + D3DX_PI + g_fAnglePlayer) * g_fLengthPlayer;
-	pVtx[3].pos.z = 0.0f;
-
-	// 頂点バッファをアンロックする
-	g_pVtxBuffPlayer->Unlock();
-
+		//弾の設定
+		for (int nCntOption = 0; nCntOption < MAX_OPTION; nCntOption++)
+		{
+			if ((pOption + nCntOption)->bUse == true)
+			{
+				SetEnemyBullet((pOption + nCntOption)->pos, 15.0f, 50, BULLETTYPE_PLAYER, SHOTTYPE_NORMAL, ((pOption + nCntOption)->rot.z * D3DX_PI + g_player.rot.z));
+			}
+		}
+	}
 }
 
 //=============================================================================

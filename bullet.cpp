@@ -20,6 +20,8 @@
 // マクロ定義
 //*****************************************************************************
 #define MAX_BULLET		(2048)			// 弾の最大数
+#define BULLETEFFECT_RADIUSDECREASE		(1.25f)
+#define BULLETEFFECT_ALPHADECREASE		(0.025f)
 
 //*****************************************************************************
 // ホーミングターゲットの構造体定義
@@ -198,7 +200,7 @@ void UpdateBullet(void)
 		{// 弾が使用されている
 
 			float fLength = NULL;			// 対角線の長さ
-			float fLengthLast = 250.0f;		// 一番短い対角線の長さ
+			float fLengthLast = 1000.0f;	// 一番短い対角線の長さ
 			Enemy* pEnemy = GetEnemy();		// 敵の情報取得
 			Player* pPlayer = GetPlayer();
 			float fRotDest, fRotDiff, fAngle;
@@ -210,8 +212,8 @@ void UpdateBullet(void)
 			{
 			case BULLETTYPE_PLAYER:
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.1f, 1.0f, 0.5f), 40.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.15f, 0.1f, 0.15f, 0.5f), 30.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.1f, 1.0f, 1.0f), 30.0f, 2.25f, BULLETEFFECT_ALPHADECREASE, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 20.0f, 2.0f, BULLETEFFECT_ALPHADECREASE, 50);
 				//SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f), 2500.0f, 5, fRotMove - D3DX_PI, fRotMove -D3DX_PI);
 				// 敵との当たり判定
 				CollisionBossParts(pBullet);
@@ -220,38 +222,38 @@ void UpdateBullet(void)
 
 			case BULLETTYPE_FLAME:
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 15.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 30.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 15.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 30.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 300.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 3, D3DX_PI, -D3DX_PI);
 				CollisionPlayer(pBullet);
 				break;
 
 			case BULLETTYPE_WATER:
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 15.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 30.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 15.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 30.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.8f, 1.0f, 1.0f, 1.0f), 300.0f, 3, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, D3DX_PI, -D3DX_PI);
 				CollisionPlayer(pBullet);
 				break;
 
 			case BULLETTYPE_WIND:
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 15.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 30.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(0.65f, 0.9f, 0.5f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 15.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.8f, 1.0f, 0.4f, 1.0f), 30.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.65f, 0.9f, 0.5f, 1.0f), 300.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 3, D3DX_PI, -D3DX_PI);
 				CollisionPlayer(pBullet);
 				break;
 
 			case BULLETTYPE_EARTH:
 				// エフェクトの設定
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 15.0f, 50);
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 30.0f, 50);
-				SetParticle(pBullet->pos, D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 300.0f, 3, D3DX_PI, -D3DX_PI);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 15.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 30.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
+				SetParticle(pBullet->pos, D3DXCOLOR(0.4f, 0.2f, 0.0f, 1.0f), 300.0f, 3, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, D3DX_PI, -D3DX_PI);
 				CollisionPlayer(pBullet);
 				break;
 
 			case BULLETTYPE_BOSS:
-				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f), 15.0f, 50);
+				SetEffect(pBullet->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f), 15.0f, BULLETEFFECT_RADIUSDECREASE, BULLETEFFECT_ALPHADECREASE, 50);
 				SetRainbowParticle(pBullet->pos, 3000.0f, 3, D3DX_PI, -D3DX_PI);
 				CollisionPlayer(pBullet);
 				break;
@@ -277,7 +279,7 @@ void UpdateBullet(void)
 					}
 				}
 
-				if (fLengthLast >= 300.0f)
+				if (fLengthLast > 1250.0f)
 				{
 					g_aBullet[nCntBullet].shottype = SHOTTYPE_NORMAL;
 				}

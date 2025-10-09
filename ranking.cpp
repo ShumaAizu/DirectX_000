@@ -250,14 +250,17 @@ void ResetRanking(void)
 	int nScoreRank[MAX_RANK] = {};
 
 	FILE* pFile;
-
-	pFile = fopen("data\\Ranking.bin", "rb");
+#ifdef _DEBUG
+	pFile = fopen("data\\Rankingtest.bin", "rb");
+#else
+	pFile = fopen("data\\Ranking001.bin", "rb");
+#endif
 
 	if (pFile == NULL)
 	{
 		for (int nCntRank = 0; nCntRank < MAX_RANK; nCntRank++)
 		{
-			nScoreRank[nCntRank] = (nCntRank + 1) * 5000;
+			nScoreRank[nCntRank] = (nCntRank + 1) * 2500;
 		}
 
 		qsort(&nScoreRank[0], MAX_RANK, sizeof(int), Sort_desc);		// ソート
@@ -309,9 +312,12 @@ void SetRanking(int nScore)
 
 	FILE* pFile;		// ファイルへのポインタ
 
+#ifdef _DEBUG
+	pFile = fopen("data\\Rankingtest.bin", "wb");
+#else
 	// ファイルを書き込みモードで開く
-	pFile = fopen("data\\Ranking.bin", "wb");
-
+	pFile = fopen("data\\Ranking001.bin", "wb");
+#endif
 	if (pFile == NULL)
 	{// ファイルを開けなかったら
 		return;

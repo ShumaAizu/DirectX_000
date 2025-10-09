@@ -1,28 +1,36 @@
 //=============================================================================
 //
-//	パワーアップ処理 [powerup.h]
+//	タイトルメニュー処理 [selectlevel.h]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
 
-#ifndef _POWERUP_H_
-#define _POWERUP_H_
+#ifndef _SELECTLEVEL_H_
+#define _SELECTLEVEL_H_
 
 #include "main.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define OPTION_LOWESTLINE		(5000)		// パワーアップするために必要なスコアの下限
-#define SPEEDUP_LOWESTLINE		(5000)		// スピードアップするための必要なスコアの下限
+
+//*****************************************************************************
+// タイトルメニュー
+//*****************************************************************************
+typedef enum
+{
+	SELECTLEVEL_NORMAL = 0,
+	SELECTLEVEL_HARD,
+	SELECTLEVEL_MAX
+}SELECTLEVEL;
 
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
-void InitPowerup(void);
-void UninitPowerup(void);
-void UpdatePowerup(void);
-void DrawPowerup(void);
-bool GetPowerUp(void);
+void InitSelectLevel(void);
+void UninitSelectLevel(void);
+void UpdateSelectLevel(void);
+void DrawSelectLevel(void);
+void SetSelectLevel(SELECTLEVEL selectlevel);
 
-#endif // _POWERUP_H_
+#endif // _SELECTLEVEL_H_

@@ -16,11 +16,10 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TUTORIALMENU_POSX		(780.0f)
-#define TUTORIALMENU_POSY		(500.0f)
-#define TUTORIALMENU_SIZEX		(500.0f)
-#define TUTORIALMENU_SIZEY		(200.0f)
-#define TUTORIALFADE_TIMER		(300)		// タイマーの秒数
+#define TUTORIALMENU_POSX		(640.0f)
+#define TUTORIALMENU_POSY		(75.0f)
+#define TUTORIALMENU_SIZEX		(300.0f)
+#define TUTORIALMENU_SIZEY		(75.0f)
 
 //*****************************************************************************
 // タイトルメニュー構造体
@@ -35,12 +34,9 @@ typedef struct
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_apTextureTutorialMenu = NULL;					// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTutorialMenu = NULL;				// 頂点バッファへのポインタ
-TutorialMenu g_tutorialMenu = {};									// タイトルメニューの情報
-int g_nTutorialChangeCounter = 0;									// メニュー切り替えカウンター
-bool g_bUpdate_TutorialMenu = true;									// タイトルメニュー操作可能か
-bool g_bTutorialFade = false;
+LPDIRECT3DTEXTURE9 g_apTextureTutorialMenu[TUTORIALEVENT_MAX] = {};		// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTutorialMenu = NULL;					// 頂点バッファへのポインタ
+TutorialMenu g_tutorialMenu = {};										// タイトルメニューの情報
 
 //=============================================================================
 //	タイトルメニューの初期化処理
@@ -58,14 +54,18 @@ void InitTutorialMenu(void)
 		&g_pVtxBuffTutorialMenu,
 		NULL);
 
+	const char* pTutorial[TUTORIALEVENT_MAX] =
+	{
+		"data\\TEXTURE\\Tutorial001.png",
+		"data\\TEXTURE\\Tutorial002.png",
+		"data\\TEXTURE\\Tutorial003.png",
+		"data\\TEXTURE\\Tutorial004.png"
+	};
 
-		D3DXCreateTextureFromFile(pDevice, "data\\TEXTURE\\PRESS.png", &g_apTextureTutorialMenu);
-
-	// 初期化
-	g_tutorialMenu.nDispCounter = 0;
-	g_bUpdate_TutorialMenu = true;
-	g_nTutorialChangeCounter = 60;
-	g_bTutorialFade = false;
+	for (int nCntTutorialEvent = 0; nCntTutorialEvent < TUTORIALEVENT_MAX; nCntTutorialEvent++)
+	{
+		D3DXCreateTextureFromFile(pDevice, pTutorial[nCntTutorialEvent], &g_apTextureTutorialMenu[nCntTutorialEvent]);
+	}
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
@@ -73,13 +73,11 @@ void InitTutorialMenu(void)
 	g_pVtxBuffTutorialMenu->Lock(0, 0, (void * *)&pVtx, 0);
 
 	g_tutorialMenu.pos = D3DXVECTOR3(TUTORIALMENU_POSX, TUTORIALMENU_POSY, 0.0f);
-	g_tutorialMenu.nDispCounter = 4;
-	g_tutorialMenu.bDisp = true;
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(TUTORIALMENU_POSX, TUTORIALMENU_POSY, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(TUTORIALMENU_POSX + TUTORIALMENU_SIZEX, TUTORIALMENU_POSY, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(TUTORIALMENU_POSX, TUTORIALMENU_POSY + TUTORIALMENU_SIZEY, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(TUTORIALMENU_POSX - TUTORIALMENU_SIZEX, TUTORIALMENU_POSY - TUTORIALMENU_SIZEY, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(TUTORIALMENU_POSX + TUTORIALMENU_SIZEX, TUTORIALMENU_POSY - TUTORIALMENU_SIZEY, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(TUTORIALMENU_POSX - TUTORIALMENU_SIZEX, TUTORIALMENU_POSY + TUTORIALMENU_SIZEY, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(TUTORIALMENU_POSX + TUTORIALMENU_SIZEX, TUTORIALMENU_POSY + TUTORIALMENU_SIZEY, 0.0f);
 
 	// 頂点カラーの設定
@@ -110,11 +108,14 @@ void InitTutorialMenu(void)
 //=============================================================================
 void UninitTutorialMenu(void)
 {
-// テクスチャの破棄
-	if (g_apTextureTutorialMenu != NULL)
+	// テクスチャの破棄
+	for (int nCntTutorialEvent = 0; nCntTutorialEvent < TUTORIALEVENT_MAX; nCntTutorialEvent++)
 	{
-		g_apTextureTutorialMenu->Release();
-		g_apTextureTutorialMenu = NULL;
+		if (g_apTextureTutorialMenu[nCntTutorialEvent] != NULL)
+		{
+			g_apTextureTutorialMenu[nCntTutorialEvent]->Release();
+			g_apTextureTutorialMenu[nCntTutorialEvent] = NULL;
+		}
 	}
 
 	// 頂点バッファの破棄
@@ -130,6 +131,8 @@ void UninitTutorialMenu(void)
 //=============================================================================
 void DrawTutorialMenu(void)
 {
+	TUTORIALEVENT tutorialevent = GetTutorialEvent();
+
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
 	// デバイスの取得
@@ -141,16 +144,12 @@ void DrawTutorialMenu(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	
-	if (g_tutorialMenu.bDisp == true)
-	{
-		// テクスチャの設定
-		pDevice->SetTexture(0, g_apTextureTutorialMenu);
+	// テクスチャの設定
+	pDevice->SetTexture(0, g_apTextureTutorialMenu[tutorialevent]);
 
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-	}
-	
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
 }
 
 //=============================================================================
@@ -158,43 +157,5 @@ void DrawTutorialMenu(void)
 //=============================================================================
 void UpdateTutorialMenu(void)
 {
-	g_tutorialMenu.nDispCounter++;
 
-	if (g_tutorialMenu.nDispCounter % 60 == 0 && g_bTutorialFade != true)
-	{
-		g_tutorialMenu.bDisp = g_tutorialMenu.bDisp ? false : true;
-		if (g_tutorialMenu.bDisp == false)
-		{
-			g_tutorialMenu.nDispCounter = 54;
-		}
-		else
-		{
-			g_tutorialMenu.nDispCounter = 0;
-		}
-	}
-
-	if (GetJoypadTrigger(JOYKEY_START) == true || GetKeyboardTrigger(DIK_RETURN) == true)
-	{// 決定キーが押された
-		// モード設定
-		if (g_bTutorialFade != true)
-		{
-			PlaySound(SOUND_LABEL_SE_SELECT000);
-		}
-		g_bTutorialFade = true;
-	}
-
-	if (g_bTutorialFade == true)
-	{
-		g_nTutorialChangeCounter--;
-		g_tutorialMenu.nDispCounter++;
-		if (g_tutorialMenu.nDispCounter % 5 == 0 && g_nTutorialChangeCounter >= 0)
-		{
-			g_tutorialMenu.bDisp = g_tutorialMenu.bDisp ? false : true;
-		}
-
-		if (g_nTutorialChangeCounter <= 0)
-		{
-			SetFade(MODE_GAME, 0.025f, 0.025f);
-		}
-	}
 }

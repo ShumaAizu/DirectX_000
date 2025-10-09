@@ -80,6 +80,11 @@ void UpdateWave(void)
 
 	BossParts* pBossParts = GetBossParts();
 
+	if (GetGameState() == GAMESTATE_TUTORIAL && GetTutorialEvent() != TUTORIALEVENT_ENEMY)
+	{
+		return;
+	}
+
 	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
 	{
 		if (pEnemy->nTimeLine == g_nTimeLine)
@@ -97,10 +102,16 @@ void UpdateWave(void)
 		}
 	}
 
+	if (GetGameState() == GAMESTATE_TUTORIAL)
+	{
+		return;
+	}
+
 	g_nTimeLine++;			// タイムラインを進める
 
 	while (true)
 	{
+
 		if (*pNumEnemy != 0 && CheckEnemy() == false)
 		{// ウェーブの敵が残っているかつ盤面に敵がいない
 			pEnemy = GetEnemy();
@@ -162,15 +173,35 @@ void LoadWave(int nWave)
 
 	int* pNumEnemy = GetNumEnemy();
 
-	const char* pWaveFileName[MAX_WAVE] =
+	const char* pWaveFileNameNormal[MAX_WAVE] =
 	{
-		"data\\WAVE\\wave000.txt",
-		"data\\WAVE\\wave001.txt",
-		"data\\WAVE\\wave002.txt",
-		"data\\WAVE\\wave003.txt"
+		"data\\WAVE\\wave_normal000.txt",
+		"data\\WAVE\\wave_normal001.txt",
+		"data\\WAVE\\wave_normal002.txt",
+		"data\\WAVE\\wave_normal003.txt"
 	};
 
-	pFile = fopen(pWaveFileName[nWave], "r");
+	const char* pWaveFileNameHard[MAX_WAVE] =
+	{
+		"data\\WAVE\\wave_hard000.txt",
+		"data\\WAVE\\wave_hard001.txt",
+		"data\\WAVE\\wave_hard002.txt",
+		"data\\WAVE\\wave_hard003.txt"
+	};
+
+	if (GetGameState() == GAMESTATE_TUTORIAL)
+	{
+		pFile = fopen("data\\WAVE\\wave_tutorial.txt", "r");
+		g_nWave--;
+	}
+	else if (GetGameMode() == GAMEMODE_NORMAL)
+	{
+		pFile = fopen(pWaveFileNameNormal[nWave], "r");
+	}
+	else
+	{
+		pFile = fopen(pWaveFileNameHard[nWave], "r");
+	}
 
 	if (pFile == NULL)
 	{// 開けなかったら

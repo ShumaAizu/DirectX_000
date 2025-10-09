@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "time.h"
+#include "game.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -117,6 +118,11 @@ void UninitTime(void)
 //====================================
 void DrawTime(void)
 {
+	if (GetGameState() == GAMESTATE_TUTORIAL)
+	{
+		return;
+	}
+
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 	int nCntNumber;
 
@@ -144,9 +150,15 @@ void DrawTime(void)
 //====================================
 void UpdateTime(void)
 {
+
 	static int nTimeCounter = 0;
 	int aTexU[NUM_PLACE];		// 各桁の数字を格納
 	int nCntNumber = 0;
+
+	if (GetGameState() == GAMESTATE_TUTORIAL)
+	{
+		return;
+	}
 
 	nTimeCounter++;
 	if (nTimeCounter % 60 == 0)

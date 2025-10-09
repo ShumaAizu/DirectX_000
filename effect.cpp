@@ -21,9 +21,11 @@ typedef struct
 	D3DXVECTOR3 pos;		// 位置
 	D3DXVECTOR3 move;		// 移動量
 	D3DXCOLOR col;			// 色
-	float fRadius;			// 半径
-	int nLife;				// 寿命
 	EFFECTSTATE state;		// 状態
+	float fRadius;			// 半径
+	float fRadiusDecrease;	// 半径を減らす速度
+	float fAlphaDecrease;	// アルファ値を減らす速度
+	int nLife;				// 寿命
 	bool bUse;				// 使用状況
 }Effect;
 
@@ -56,9 +58,11 @@ void InitEffect(void)
 		g_aEffect[nCntEffect].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		g_aEffect[nCntEffect].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.0f);
 		g_aEffect[nCntEffect].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		g_aEffect[nCntEffect].nLife = 30;
-		g_aEffect[nCntEffect].fRadius = 25;
 		g_aEffect[nCntEffect].state = EFFECTSTATE_NORMAL;
+		g_aEffect[nCntEffect].fRadius = 0;
+		g_aEffect[nCntEffect].fRadiusDecrease = 0.25f;
+		g_aEffect[nCntEffect].fAlphaDecrease = 0.025f;
+		g_aEffect[nCntEffect].nLife = 0;
 		g_aEffect[nCntEffect].bUse = false;			// 使用していない状態にする
 	}
 
@@ -182,36 +186,36 @@ void UpdateEffect(void)
 
 	D3DXVECTOR3* pCameraPos = GetCamera();
 
+	Effect* pEffect = &g_aEffect[0];
+
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffEffect->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (nCntEffect = 0; nCntEffect < MAX_EFFECT; nCntEffect++)
+	for (nCntEffect = 0; nCntEffect < MAX_EFFECT; nCntEffect++, pEffect++)
 	{
-		if (g_aEffect[nCntEffect].bUse == true)
+		if (pEffect->bUse == true)
 		{// エフェクトが使用されている
 
-			switch (g_aEffect[nCntEffect].state)
+			switch (pEffect->state)
 			{
 			case EFFECTSTATE_NORMAL:
-				g_aEffect[nCntEffect].fRadius -= 1.25f;	// 大きさを小さくする
-
-
+				pEffect->fRadius -= pEffect->fRadiusDecrease;	// 大きさを小さくする
 				break;
 
 			case EFFECTSTATE_COLLECT:
 
 				Player* pPlayer = GetPlayer();
-				float fAngle = atan2f(pPlayer->pos.x - g_aEffect[nCntEffect].pos.x, pPlayer->pos.y - g_aEffect[nCntEffect].pos.y);
+				float fAngle = atan2f(pPlayer->pos.x - pEffect->pos.x, pPlayer->pos.y - pEffect->pos.y);
 
-				g_aEffect[nCntEffect].move.x = sinf(fAngle) * 20.0f;
-				g_aEffect[nCntEffect].move.y = cosf(fAngle) * 20.0f;
+				pEffect->move.x = sinf(fAngle) * 20.0f;
+				pEffect->move.y = cosf(fAngle) * 20.0f;
 
-				if (g_aEffect[nCntEffect].pos == pPlayer->pos)
+				if (pEffect->pos == pPlayer->pos)
 				{
-					g_aEffect[nCntEffect].bUse = false;
+					pEffect->bUse = false;
 				}
 
 				break;
@@ -219,42 +223,42 @@ void UpdateEffect(void)
 
 			if (g_aEffect[nCntEffect].fRadius <= 0)
 			{// 大きさが0以下になったら
-				g_aEffect[nCntEffect].bUse = false;
+				pEffect->bUse = false;
 			}
 
-			g_aEffect[nCntEffect].col.a -= 0.025f;		// 透明にしていく
+			pEffect->col.a -= pEffect->fAlphaDecrease;		// 透明にしていく
 
-			g_aEffect[nCntEffect].pos += g_aEffect[nCntEffect].move;
+			pEffect->pos += pEffect->move;
 
 			// 頂点座標の設定
-			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[1].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - pCameraPos->y - g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[2].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
-			pVtx[3].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x + g_aEffect[nCntEffect].fRadius,
-				g_aEffect[nCntEffect].pos.y - pCameraPos->y + g_aEffect[nCntEffect].fRadius, 0.0f);
+			pVtx[0].pos = D3DXVECTOR3(pEffect->pos.x - pCameraPos->x - pEffect->fRadius,
+									  pEffect->pos.y - pCameraPos->y - pEffect->fRadius, 0.0f);
+			pVtx[1].pos = D3DXVECTOR3(pEffect->pos.x - pCameraPos->x + pEffect->fRadius,
+									  pEffect->pos.y - pCameraPos->y - pEffect->fRadius, 0.0f);
+			pVtx[2].pos = D3DXVECTOR3(pEffect->pos.x - pCameraPos->x - pEffect->fRadius,
+									  pEffect->pos.y - pCameraPos->y + pEffect->fRadius, 0.0f);
+			pVtx[3].pos = D3DXVECTOR3(pEffect->pos.x - pCameraPos->x + pEffect->fRadius,
+									  pEffect->pos.y - pCameraPos->y + pEffect->fRadius, 0.0f);
 
 			// 頂点カラーの設定
-			pVtx[0].col = g_aEffect[nCntEffect].col;
-			pVtx[1].col = g_aEffect[nCntEffect].col;
-			pVtx[2].col = g_aEffect[nCntEffect].col;
-			pVtx[3].col = g_aEffect[nCntEffect].col;
+			pVtx[0].col = pEffect->col;
+			pVtx[1].col = pEffect->col;
+			pVtx[2].col = pEffect->col;
+			pVtx[3].col = pEffect->col;
 
 			g_aEffect[nCntEffect].nLife--;				// 寿命を削る
 
 			// 使用判定
-			if (g_aEffect[nCntEffect].pos.x - pCameraPos->x > SCREEN_WIDTH || g_aEffect[nCntEffect].pos.x - pCameraPos->x < 0 ||
-				g_aEffect[nCntEffect].pos.y - pCameraPos->y > SCREEN_HEIGHT || g_aEffect[nCntEffect].pos.y - pCameraPos->y < 0)
+			if (pEffect->pos.x - pCameraPos->x > SCREEN_WIDTH || pEffect->pos.x - pCameraPos->x < 0 ||
+				pEffect->pos.y - pCameraPos->y > SCREEN_HEIGHT || pEffect->pos.y - pCameraPos->y < 0)
 			{// もし弾が画面外に出たら
-				g_aEffect[nCntEffect].bUse = false;		// 弾を使用していない状態にする
+				pEffect->bUse = false;		// 弾を使用していない状態にする
 			}
 
-			if (g_aEffect[nCntEffect].nLife < 0)
+			if (pEffect->nLife < 0)
 			{//もし寿命が尽きたら
-				g_aEffect[nCntEffect].bUse = false;		// エフェクトを使用していない状態にする
-				g_aEffect[nCntEffect].move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+				pEffect->bUse = false;		// エフェクトを使用していない状態にする
+				pEffect->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 			}
 			
 		}
@@ -269,7 +273,7 @@ void UpdateEffect(void)
 //====================================
 //	エフェクトの設定
 //====================================
-void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife)
+void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, float fRadiusDecrease, float fAlphaDecrease, int nLife)
 {
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -282,12 +286,14 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, 
 	{
 		if (g_aEffect[nCntEffect].bUse == false)
 		{// エフェクトを使用していない
-			g_aEffect[nCntEffect].pos = pos;			// 受け取った位置を代入
-			g_aEffect[nCntEffect].move = move;			// 受け取った移動量を代入
-			g_aEffect[nCntEffect].col = col;			// 受け取った色を代入
-			g_aEffect[nCntEffect].nLife = nLife;		// 受け取った寿命を代入
-			g_aEffect[nCntEffect].fRadius = fRadius;	// 受け取った半径を代入
+			g_aEffect[nCntEffect].pos = pos;					// 受け取った位置を代入
+			g_aEffect[nCntEffect].move = move;					// 受け取った移動量を代入
+			g_aEffect[nCntEffect].col = col;					// 受け取った色を代入
 			g_aEffect[nCntEffect].state = EFFECTSTATE_NORMAL;
+			g_aEffect[nCntEffect].fRadius = fRadius;			// 受け取った半径を代入
+			g_aEffect[nCntEffect].fRadiusDecrease = fRadiusDecrease;
+			g_aEffect[nCntEffect].fAlphaDecrease = fAlphaDecrease;
+			g_aEffect[nCntEffect].nLife = nLife;				// 受け取った寿命を代入
 
 			// 頂点座標の設定
 			pVtx[0].pos = D3DXVECTOR3(g_aEffect[nCntEffect].pos.x - pCameraPos->x - g_aEffect[nCntEffect].fRadius,

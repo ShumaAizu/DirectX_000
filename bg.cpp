@@ -31,7 +31,7 @@ void InitBg(void)
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\BG000.jpg",
+		"data\\TEXTURE\\BG001.jpg",
 		&g_apTextureBg[0]);
 
 	D3DXCreateTextureFromFile(pDevice,

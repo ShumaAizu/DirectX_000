@@ -296,11 +296,11 @@ void UpdateBossParts(void)
 			case BOSSPARTSTYPE_WING:
 				if (nCntBossParts % 2 == 0)
 				{
-					SetParticle(D3DXVECTOR3(pBossParts->pos.x - 45.0f, pBossParts->pos.y + 5.0f, 0.0f), D3DXCOLOR(0.95f, 1.0f, 0.95f, 1.0f), 2500.0f, 5, (0.15f * D3DX_PI), (-0.85f * D3DX_PI));
+					SetParticle(D3DXVECTOR3(pBossParts->pos.x - 45.0f, pBossParts->pos.y + 5.0f, 0.0f), D3DXCOLOR(0.95f, 1.0f, 0.95f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, (0.15f * D3DX_PI), (-0.85f * D3DX_PI));
 				}
 				else
 				{
-					SetParticle(D3DXVECTOR3(pBossParts->pos.x + 45.0f, pBossParts->pos.y + 5.0f, 0.0f), D3DXCOLOR(0.95f, 1.0f, 0.95f, 1.0f), 2500.0f, 5, (0.85f * D3DX_PI), (-0.15f * D3DX_PI));
+					SetParticle(D3DXVECTOR3(pBossParts->pos.x + 45.0f, pBossParts->pos.y + 5.0f, 0.0f), D3DXCOLOR(0.95f, 1.0f, 0.95f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, (0.85f * D3DX_PI), (-0.15f * D3DX_PI));
 				}
 				pBossParts->nCounterAttack--;
 				if (pBossParts->nCounterAttack <= 0)
@@ -326,7 +326,7 @@ void UpdateBossParts(void)
 				break;
 
 			case BOSSPARTSTYPE_HAND:
-				SetParticle(pBossParts->pos, D3DXCOLOR(0.5f, 0.25f, 0.0f, 1.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+				SetParticle(pBossParts->pos, D3DXCOLOR(0.5f, 0.25f, 0.0f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, D3DX_PI, -D3DX_PI);
 
 				pBossParts->pos.x += sinf(pBossEnemy->rot.z * D3DX_PI) * pBossEnemy->fMove;
 				pBossParts->pos.y += cosf(pBossEnemy->rot.z * D3DX_PI) * pBossEnemy->fMove;
@@ -334,7 +334,7 @@ void UpdateBossParts(void)
 				break;
 
 			case BOSSPARTSTYPE_FLARE:
-				SetParticle(D3DXVECTOR3(pBossParts->pos.x, pBossParts->pos.y - 25.0f, 0.0f), D3DXCOLOR(0.6f, 0.9f, 1.0f, 1.0f), 2500.0f, 5, (0.25f * D3DX_PI), (-0.25f * D3DX_PI));
+				SetParticle(D3DXVECTOR3(pBossParts->pos.x, pBossParts->pos.y - 25.0f, 0.0f), D3DXCOLOR(0.6f, 0.9f, 1.0f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, (0.25f * D3DX_PI), (-0.25f * D3DX_PI));
 
 
 				pBossParts->pos.x += sinf(pBossEnemy->rot.z * D3DX_PI) * pBossEnemy->fMove;

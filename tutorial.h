@@ -26,6 +26,5 @@ void InitTutorial(void);
 void UninitTutorial(void);
 void UpdateTutorial(void);
 void DrawTutorial(void);
-bool GetTutorialFade(void);
 
 #endif

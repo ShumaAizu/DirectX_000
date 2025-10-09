@@ -6,6 +6,7 @@
 //=============================================================================
 
 #include "main.h"
+#include "game.h"
 #include "enemy.h"
 #include "bossparts.h"
 #include "player.h"
@@ -228,7 +229,7 @@ void UpdateEnemy(void)
 
 			// ƒXƒRƒA‚ðŒ¸‚ç‚·
 			pEnemy->nScore--;
-			if (pEnemy->type != ENEMYTYPE_BOSS)
+			if (pEnemy->type != ENEMYTYPE_BOSS && GetGameState() != GAMESTATE_TUTORIAL)
 			{
 				pEnemy->nUseCounter--;
 			}
@@ -300,7 +301,7 @@ void UpdateEnemy(void)
 			switch (pEnemy->type)
 			{
 			case ENEMYTYPE_FLAME:
-				SetParticle(pEnemy->pos, D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+				SetParticle(pEnemy->pos, D3DXCOLOR(1.0f, 0.2f, 0.2f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, D3DX_PI, -D3DX_PI);
 				pEnemy->pos.x += sinf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
 				pEnemy->pos.y += cosf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
 
@@ -315,7 +316,7 @@ void UpdateEnemy(void)
 				break;
 
 			case ENEMYTYPE_WATER:
-				SetParticle(pEnemy->pos, D3DXCOLOR(0.6f, 0.9f, 1.0f, 1.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+				SetParticle(pEnemy->pos, D3DXCOLOR(0.6f, 0.9f, 1.0f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, D3DX_PI, -D3DX_PI);
 				if (pPlayer->state == PLAYERSTATE_NORMAL)
 				{
 					float fRotMove, fRotDest, fRotDiff;
@@ -348,14 +349,14 @@ void UpdateEnemy(void)
 				break;
 
 			case ENEMYTYPE_WIND:
-				SetParticle(pEnemy->pos, D3DXCOLOR(0.8f, 1.0f, 0.7f, 1.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+				SetParticle(pEnemy->pos, D3DXCOLOR(0.8f, 1.0f, 0.7f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, D3DX_PI, -D3DX_PI);
 
 				pEnemy->pos.x += sinf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
 				pEnemy->pos.y += cosf(pEnemy->rot.z * D3DX_PI) * pEnemy->fMove;
 				break;
 
 			case ENEMYTYPE_EARTH:
-				SetParticle(pEnemy->pos, D3DXCOLOR(0.5f, 0.25f, 0.0f, 1.0f), 2500.0f, 5, D3DX_PI, -D3DX_PI);
+				SetParticle(pEnemy->pos, D3DXCOLOR(0.5f, 0.25f, 0.0f, 1.0f), 2500.0f, ENEMYEFFECT_RADIUSDECREASE, ENEMYEFFECT_ALPHADECREASE, 5, D3DX_PI, -D3DX_PI);
 				pEnemy->nCounterAttack--;
 				if (pEnemy->nCounterAttack <= 0)
 				{
@@ -385,38 +386,77 @@ void UpdateEnemy(void)
 
 					PlaySound(SOUND_LABEL_SE_SHOT001);
 					float fAngleE_P;
-					if (bBulletChange == true)
+					if (GetGameMode() == GAMEMODE_HARD)
 					{
-						fAngleE_P = 0.0f;
-						for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+						if (bBulletChange == true)
 						{
-							pEnemy->nCounterAttack = 90;
-							SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
-						}
-						fAngleE_P = 1.0f;
-						for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P -= 0.2f)
-						{
-							pEnemy->nCounterAttack = 90;
-							SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
-						}
+							fAngleE_P = 0.0f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 90;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
+							}
+							fAngleE_P = 1.0f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P -= 0.2f)
+							{
+								pEnemy->nCounterAttack = 90;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
+							}
 
-						bBulletChange = bBulletChange ^ 1;
+							bBulletChange = bBulletChange ^ 1;
+						}
+						else
+						{
+							fAngleE_P = 0.1f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 90;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
+							}
+							fAngleE_P = 0.1f;
+							for (int nCntAngle = 1; nCntAngle < 6; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 90;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
+							}
+							bBulletChange = bBulletChange ^ 1;
+						}
 					}
 					else
 					{
-						fAngleE_P = 0.1f;
-						for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+						if (bBulletChange == true)
 						{
-							pEnemy->nCounterAttack = 90;
-							SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
+							fAngleE_P = 0.0f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 180;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
+							}
+							fAngleE_P = 1.0f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P -= 0.2f)
+							{
+								pEnemy->nCounterAttack = 180;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
+							}
+
+							bBulletChange = bBulletChange ^ 1;
 						}
-						fAngleE_P = 0.1f;
-						for (int nCntAngle = 1; nCntAngle < 6; nCntAngle++, fAngleE_P += 0.2f)
+						else
 						{
-							pEnemy->nCounterAttack = 90;
-							SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
+							fAngleE_P = 0.1f;
+							for (int nCntAngle = 0; nCntAngle < 5; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 180;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, fAngleE_P * D3DX_PI);
+							}
+							fAngleE_P = 0.1f;
+							for (int nCntAngle = 1; nCntAngle < 6; nCntAngle++, fAngleE_P += 0.2f)
+							{
+								pEnemy->nCounterAttack = 180;
+								SetEnemyBullet(pEnemy->pos, 7.5f, 500, BULLETTYPE_BOSS, SHOTTYPE_NORMAL, -fAngleE_P * D3DX_PI);
+							}
+							bBulletChange = bBulletChange ^ 1;
 						}
-						bBulletChange = bBulletChange ^ 1;
 					}
 				}
 				break;

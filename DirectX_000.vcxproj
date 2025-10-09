@@ -172,6 +172,7 @@
     <ClCompile Include="rankingrank.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="score.cpp" />
+    <ClCompile Include="selectlevel.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stock.cpp" />
     <ClCompile Include="time.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="rankingrank.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="score.h" />
+    <ClInclude Include="selectlevel.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="stock.h" />
     <ClInclude Include="time.h" />

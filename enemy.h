@@ -16,6 +16,8 @@
 #define MAX_ENEMY		(128)				// 敵の最大数
 #define ENEMY_SIZEX		(32.0f)				// 敵のサイズX
 #define ENEMY_SIZEY		(32.0f)				// 敵のサイズY
+#define ENEMYEFFECT_RADIUSDECREASE	(1.25f)
+#define ENEMYEFFECT_ALPHADECREASE	(0.025f)
 
 //*****************************************************************************
 // 敵の状態

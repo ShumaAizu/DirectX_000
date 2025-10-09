@@ -1,6 +1,6 @@
 //=============================================================================
 //
-//	タイトルメニュー処理 [titlemenu.cpp]
+//	タイトルメニュー処理 [selectlevel.cpp]
 //	Author : SHUMA AIZU
 // 
 //=============================================================================
@@ -9,6 +9,7 @@
 #include "sound.h"
 #include "title.h"
 #include "titlemenu.h"
+#include "selectlevel.h"
 #include "input.h"
 #include "fade.h"
 #include "game.h"
@@ -16,10 +17,10 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define TITLEMENU_POSX		(440.0f)	// タイトルメニューの位置X
-#define TITLEMENU_POSY		(410.0f)	// タイトルメニューの位置Y
-#define TITLEMENU_SIZEX		(400.0f)	// タイトルメニューのサイズX
-#define TITLEMENU_SIZEY		(100.0f)	// タイトルメニューのサイズY
+#define SELECTLEVEL_POSX		(440.0f)
+#define SELECTLEVEL_POSY		(410.0f)
+#define SELECTLEVEL_SIZEX		(400.0f)
+#define SELECTLEVEL_SIZEY		(100.0f)
 #define TITLEFADE_TIMER		(300)		// タイマーの秒数
 
 //*****************************************************************************
@@ -30,70 +31,68 @@ typedef struct
 	D3DXVECTOR3 pos;		// 位置
 	int nDispCounter;		// カウンター
 	bool bDisp;				// 表示状態
-}TitleMenu;
+}SelectLevel;
 
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-LPDIRECT3DTEXTURE9 g_apTextureTitleMenu[TITLEMENU_MAX] = {};		// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitleMenu = NULL;					// 頂点バッファへのポインタ
-TITLEMENU g_titleMenu = TITLEMENU_GAMESTART;						// タイトルメニューの状態
-TitleMenu g_atitleMenu[TITLEMENU_MAX] = {};							// タイトルメニューの情報
-int g_nMenuChangeCounter = 0;										// メニュー切り替えカウンター
-bool g_bUpdate_TitleMenu = true;									// タイトルメニュー操作可能か
-int g_nTitleFadeCounter = 0;
+LPDIRECT3DTEXTURE9 g_apTextureSelectLevel[SELECTLEVEL_MAX] = {};		// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffSelectLevel = NULL;					// 頂点バッファへのポインタ
+SELECTLEVEL g_SelectLevel = SELECTLEVEL_NORMAL;						// タイトルメニューの状態
+SelectLevel g_aSelectLevel[SELECTLEVEL_MAX] = {};							// タイトルメニューの情報
+int g_nLevelMenuChangeCounter = 0;										// メニュー切り替えカウンター
+bool g_bUpdate_SelectLevel = true;									// タイトルメニュー操作可能か
 
 //=============================================================================
 //	タイトルメニューの初期化処理
 //=============================================================================
-void InitTitleMenu(void)
+void InitSelectLevel(void)
 {
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	const char* pTitleUIPass[TITLEMENU_MAX] =
+	const char* pTitleUIPass[SELECTLEVEL_MAX] =
 	{
-		"data\\TEXTURE\\Title_GAMESTART.png",
-		"data\\TEXTURE\\Title_EXIT.png",
+		"data\\TEXTURE\\Select_NORMAL.png",
+		"data\\TEXTURE\\Select_HARD.png",
 	};
 
 
 	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * TITLEMENU_MAX,
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * SELECTLEVEL_MAX,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_2D,
 		D3DPOOL_MANAGED,
-		&g_pVtxBuffTitleMenu,
+		&g_pVtxBuffSelectLevel,
 		NULL);
 
-	for (int nCntTitleMenuTex = 0; nCntTitleMenuTex < TITLEMENU_MAX; nCntTitleMenuTex++)
+	for (int nCntSelectLevelTex = 0; nCntSelectLevelTex < SELECTLEVEL_MAX; nCntSelectLevelTex++)
 	{
 		// テクスチャの読み込み
-		D3DXCreateTextureFromFile(pDevice, pTitleUIPass[nCntTitleMenuTex], &g_apTextureTitleMenu[nCntTitleMenuTex]);
+		D3DXCreateTextureFromFile(pDevice, pTitleUIPass[nCntSelectLevelTex], &g_apTextureSelectLevel[nCntSelectLevelTex]);
 	}
 
 	// 初期化
-	g_titleMenu = TITLEMENU_GAMESTART;
-	g_bUpdate_TitleMenu = true;
-	g_nMenuChangeCounter = 60;
-	g_nTitleFadeCounter = 0;
+	g_SelectLevel = SELECTLEVEL_NORMAL;
+	g_bUpdate_SelectLevel = true;
+	g_nLevelMenuChangeCounter = 60;
 
 	VERTEX_2D *pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffTitleMenu->Lock(0, 0, (void * *)&pVtx, 0);
+	g_pVtxBuffSelectLevel->Lock(0, 0, (void * *)&pVtx, 0);
 
-	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
+	for (int nCntSelectLevel = 0; nCntSelectLevel < SELECTLEVEL_MAX; nCntSelectLevel++)
 	{
-		g_atitleMenu[nCntTitleMenu].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY, 0.0f);
-		g_atitleMenu[nCntTitleMenu].nDispCounter = 4;
-		g_atitleMenu[nCntTitleMenu].bDisp = true;
+		g_aSelectLevel[nCntSelectLevel].pos = D3DXVECTOR3(SELECTLEVEL_POSX, SELECTLEVEL_POSY, 0.0f);
+		g_aSelectLevel[nCntSelectLevel].nDispCounter = 4;
+		g_aSelectLevel[nCntSelectLevel].bDisp = true;
 
 		// 頂点座標の設定
-		pVtx[0].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
-		pVtx[1].pos = D3DXVECTOR3(TITLEMENU_POSX + TITLEMENU_SIZEX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY), 0.0f);
-		pVtx[2].pos = D3DXVECTOR3(TITLEMENU_POSX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY) + TITLEMENU_SIZEY, 0.0f);
-		pVtx[3].pos = D3DXVECTOR3(TITLEMENU_POSX + TITLEMENU_SIZEX, TITLEMENU_POSY + (nCntTitleMenu * TITLEMENU_SIZEY) + TITLEMENU_SIZEY, 0.0f);
+		pVtx[0].pos = D3DXVECTOR3(SELECTLEVEL_POSX, SELECTLEVEL_POSY + (nCntSelectLevel * SELECTLEVEL_SIZEY), 0.0f);
+		pVtx[1].pos = D3DXVECTOR3(SELECTLEVEL_POSX + SELECTLEVEL_SIZEX, SELECTLEVEL_POSY + (nCntSelectLevel * SELECTLEVEL_SIZEY), 0.0f);
+		pVtx[2].pos = D3DXVECTOR3(SELECTLEVEL_POSX, SELECTLEVEL_POSY + (nCntSelectLevel * SELECTLEVEL_SIZEY) + SELECTLEVEL_SIZEY, 0.0f);
+		pVtx[3].pos = D3DXVECTOR3(SELECTLEVEL_POSX + SELECTLEVEL_SIZEX, SELECTLEVEL_POSY + (nCntSelectLevel * SELECTLEVEL_SIZEY) + SELECTLEVEL_SIZEY, 0.0f);
 
 		// rhwの設定
 		pVtx[0].rhw = 1.0f;
@@ -101,7 +100,7 @@ void InitTitleMenu(void)
 		pVtx[2].rhw = 1.0f;
 		pVtx[3].rhw = 1.0f;
 
-		if (nCntTitleMenu == g_titleMenu)
+		if (nCntSelectLevel == g_SelectLevel)
 		{ // 選択されていれば不透明度を戻す
 			// 頂点カラーの設定
 			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -128,36 +127,36 @@ void InitTitleMenu(void)
 	}
 
 	// 頂点バッファをアンロックする
-	g_pVtxBuffTitleMenu->Unlock();
+	g_pVtxBuffSelectLevel->Unlock();
 }
 
 //=============================================================================
 //	タイトルメニューの終了処理
 //=============================================================================
-void UninitTitleMenu(void)
+void UninitSelectLevel(void)
 {
 	// テクスチャの破棄
-	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
+	for (int nCntSelectLevel = 0; nCntSelectLevel < SELECTLEVEL_MAX; nCntSelectLevel++)
 	{
-		if (g_apTextureTitleMenu[nCntTitleMenu] != NULL)
+		if (g_apTextureSelectLevel[nCntSelectLevel] != NULL)
 		{
-			g_apTextureTitleMenu[nCntTitleMenu]->Release();
-			g_apTextureTitleMenu[nCntTitleMenu] = NULL;
+			g_apTextureSelectLevel[nCntSelectLevel]->Release();
+			g_apTextureSelectLevel[nCntSelectLevel] = NULL;
 		}
 	}
 
 	// 頂点バッファの破棄
-	if (g_pVtxBuffTitleMenu != NULL)
+	if (g_pVtxBuffSelectLevel != NULL)
 	{
-		g_pVtxBuffTitleMenu->Release();
-		g_pVtxBuffTitleMenu = NULL;
+		g_pVtxBuffSelectLevel->Release();
+		g_pVtxBuffSelectLevel = NULL;
 	}
 }
 
 //=============================================================================
 //	タイトルメニューの描画処理
 //=============================================================================
-void DrawTitleMenu(void)
+void DrawSelectLevel(void)
 {
 	LPDIRECT3DDEVICE9 pDevice;				// デバイスへのポインタ
 
@@ -165,21 +164,21 @@ void DrawTitleMenu(void)
 	pDevice = GetDevice();
 
 	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, g_pVtxBuffTitleMenu, 0, sizeof(VERTEX_2D));
+	pDevice->SetStreamSource(0, g_pVtxBuffSelectLevel, 0, sizeof(VERTEX_2D));
 
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
 	
-	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
+	for (int nCntSelectLevel = 0; nCntSelectLevel < SELECTLEVEL_MAX; nCntSelectLevel++)
 	{
-		if (g_atitleMenu[nCntTitleMenu].bDisp == true)
+		if (g_aSelectLevel[nCntSelectLevel].bDisp == true)
 		{
 			// テクスチャの設定
-			pDevice->SetTexture(0, g_apTextureTitleMenu[nCntTitleMenu]);
+			pDevice->SetTexture(0, g_apTextureSelectLevel[nCntSelectLevel]);
 
 			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntTitleMenu * 4, 2);
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntSelectLevel * 4, 2);
 		}
 	}
 	
@@ -188,17 +187,17 @@ void DrawTitleMenu(void)
 //=============================================================================
 //	タイトルメニューの更新処理
 //=============================================================================
-void UpdateTitleMenu(void)
+void UpdateSelectLevel(void)
 {
 	// 頂点座標の更新
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
-	g_pVtxBuffTitleMenu->Lock(0, 0, (void**)&pVtx, 0);
+	g_pVtxBuffSelectLevel->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCntTitleMenu = 0; nCntTitleMenu < TITLEMENU_MAX; nCntTitleMenu++)
+	for (int nCntSelectLevel = 0; nCntSelectLevel < SELECTLEVEL_MAX; nCntSelectLevel++)
 	{
-		if (nCntTitleMenu == g_titleMenu)
+		if (nCntSelectLevel == g_SelectLevel)
 		{ // 選択されていれば不透明度を戻す
 			// 頂点カラーの設定
 			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -218,20 +217,20 @@ void UpdateTitleMenu(void)
 		pVtx += 4;
 	}
 
-	if (g_bUpdate_TitleMenu == true)
+	if (g_bUpdate_SelectLevel == true)
 	{
 		if (GetJoypadRepeat(JOYKEY_UP) == true || GetKeyboardRepeat(DIK_W) == true || GetJoypadStick(JOYSTICK_UP) == true)
 		{ // 上方向キーが押されたら
 			// 現在のモードに合わせて変更
 			PlaySound(SOUND_LABEL_SE_SELECT001);
-			switch (g_titleMenu)
+			switch (g_SelectLevel)
 			{
-			case TITLEMENU_GAMESTART:
-				g_titleMenu = TITLEMENU_EXIT;
+			case SELECTLEVEL_NORMAL:
+				g_SelectLevel = SELECTLEVEL_HARD;
 				break;
 
-			case 	TITLEMENU_EXIT:
-				g_titleMenu = TITLEMENU_GAMESTART;
+			case 	SELECTLEVEL_HARD:
+				g_SelectLevel = SELECTLEVEL_NORMAL;
 				break;
 			}
 		}
@@ -240,14 +239,14 @@ void UpdateTitleMenu(void)
 		{ // 下方向キーが押されたら
 			// 現在のモードに合わせて変更
 			PlaySound(SOUND_LABEL_SE_SELECT001);
-			switch (g_titleMenu)
+			switch (g_SelectLevel)
 			{
-			case TITLEMENU_GAMESTART:
-				g_titleMenu = TITLEMENU_EXIT;
+			case SELECTLEVEL_NORMAL:
+				g_SelectLevel = SELECTLEVEL_HARD;
 				break;
 
-			case TITLEMENU_EXIT:
-				g_titleMenu = TITLEMENU_GAMESTART;
+			case SELECTLEVEL_HARD:
+				g_SelectLevel = SELECTLEVEL_NORMAL;
 				break;
 			}
 		}
@@ -255,58 +254,56 @@ void UpdateTitleMenu(void)
 
 	if ((GetJoypadTrigger(JOYKEY_A) == true || GetKeyboardTrigger(DIK_RETURN) == true) && GetFade() != FADE_OUT)
 	{ // 決定キーが押されたら
-		if (g_bUpdate_TitleMenu == true)
+		if (g_bUpdate_SelectLevel == true)
 		{
 			PlaySound(SOUND_LABEL_SE_SELECT000);
 		}
-		g_bUpdate_TitleMenu = false;
+		g_bUpdate_SelectLevel = false;
 	}
 
-	if (g_bUpdate_TitleMenu == false)
+	if (GetKeyboardTrigger(DIK_Q) == true || GetJoypadTrigger(JOYKEY_B) == true)
 	{
-		g_nMenuChangeCounter--;
-		g_atitleMenu[g_titleMenu].nDispCounter++;
-		if (g_atitleMenu[g_titleMenu].nDispCounter % 5 == 0 && g_nMenuChangeCounter >= 0)
+		SetTitleState(TITLESTATE_MENU);
+		g_SelectLevel = SELECTLEVEL_NORMAL;
+		UninitTitleMenu();
+		InitTitleMenu();
+	}
+
+	if (g_bUpdate_SelectLevel == false)
+	{
+		g_nLevelMenuChangeCounter--;
+		g_aSelectLevel[g_SelectLevel].nDispCounter++;
+		if (g_aSelectLevel[g_SelectLevel].nDispCounter % 5 == 0 && g_nLevelMenuChangeCounter >= 0)
 		{
-			g_atitleMenu[g_titleMenu].bDisp = g_atitleMenu[g_titleMenu].bDisp ? false : true;
+			g_aSelectLevel[g_SelectLevel].bDisp = g_aSelectLevel[g_SelectLevel].bDisp ? false : true;
 		}
 
-		if (g_nMenuChangeCounter <= 0)
+		if (g_nLevelMenuChangeCounter <= 0)
 		{
 			// 現在のモードに合わせて変更
-			switch (g_titleMenu)
+			switch (g_SelectLevel)
 			{
-			case TITLEMENU_GAMESTART:
-				SetTitleState(TITLESTATE_SELECTLEVEL);
+			case SELECTLEVEL_NORMAL:
+				SetGameMode(GAMEMODE_NORMAL);
 				break;
 
-			case TITLEMENU_EXIT:
-				PostQuitMessage(0);
+			case SELECTLEVEL_HARD:
+				SetGameMode(GAMEMODE_HARD);
 				break;
 			}
+
+			SetFade(MODE_GAME, 0.025f, 0.025f);
 		}
 	}
 
-	g_nTitleFadeCounter++;
-
-	if (GetKeyboardAny() == true || GetJoypadAny() == true)
-	{
-		g_nTitleFadeCounter = 0;
-	}
-
-	if (g_nTitleFadeCounter >= TITLEFADE_TIMER && g_bUpdate_TitleMenu != false)
-	{// カウンターが規定値を超えた
-		// モード設定
-		SetFade(MODE_RANKING, 0.025f, 0.025f);
-	}
 	// 頂点バッファをアンロックする
-	g_pVtxBuffTitleMenu->Unlock();
+	g_pVtxBuffSelectLevel->Unlock();
 }
 
 //=============================================================================
 //	タイトルメニューの設定処理
 //=============================================================================
-void SetTitleMenu(TITLEMENU titlemenu)
+void SetSelectLevel(SELECTLEVEL selectlevel)
 {
-	g_titleMenu = titlemenu;
+	g_SelectLevel = selectlevel;
 }

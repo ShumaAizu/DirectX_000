@@ -7,6 +7,8 @@
 
 #include "main.h"
 #include "score.h"
+#include "camera.h"
+#include "enemy.h"
 #include "powerup.h"
 
 //*****************************************************************************
@@ -16,9 +18,9 @@
 #define MAX_SCORE_UI	(SCOREUI_MAX)		// スコアのUIの数
 #define SCORE_POSX		(880.0f)			// スコアの座標X
 #define SCORE_POSY		(672.0f)			// スコアの座標Y
-#define SCORE_SIZEX		(480.0f)			// スコアのサイズX
-#define SCORE_SIZEY		(32.0f)				// スコアのサイズY
-#define INIT_SCORE		(5000)				// スコアの初期値
+#define SCORE_SIZEX		(520.0f)			// スコアのサイズX
+#define SCORE_SIZEY		(48.0f)				// スコアのサイズY
+#define INIT_SCORE		(500)				// スコアの初期値
 
 //*****************************************************************************
 // スコアUI構造体の定義
@@ -113,7 +115,7 @@ void InitScore(void)
 	SetScore(INIT_SCORE);
 
 #ifdef _DEBUG
-	SetScore(50000);
+	//SetScore(50000);
 #endif
 }
 
@@ -183,12 +185,16 @@ void UpdateScore(void)
 
 	bool bPowerUp = GetPowerUp();
 
+	CollisionScoretoEnemy();
+
 	// 頂点バッファをロックし,頂点情報へのポインタを取得
 	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
 
+
+
 	for (int nCntScoreUI = 0; nCntScoreUI < MAX_SCORE_UI; nCntScoreUI++)
 	{
-		if (g_ascoreUI[nCntScoreUI].type != SCOREUI_CURTAIN)
+		if (g_ascoreUI[nCntScoreUI].type != SCOREUI_CURTAIN )
 		{
 			continue;
 		}
@@ -266,4 +272,65 @@ void SubScore(int nValue)
 int GetScore(void)
 {
 	return g_nScore;
+}
+
+//=============================================================================
+//	スコアと敵との当たり判定
+//=============================================================================
+void CollisionScoretoEnemy(void)
+{
+	bool bCheckCollision = {};
+
+	// 敵の情報を取得
+	Enemy* pEnemy = GetEnemy();
+
+	D3DXVECTOR3* pCameraPos = GetCamera();
+
+	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
+
+	// 頂点バッファをロックし,頂点情報へのポインタを取得
+	g_pVtxBuffScore->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int nCntEnemy = 0; nCntEnemy < MAX_ENEMY; nCntEnemy++, pEnemy++)
+	{
+		if (pEnemy->bUse == true)
+		{
+			if (pEnemy->pos.x - pCameraPos->x + pEnemy->fRadius >= SCORE_POSX - SCORE_SIZEX &&
+				pEnemy->pos.x - pCameraPos->x - pEnemy->fRadius <= SCORE_POSX + SCORE_SIZEX &&
+				pEnemy->pos.y - pCameraPos->y + pEnemy->fRadius >= SCORE_POSY - SCORE_SIZEY &&
+				pEnemy->pos.y - pCameraPos->y - pEnemy->fRadius <= SCORE_POSY + SCORE_SIZEY)
+			{// もし敵とプレイヤーがあたっていたら
+				// 半透明にする
+				bCheckCollision = true;
+				for (int nCntScore = 0; nCntScore < MAX_SCORE_UI; nCntScore++)
+				{
+					// 頂点カラーの設定
+					pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+					pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+					pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+					pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+
+					pVtx += 4;			// 頂点データのポインタを4つ分進める
+				}
+				break;
+			}
+		}
+	}
+
+	if (bCheckCollision == false)
+	{
+		for (int nCntScore = 0; nCntScore < MAX_SCORE_UI; nCntScore++)
+		{
+			// 頂点カラーの設定
+			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+			pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+			pVtx += 4;			// 頂点データのポインタを4つ分進める
+		}
+	}
+
+	// 頂点バッファをアンロックする
+	g_pVtxBuffScore->Unlock();
 }

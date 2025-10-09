@@ -11,12 +11,11 @@
 #include "player.h"
 #include "score.h"
 #include "sound.h"
+#include "game.h"
 
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define OPTION_LOWESTLINE		(5000)		// パワーアップするために必要なスコアの下限
-#define SPEEDUP_LOWESTLINE		(2500)		// スピードアップするための必要なスコアの下限
 #define OPTION_COST				(1500)		// オプションを生成するために必要なスコア
 #define SPEEDUP_COST			(5)			// 速度を上げるために必要なスコア
 #define SPEED_LIMIT				(1.25f)		// 速度上限
@@ -41,6 +40,7 @@ bool g_bSpeedUp = false;
 LPDIRECT3DTEXTURE9 g_pTexturePowerUp = NULL;				// パワーアップのテクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPowerUp = NULL;			// パワーアップの頂点バッファへのポインタ
 PowerUp g_powerup[MAX_OPTION] = {};
+bool bPowerUpTutorialState = false;
 
 //====================================
 //	パワーアップの初期化処理
@@ -65,6 +65,8 @@ void InitPowerup(void)
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffPowerUp,
 		NULL);
+
+	bPowerUpTutorialState = false;
 
 	VERTEX_2D* pVtx;			// 頂点情報へのポインタ
 
@@ -135,6 +137,16 @@ void UpdatePowerup(void)
 	Player* pPlayer = GetPlayer();
 	int nUseOption = GetUseOption();
 
+	if (GetTutorialEvent() == TUTORIALEVENT_POWERUP)
+	{
+		bPowerUpTutorialState = true;
+	}
+
+	if (bPowerUpTutorialState == false)
+	{
+		return;
+	}
+
 	for (int nCntPowerUp = 0; nCntPowerUp < MAX_OPTION; nCntPowerUp++)
 	{
 		if (nCntPowerUp < nUseOption)
@@ -144,18 +156,25 @@ void UpdatePowerup(void)
 	}
 
 
-	if (GetJoypadTrigger(JOYKEY_B) == true || GetKeyboardTrigger(DIK_LCONTROL) == true || GetKeyboardTrigger(DIK_RCONTROL) == true)
+	if (GetJoypadTrigger(JOYKEY_X) == true || GetKeyboardTrigger(DIK_LCONTROL) == true || GetKeyboardTrigger(DIK_RCONTROL) == true)
 	{
 		if (GetScore() >= OPTION_LOWESTLINE && nUseOption < MAX_OPTION)
 		{
-			SetOption(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y, 0.0f), 64.0f, (pOptionStandardRot->z) * D3DX_PI);
-			SubScore(OPTION_COST);
+			if (GetGameState() == GAMESTATE_TUTORIAL && nUseOption > 0)
+			{
+
+			}
+			else
+			{
+				SetOption(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y, 0.0f), 64.0f, (pOptionStandardRot->z) * D3DX_PI);
+				SubScore(OPTION_COST);
+			}
 		}
 	}
 
 	g_bSpeedUp = false;
 
-	if (GetJoypadPress(JOYKEY_X) == true || GetKeyboardPress(DIK_LSHIFT) == true || GetKeyboardPress(DIK_RSHIFT) == true)
+	if (GetJoypadPress(JOYKEY_B) == true || GetKeyboardPress(DIK_LSHIFT) == true || GetKeyboardPress(DIK_RSHIFT) == true)
 	{
 		if (GetScore() >= SPEEDUP_LOWESTLINE)
 		{
